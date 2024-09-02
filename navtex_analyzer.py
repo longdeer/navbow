@@ -252,12 +252,7 @@ class Navanalyzer:
 				collection might be used to maintain "BoW".
 			"""
 
-			assert (
-
-				isinstance(BoW, dict) or hasattr(BoW, "inner_shelf")
-			),	"Provided bag of NAVTEX words is invalid"
-
-
+			self.check_BoW(BoW)
 			body_issues = list()
 
 
@@ -391,7 +386,7 @@ class Navanalyzer:
 			of current Navanalyzer implementation.
 		"""
 
-		assert isinstance(BoW, dict) or hasattr(BoW, "inner_shelf"), "Provided bag of NAVTEX words is invalid"
+		self.check_BoW(BoW)
 		counter = 0
 
 
@@ -403,6 +398,20 @@ class Navanalyzer:
 
 
 		return	counter
+
+
+
+
+	def check_BoW(self, BoW :Mapping[str,int]) -> None | AssertionError :
+
+		"""
+			Helper method that verifies "BoW" tries to implement mapping protocol, which means it's
+			just has "keys" as "__getitem__" members implemented. Raises AssertionError	otherwise.
+		"""
+		assert (
+
+				hasattr(BoW, "keys") and hasattr(BoW, "__getitem__")
+			),	"Provided bag of NAVTEX words is invalid"
 
 
 
