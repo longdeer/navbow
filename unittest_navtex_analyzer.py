@@ -503,7 +503,7 @@ class Message1(unittest.TestCase):
 	def test_is_structured(self):
 
 		self.assertIn("is_structured", self.analysis)
-		self.assertTrue(self.analysis["is_structured"])
+		self.assertFalse(self.analysis["is_structured"])
 
 
 
@@ -669,7 +669,7 @@ class Message2(unittest.TestCase):
 	def test_is_structured(self):
 
 		self.assertIn("is_structured", self.analysis)
-		self.assertFalse(self.analysis["is_structured"])
+		self.assertTrue(self.analysis["is_structured"])
 
 
 
@@ -835,7 +835,7 @@ class Message3(unittest.TestCase):
 	def test_is_structured(self):
 
 		self.assertIn("is_structured", self.analysis)
-		self.assertFalse(self.analysis["is_structured"])
+		self.assertTrue(self.analysis["is_structured"])
 
 
 
@@ -975,7 +975,7 @@ class Message4(unittest.TestCase):
 	def test_is_structured(self):
 
 		self.assertIn("is_structured", self.analysis)
-		self.assertTrue(self.analysis["is_structured"])
+		self.assertFalse(self.analysis["is_structured"])
 
 
 
@@ -1455,7 +1455,7 @@ class Message7(unittest.TestCase):
 	def test_is_structured(self):
 
 		self.assertIn("is_structured", self.analysis)
-		self.assertTrue(self.analysis["is_structured"])
+		self.assertFalse(self.analysis["is_structured"])
 
 
 

@@ -163,7 +163,7 @@ class Navanalyzer:
 			""",
 			VERBOSE
 		)
-		self.TEXT_MSG_STRUCT	= pmake(r"^\n(?:[^a-z\n]+\n)+$")
+		self.TEXT_MSG_STRUCT	= pmake(r"^(?:[^a-z\n]+\n)+[^a-z\n]+$")
 		self.NEW_TEXT_WORDS		= set()
 
 
