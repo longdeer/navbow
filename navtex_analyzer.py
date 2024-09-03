@@ -163,7 +163,11 @@ class Navanalyzer:
 			""",
 			VERBOSE
 		)
-		self.TEXT_MSG_STRUCT	= pmake(r"^(?:[^a-z\n]+\n)+[^a-z\n]+$")
+		# Current allowed symbols are cnstructed by the fact the NAVTEX message must be short and
+		# clean, without extra symbols. Most of following symbols were infered imperical way to suit
+		# NAVTEX. This is almost full and enough set for NAVTEX.
+		self.ALLOWED_SYMBOLS	= "=!\"'()+,-./0123456789:;ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		self.TEXT_MSG_STRUCT	= pmake(r"^(?:[ =!\"'\(\)\+,\-\./0-9:;A-Z]+\n)+[ =!\"'\(\)\+,\-\./0-9:;A-Z]+$")
 		self.NEW_TEXT_WORDS		= set()
 
 
@@ -391,7 +395,7 @@ class Navanalyzer:
 
 
 		for word in self.NEW_TEXT_WORDS:
-			if	all( letter in ascii_uppercase for letter in word ):
+			if	all( symbol in self.ALLOWED_SYMBOLS for symbol in word ):
 
 				BoW[word] = 0
 				counter += 1
