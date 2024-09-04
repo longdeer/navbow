@@ -399,8 +399,6 @@ class Navanalyzer:
 
 				BoW[word] = 0
 				counter += 1
-
-
 		return	counter
 
 
@@ -412,6 +410,7 @@ class Navanalyzer:
 			Helper method that verifies "BoW" tries to implement mapping protocol, which means it's
 			just has "keys" as "__getitem__" members implemented. Raises AssertionError	otherwise.
 		"""
+
 		assert (
 
 				hasattr(BoW, "keys") and hasattr(BoW, "__getitem__")
