@@ -1,7 +1,8 @@
+import	re
 import	unittest
+from	datetime		import datetime
 from	string			import ascii_letters
 from	string			import ascii_uppercase
-from	re				import Pattern
 from	navtex_analyzer	import Navanalyzer
 
 
@@ -99,7 +100,7 @@ class Init(unittest.TestCase):
 
 
 	def test_header_pattern(self):
-		self.assertIsInstance(Navanalyzer("K").NAVTEX_MESSAGE_HEADER, Pattern)
+		self.assertIsInstance(Navanalyzer("K").NAVTEX_MESSAGE_HEADER, re.Pattern)
 
 
 
@@ -120,7 +121,91 @@ class Members(unittest.TestCase):
 
 	def setUp(self) : self.test_case = Navanalyzer("K")
 
-	
+
+	# @unittest.skip("under construction")
+	def tests_CDT_processing(self):
+
+		original = self.test_case.NAVTEX_MESSAGE_CDT
+		self.test_case.NAVTEX_MESSAGE_CDT = re.compile(
+			r"(?P<msg_day>[^\s]+) (?P<msg_time>[^\s]+) (?P<msg_month>[^\s]+) (?P<msg_year>[^\s]+)?"
+		)
+
+		one		= [ "2 0420 FEB 21" ]
+		first	= self.test_case.process_CDT(one)
+
+		self.assertIsInstance(first,tuple)
+		self.assertEqual(len(first),2)
+		self.assertIn(f"Incorrect date format in CDT line \"{one[0]}\"", first)
+		self.assertIn(f"CDT line \"{one[0]}\" doesn't match current date", first)
+
+
+		two		= [ "23 420 FEB 21" ]
+		second	= self.test_case.process_CDT(two)
+
+		self.assertIsInstance(second,tuple)
+		self.assertEqual(len(second),2)
+		self.assertIn(f"Incorrect time format in CDT line \"{two[0]}\"", second)
+		self.assertIn(f"CDT line \"{two[0]}\" doesn't match current date", second)
+
+
+		three	= [ "23 0420 FE 21" ]
+		third	= self.test_case.process_CDT(three)
+
+		self.assertIsInstance(third,tuple)
+		self.assertEqual(len(third),2)
+		self.assertIn(f"Incorrect date format in CDT line \"{three[0]}\"", third)
+		self.assertIn(f"CDT line \"{three[0]}\" doesn't match current date", third)
+
+
+		four	= [ "23 0420 FEB 2" ]
+		fourth	= self.test_case.process_CDT(four)
+		self.assertIsInstance(fourth,tuple)
+		self.assertEqual(len(fourth),2)
+		self.assertIn(f"Incorrect year format in CDT line \"{four[0]}\"", fourth)
+		self.assertIn(f"CDT line \"{four[0]}\" doesn't match current date", fourth)
+
+
+		five	= [ "DD HHMM MMM YY" ]
+		fifth	= self.test_case.process_CDT(five)
+		self.assertIsInstance(fifth,tuple)
+		self.assertEqual(len(fifth),4)
+		self.assertIn(f"Incorrect date format in CDT line \"{five[0]}\"", fifth)
+		self.assertIn(f"Incorrect time format in CDT line \"{five[0]}\"", fifth)
+		self.assertIn(f"Incorrect year format in CDT line \"{five[0]}\"", fifth)
+		self.assertIn(f"CDT line \"{five[0]}\" doesn't match current date", fifth)
+
+
+		self.test_case.NAVTEX_MESSAGE_CDT = original
+
+
+		today	= datetime.now().strftime
+
+
+
+		one		= [ f"020420 UTC FEB 21" ]
+		first	= self.test_case.process_CDT(one)
+
+		self.assertIsInstance(first,tuple)
+		self.assertIn(f"CDT line \"{one[0]}\" doesn't match current date", first)
+
+
+		two		= [ f"{today('%d')}{today('%H%M')} UTC {today('%b').upper()} {today('%Y')[2:]}" ]
+		second	= self.test_case.process_CDT(two)
+
+		self.assertIsNone(second)
+
+
+		three	= [ today("%d/%m/%Y") ]
+		third	= self.test_case.process_CDT(three)
+
+
+		self.assertIsInstance(third,tuple)
+		self.assertEqual(len(third),1)
+		self.assertIn("No line looks like message creation timestamp", third)
+
+
+
+
 	def test_invalid_BoW_invoke(self):
 
 		for BoW in ( list(), tuple(), set(), 1, .1, False, True, None, ... ):
@@ -244,7 +329,7 @@ class Patterns(unittest.TestCase):
 		cls.test_case = Navanalyzer("K")
 		cls.valid_headers = "ZCZC KA01", "ZCZC KE15", "ZCZC KB00", "ZCZC KD00",
 		cls.invalid_headers = "ZCZC KA1", "ZCZC K15", "ZCZC KB01", "ZCZC KD10", "ZCZ KD00", "KD10",
-		cls.valid_datetime_forms = "111111 UTC JAN 11", "222222 UTC FEB 22",
+		cls.months = "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
 		cls.numerical_patterns = {
 
 			"num_int":		( "0", "69", "100500" ),
@@ -430,6 +515,61 @@ class Patterns(unittest.TestCase):
 						# wisest way is to strip all dots, whether it's a part of abbreviation or just a
 						# punctuation.
 						self.assertEqual(match.group(group).rstrip("."), pattern.rstrip("."))
+
+
+
+
+	def test_CDT_pattern(self):
+
+		for m in self.months:
+
+			p1	= f"191833 UTC {m}"
+			p2	= f"191833 UTC {m} 07"
+
+			with self.subTest(pattern=p1):
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p1))
+
+			with self.subTest(pattern=p2):
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p2))
+
+
+		for _d in range(32):
+
+			d	= str(_d).zfill(2)
+			p1	= f"{d}2048 UTC OCT"
+			p2	= f"{d}2048 UTC OCT 11"
+
+			with self.subTest(pattern=p1):
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p1))
+
+			with self.subTest(pattern=p2):
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p2))
+
+
+		for _HM in range(2400):
+
+			HM	= str(_HM).zfill(4)
+			p1	= f"01{HM} UTC JAN"
+			p2	= f"01{HM} UTC JAN 22"
+
+			with self.subTest(pattern=p1):
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p1))
+
+			with self.subTest(pattern=p2):
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p2))
+
+
+		for _Y in range(39):
+
+			Y	= str(_Y).zfill(2)
+			p1	= f"312359 UTC DEC"
+			p2	= f"312359 UTC DEC {Y}"
+
+
+			with self.subTest(d=d, HM=HM, m=m, Y=Y):
+
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p1))
+				self.assertIsNotNone(self.test_case.NAVTEX_MESSAGE_CDT.fullmatch(p2))
 
 
 

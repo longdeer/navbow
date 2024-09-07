@@ -28,151 +28,6 @@ class Navanalyzer:
 						checked, might be provided as a string or as an array of characters/strings
 	"""
 
-	def __init__(self, station :str, categories :str | List[str] =None):
-
-		assert (
-
-			isinstance(station, str) and
-			len(station) == 1 and
-			station in ascii_letters and
-			station not in "yYzZ"
-		),	"Provided station identificator is invalid for NAVTEX"
-
-
-		self._station = station.upper()
-
-
-		if	categories is not None:
-			raw_categories = set("".join( str(candidate) for candidate in categories ))
-
-			assert all(
-
-				category in ascii_letters
-				for category in raw_categories
-			),	"Provided messages categories are invalid for NAVTEX"
-
-			self._categories = "".join(raw_categories).upper()
-		else:
-			self._categories = ascii_uppercase
-
-
-
-
-		# The proper header's message id must consist of validated station litera (B1), messages category
-		# litera (B2) and corresponding message number. The following regular expression also considers
-		# header to comply the rule, that VITAL and IMPORTANT only message categories, like "D" or "B"
-		# must only be numbered as "00".
-		self.NAVTEX_MESSAGE_HEADER = pmake(
-
-			rf"""
-				^
-				ZCZC\ (?P<msg_id>{self._station}[DB]00|
-				{self._station}[{self._categories.replace('B','').replace('D','')}]\d\d)
-				$
-			""",
-			VERBOSE
-		)
-
-
-		# The message date and time is just a Pattern to be matched against. Despite the header validation
-		# in mathcing time, the datetime validation will take place later, in message processing time.
-		self.NAVTEX_MESSAGE_CDT = pmake(
-
-			r"""
-				^
-				(?P<msg_day>\d\d)(?P<msg_time>\d{4})\ UTC\ 
-				(?P<msg_month>JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)
-				(?P<msg_year>\ \d\d)?
-				$
-			""",
-			VERBOSE
-		)
-
-
-		# Literals month mapping to digit representation to maintain the default date format
-		self.NAVTEX_MESSAGE_MONTH_MAPPING = {
-		
-			"JAN": "01",
-			"FEB": "02",
-			"MAR": "03",
-			"APR": "04",
-			"MAY": "05",
-			"JUN": "06",
-			"JUL": "07",
-			"AUG": "08",
-			"SEP": "09",
-			"OCT": "10",
-			"NOV": "11",
-			"DEC": "12"
-		}
-
-
-
-
-		# Message body expressions
-		self.TEXT_COORDINATAL	= pmake(
-
-			r"""
-				^
-				[\('"]*
-				(?P<cord_point>\d{2,3}(-\d\d)?(\.\d+)?[SWEN])
-				[\)\.,:;'"]*
-				$
-			""",
-			VERBOSE
-		)
-		self.TEXT_NUMERICAL		= pmake(
-
-			r"""
-				^
-				[\('"]*												# possible punctuation at the start
-				(
-				(?P<num_int>\d+)								|	# intger
-				(?P<num_int_unit>\d+[A-Z]+)						|	# intger unit, name, datetime, e.t.c.
-				(?P<num_dec>\d+[\.,]\d+)						|	# decimal
-				(?P<num_dec_unit>\d+[\.,]\d+[A-Z]+)				|	# decimal unit
-				(?P<num_date>\d\d[-\\\./]\d\d[-\\\./]\d\d\d?\d?)|	# date
-				(?P<num_time>
-					[012]?\d:\d\d(?:UTC)?	|
-					[012]\d{4}(?:UTC)
-				)												|	# time
-				(?P<num_range>\d+([\.,]\d+)?-\d+([\.,]\d+)?)	|	# swell, velocity, e.t.c.
-				(?P<num_item>([A-Z]+[\.\-:]?)?\d+(/[A-Z\d]+)?)	|	# message number, name, e.t.c.
-				(?P<num_phone>\+?[\d\(\)]+)						|	# phone number
-				)
-				[\)\.,:;'"]*										# possible punctuation at the end
-				$
-			""",
-			VERBOSE
-		)
-		self.TEXT_ALPHABETIC	= pmake(
-
-			r"""
-				^
-				(
-				[\('\"]*
-				(?P<alnum_symb_chars>[A-Z\/\\\-\(\d]+)
-				[\)\.,:;'\"=]*
-				$
-				)|(
-				[\('\"]*
-				(?P<alnum_abbr_chars>[A-Z\/\\\-\.\(\d]+?\.?)
-				(?:[\),:;'\"=]*|[\)\"']*\.*)
-				$
-				)
-			""",
-			VERBOSE
-		)
-		# Current allowed symbols are cnstructed by the fact the NAVTEX message must be short and
-		# clean, without extra symbols. Most of following symbols were infered imperical way to suit
-		# NAVTEX. This is almost full and enough set for NAVTEX.
-		self.ALLOWED_SYMBOLS	= "=!\"'()+,-./0123456789:;ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		self.TEXT_MSG_STRUCT	= pmake(r"^(?:[ =!\"'\(\)\+,\-\./0-9:;A-Z]+\n)+[ =!\"'\(\)\+,\-\./0-9:;A-Z]+$")
-		self.NEW_TEXT_WORDS		= set()
-
-
-
-
 	def process_header(self, header_line :str) -> None | str :
 
 			"""
@@ -182,8 +37,9 @@ class Navanalyzer:
 
 			try:
 
-				header = self.NAVTEX_MESSAGE_HEADER.fullmatch(header_line)
-				self.check["header_id"] = header.group("msg_id")
+				header = self.NAVTEX_MESSAGE_HEADER.fullmatch(header_line).group("msg_id")
+				if	not hasattr(self, "check") or not isinstance(self.check, dict) : return header
+				self.check["header_id"] = header
 
 			except	AttributeError: return f"Incorrect NAVTEX header \"{header_line}\""
 
@@ -197,6 +53,7 @@ class Navanalyzer:
 				As CDT line is optional for NAVTEX message, current method will search through
 				all (message body) lines for CDT. If found, will be processed, otherwise corresponding
 				message (about CDT absence) will be produced.
+				If no year specified, it will be obtained by the moment it is invoked.
 			"""
 
 			current = datetime.now()
@@ -207,23 +64,31 @@ class Navanalyzer:
 				CDT = self.NAVTEX_MESSAGE_CDT.fullmatch(line)
 
 				if	hasattr(CDT, "group"):
-
 					d,HM,m,Y = CDT.group("msg_day", "msg_time", "msg_month", "msg_year")
-					Y = "20" +Y if Y and len(Y) == 2 else current.strftime("%Y")
 
 
-					if	not (d and len(d) == 2) or not (m and len(m) == 3): 
-						CDT_issues.append(f"Incorrect date in CDT line \"{line}\"")
-
-					if	(
-							not (HM and len(HM) == 4)	or
-							not (0 <=int(HM[:2]) <=23)	or
-							not (0 <=int(HM[2:]) <=59)
-
-					):	CDT_issues.append(f"Incorrect time in CDT line \"{line}\"")
 
 
-					message_D = f"{d}/{self.NAVTEX_MESSAGE_MONTH_MAPPING[m]}/{Y}"
+					# This flow is extra guard for parsed values. Despite "NAVTEX_MESSAGE_CDT" regex
+					# must return only groups that probably would satisfy datetime pattern, in case
+					# "NAVTEX_MESSAGE_CDT" altered to return something different and strange, the
+					# following checkers will marked it down for user as corresponding messages.
+					if		Y is None :						Y = current.strftime("%Y")
+					elif	len(Y) == 2 and Y.isdigit():	Y = f"20{Y}"
+					else:	CDT_issues.append(f"Incorrect year format in CDT line \"{line}\"")
+
+
+					if	not (d and len(d) == 2 and d.isdigit()) or not (m and len(m) == 3):
+						CDT_issues.append(f"Incorrect date format in CDT line \"{line}\"")
+
+
+					if	not (HM and len(HM) == 4 and HM.isdigit()):
+						CDT_issues.append(f"Incorrect time format in CDT line \"{line}\"")
+
+
+
+
+					message_D = f"{d}/{self.NAVTEX_MESSAGE_MONTH_MAPPING.get(m)}/{Y}"
 					message_T = HM
 
 
@@ -231,9 +96,14 @@ class Navanalyzer:
 						CDT_issues.append(f"CDT line \"{line}\" doesn't match current date")
 
 
+					if	not hasattr(self, "check") or not isinstance(self.check, dict):	break
+
+
 					self.check["message_CDT"] = line, message_D, message_T
 					break
-			else:	CDT_issues.append("No CDT found")
+
+
+			else:	CDT_issues.append("No line looks like message creation timestamp")
 			return	tuple(CDT_issues) or None
 
 
@@ -243,7 +113,7 @@ class Navanalyzer:
 						self,
 						body_lines							:List[str],
 						BoW									:Mapping[str,int]
-					)-> None | Tuple[Tuple[int,int,str,str],]:
+					)-> None | Tuple[Tuple[int,int,str,str]]:
 
 			"""
 				Iterates through every space separated string in NAVTEX message body (all lines of message
@@ -415,6 +285,159 @@ class Navanalyzer:
 
 				hasattr(BoW, "keys") and hasattr(BoW, "__getitem__")
 			),	"Provided bag of NAVTEX words is invalid"
+
+
+
+
+
+
+
+
+	def __init__(self, station :str, categories :str | List[str] =None):
+
+		assert (
+
+			isinstance(station, str) and
+			len(station) == 1 and
+			station in ascii_letters and
+			station not in "yYzZ"
+		),	"Provided station identificator is invalid for NAVTEX"
+
+
+		self._station = station.upper()
+
+
+		if	categories is not None:
+			raw_categories = set("".join( str(candidate) for candidate in categories ))
+
+			assert all(
+
+				category in ascii_letters
+				for category in raw_categories
+			),	"Provided messages categories are invalid for NAVTEX"
+
+			self._categories = "".join(raw_categories).upper()
+		else:
+			self._categories = ascii_uppercase
+
+
+
+
+		# The proper header's message id must consist of validated station litera (B1), messages category
+		# litera (B2) and corresponding message number. The following regular expression also considers
+		# header to comply the rule, that VITAL and IMPORTANT only message categories, like "D" or "B"
+		# must only be numbered as "00".
+		self.NAVTEX_MESSAGE_HEADER = pmake(
+
+			rf"""
+				^
+				ZCZC\ (?P<msg_id>{self._station}[DB]00|
+				{self._station}[{self._categories.replace('B','').replace('D','')}]\d\d)
+				$
+			""",
+			VERBOSE
+		)
+
+
+		# The message date and time is just a Pattern to be matched against. Despite the header validation
+		# in mathcing time, the datetime validation will take place later, in message processing time.
+		self.NAVTEX_MESSAGE_CDT = pmake(
+
+			r"""
+				^
+				(?P<msg_day>\d\d)(?P<msg_time>\d{4})\ UTC\ 
+				(?P<msg_month>JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)
+				(\ (?P<msg_year>\d\d))?
+				$
+			""",
+			VERBOSE
+		)
+
+
+		# Literals month mapping to digit representation to maintain the default date format
+		self.NAVTEX_MESSAGE_MONTH_MAPPING = {
+		
+			"JAN": "01",
+			"FEB": "02",
+			"MAR": "03",
+			"APR": "04",
+			"MAY": "05",
+			"JUN": "06",
+			"JUL": "07",
+			"AUG": "08",
+			"SEP": "09",
+			"OCT": "10",
+			"NOV": "11",
+			"DEC": "12"
+		}
+
+
+
+
+		# Message body expressions
+		self.TEXT_COORDINATAL	= pmake(
+
+			r"""
+				^
+				[\('"]*
+				(?P<cord_point>\d{2,3}(-\d\d)?(\.\d+)?[SWEN])
+				[\)\.,:;'"]*
+				$
+			""",
+			VERBOSE
+		)
+		self.TEXT_NUMERICAL		= pmake(
+
+			r"""
+				^
+				[\('"]*												# possible punctuation at the start
+				(
+				(?P<num_int>\d+)								|	# intger
+				(?P<num_int_unit>\d+[A-Z]+)						|	# intger unit, name, datetime, e.t.c.
+				(?P<num_dec>\d+[\.,]\d+)						|	# decimal
+				(?P<num_dec_unit>\d+[\.,]\d+[A-Z]+)				|	# decimal unit
+				(?P<num_date>\d\d[-\\\./]\d\d[-\\\./]\d\d\d?\d?)|	# date
+				(?P<num_time>
+					[012]?\d:\d\d(?:UTC)?	|
+					[012]\d{4}(?:UTC)
+				)												|	# time
+				(?P<num_range>\d+([\.,]\d+)?-\d+([\.,]\d+)?)	|	# swell, velocity, e.t.c.
+				(?P<num_item>([A-Z]+[\.\-:]?)?\d+(/[A-Z\d]+)?)	|	# message number, name, e.t.c.
+				(?P<num_phone>\+?[\d\(\)]+)						|	# phone number
+				)
+				[\)\.,:;'"]*										# possible punctuation at the end
+				$
+			""",
+			VERBOSE
+		)
+		self.TEXT_ALPHABETIC	= pmake(
+
+			r"""
+				^
+				(
+				[\('\"]*
+				(?P<alnum_symb_chars>[A-Z\/\\\-\(\d]+)
+				[\)\.,:;'\"=]*
+				$
+				)|(
+				[\('\"]*
+				(?P<alnum_abbr_chars>[A-Z\/\\\-\.\(\d]+?\.?)
+				(?:[\),:;'\"=]*|[\)\"']*\.*)
+				$
+				)
+			""",
+			VERBOSE
+		)
+		# Current allowed symbols are cnstructed by the fact the NAVTEX message must be short and
+		# clean, without extra symbols. Most of following symbols were infered imperical way to suit
+		# NAVTEX. This is almost full and enough set for NAVTEX.
+		self.ALLOWED_SYMBOLS	= "=!\"'()+,-./0123456789:;ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		self.TEXT_MSG_STRUCT	= pmake(r"^(?:[ =!\"'\(\)\+,\-\./0-9:;A-Z]+\n)+[ =!\"'\(\)\+,\-\./0-9:;A-Z]+$")
+		self.NEW_TEXT_WORDS		= set()
+
+
+
+
 
 
 
