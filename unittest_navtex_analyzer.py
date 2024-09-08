@@ -609,6 +609,22 @@ class Patterns(unittest.TestCase):
 
 
 
+	def test_struct_patter(self):
+
+		one		= "A\nB C\nDE FG\nH IJK L\nMN OP QR ST"
+		two		= "\nA\nB C\nDE FG\nH IJK L\nMN OP QR ST\n"
+		three	= " A\nB C\nDE FG\nH IJK L\nMN OP QR ST "
+		four	= " A\nB C\nDE FG\n\tH IJK L\nMN OP QR ST "
+		five	= "A\nB C\n\nDE FG\nH IJK L\nMN OP QR ST"
+
+		self.assertTrue(self.test_case.TEXT_MSG_STRUCT.fullmatch(one))
+		self.assertFalse(self.test_case.TEXT_MSG_STRUCT.fullmatch(two))
+		self.assertTrue(self.test_case.TEXT_MSG_STRUCT.fullmatch(three))
+		self.assertFalse(self.test_case.TEXT_MSG_STRUCT.fullmatch(four))
+		self.assertFalse(self.test_case.TEXT_MSG_STRUCT.fullmatch(five))
+
+
+
 
 
 
