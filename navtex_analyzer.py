@@ -300,6 +300,28 @@ class Navanalyzer:
 
 
 
+	def split_lines(self, message :str) -> List[str] :
+
+		"""
+			Process raw message lines and return raw lines.
+		"""
+
+		return	[ line for line in message.split("\n") if line and not line.isspace() ]
+
+
+
+
+	def get_proper_lines(self, raw_lines :List[str]) -> List[str] :
+
+		"""
+			Process raw message lines and return validated message lines
+		"""
+
+		return	[ " ".join(line.split()).upper() for line in raw_lines ]
+
+
+
+
 
 
 
@@ -460,8 +482,8 @@ class Navanalyzer:
 					separator				:str				="\n"
 				)-> Dict[str,bool|str|Tuple]:
 
-		current_lines	= [ L for L in message.split("\n") if L and not L.isspace() ]
-		proper_lines	= [ " ".join(L.split()).upper() for L in current_lines ]
+		current_lines	= self.split_lines(message)
+		proper_lines	= self.get_proper_lines(current_lines)
 
 
 		assert 1 <len(proper_lines), "NAVTEX message length less than 2 lines"

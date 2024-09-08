@@ -122,7 +122,42 @@ class Members(unittest.TestCase):
 	def setUp(self) : self.test_case = Navanalyzer("K")
 
 
-	# @unittest.skip("under construction")
+	def test_lines_processing(self):
+
+		one				= "1 2 3\n4 5 6\n7 8 9"
+		first			= self.test_case.split_lines(one)
+		proper_first	= self.test_case.get_proper_lines(first)
+
+		self.assertEqual(first, [ "1 2 3","4 5 6","7 8 9" ])
+		self.assertEqual(proper_first, [ "1 2 3","4 5 6","7 8 9" ])
+
+
+		two				= "1 2 3\n4 5 6\n7 8 9\n"
+		second			= self.test_case.split_lines(two)
+		proper_second	= self.test_case.get_proper_lines(second)
+
+		self.assertEqual(second, [ "1 2 3","4 5 6","7 8 9" ])
+		self.assertEqual(proper_second, [ "1 2 3","4 5 6","7 8 9" ])
+
+
+		three			= "1  2 3\n 4 5 6\n\t7 8 9"
+		third			= self.test_case.split_lines(three)
+		proper_third	= self.test_case.get_proper_lines(third)
+
+		self.assertEqual(third, [ "1  2 3"," 4 5 6","\t7 8 9" ])
+		self.assertEqual(proper_third, [ "1 2 3","4 5 6","7 8 9" ])
+
+
+		four			= "1  2 3\n\n 4 5 6\n\n\t7 8 9"
+		fourth			= self.test_case.split_lines(four)
+		proper_fourth	= self.test_case.get_proper_lines(fourth)
+
+		self.assertEqual(fourth, [ "1  2 3"," 4 5 6","\t7 8 9" ])
+		self.assertEqual(proper_fourth, [ "1 2 3","4 5 6","7 8 9" ])
+
+
+
+
 	def tests_CDT_processing(self):
 
 		original = self.test_case.NAVTEX_MESSAGE_CDT
