@@ -109,6 +109,10 @@ class Navanalyzer:
 
 
 
+
+
+
+
 	def process_body(
 						self,
 						body_lines							:List[str],
@@ -240,6 +244,10 @@ class Navanalyzer:
 
 
 
+
+
+
+
 	def process_EOS(self, EOS_line :str) -> None | str :
 
 		"""
@@ -269,6 +277,9 @@ class Navanalyzer:
 
 				BoW[word] = 0
 				counter += 1
+
+
+		self.NEW_TEXT_WORDS = set()
 		return	counter
 
 
