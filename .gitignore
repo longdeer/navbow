@@ -1,2 +1,3 @@
 __pycache__
-navtexbowa.sublime-*
+*.sublime-project
+*.sublime-workspace
