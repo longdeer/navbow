@@ -1,5 +1,6 @@
-from typing import List
-from typing import Dict
+from pathlib	import Path
+from typing		import List
+from typing		import Dict
 
 
 
@@ -8,7 +9,7 @@ from typing import Dict
 
 
 
-def byte_scan(path :str) -> str | None :
+def byte_scan(path :str | Path) -> str | None :
 
 	"""
 		Reads "path" file in byte mode for validation.
@@ -35,7 +36,7 @@ def byte_scan(path :str) -> str | None :
 
 
 
-def sanit_scan(path :str) -> Dict[str,int|str|List[str]] :
+def sanit_scan(path :str | Path) -> Dict[str,int|str|List[str]] :
 
 	"""
 		Scans message in utf-8 mode (after byte_scan) and disassembles it to:
