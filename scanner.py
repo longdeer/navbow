@@ -35,26 +35,27 @@ def byte_scan(path :str) -> str | None :
 
 
 
-def state_scan(path :str) -> Dict[str,int|str|List[str]] :
+def sanit_scan(path :str) -> Dict[str,int|str|List[str]] :
 
 	"""
 		Scans message in utf-8 mode (after byte_scan) and disassembles it to:
-			- raw_lines, unmodified strings obtained after NL split;
-			- hot_lines, fully sanitized proper strings;
+			- raw_lines, unmodified strings obtained after split to lines;
+			- air_lines, fully sanitized proper strings of splitted lines;
 			- chunks, set of strings (every word);
-			- symbols, all non-whitespace symbols.
-		Also maintains a "state" integer that is:
+			- symbols, all non-whitespace symbols in the message.
+		Also maintains a "sanit" state integer that is:
 			- zero at start;
-			- has first bit set for any proper "hot_line";
-			- has second bit set for any proper "hot_line" and corresponding "raw" line inequality.
+			- has first bit set if any proper line "proper" encountered;
+			- has second bit set if any proper line "proper" and corresponding "raw" line
+			inequality encountered.
 		Returns the dictionary of mentioned key-value pairs, or None if any Exceptions caught.
 	"""
 
-	state		= 0
+	sanit		= 0
 	chunks		= set()
 	symbols		= set()
 	raw_lines	= list()
-	hot_lines	= list()
+	air_lines	= list()
 
 	try:
 
@@ -63,30 +64,30 @@ def state_scan(path :str) -> Dict[str,int|str|List[str]] :
 
 				raw = line.rstrip("\n")
 				raw_lines.append(raw)
-				hot = list()
+				air = list()
 
 				if	(split := raw.split()):
 					for word in split:
 
 						current = word.upper()
-						hot.append(current)
+						air.append(current)
 						chunks.add(current)
 
 						for char in current : symbols.add(char)
 
-					hot_line = " ".join(hot)
-					hot_lines.append(hot_line)
-					state |= (hot_line != raw) <<1
-					state |= 1
+					proper = " ".join(air)
+					air_lines.append(proper)
+					sanit |= (proper != raw) <<1
+					sanit |= 1
 
 	except:	return
 	else:	return {
 
 		"raw_lines":	raw_lines,
-		"hot_lines":	hot_lines,
+		"air_lines":	air_lines,
 		"symbols":		symbols,
 		"chunks":		chunks,
-		"state":		state,
+		"sanit":		sanit,
 	}
 
 
