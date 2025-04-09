@@ -1,4 +1,6 @@
 import	unittest
+from	NavtexBoWAnalyzer.header import B1
+from	NavtexBoWAnalyzer.header import B2
 from	NavtexBoWAnalyzer.header import G_NAVTEX_MESSAGE_HEADER
 
 
@@ -10,12 +12,9 @@ from	NavtexBoWAnalyzer.header import G_NAVTEX_MESSAGE_HEADER
 
 class HeaderCase(unittest.TestCase):
 
-	B2 = "ABCDEFGHIJKLVWXYZ"
-	B1 = "ABCDEFGHIJKLMNOPQRSTUVWX"
-
 	def test_valid_station_A(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -33,7 +32,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_B(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -51,7 +50,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_C(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -69,7 +68,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_D(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -87,7 +86,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_E(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -105,7 +104,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_F(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -123,7 +122,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_G(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -141,7 +140,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_H(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -159,7 +158,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_I(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -177,7 +176,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_J(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -195,7 +194,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_K(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -213,7 +212,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_L(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -231,7 +230,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_M(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -249,7 +248,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_N(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -267,7 +266,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_O(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -285,7 +284,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_P(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -303,7 +302,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_Q(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -321,7 +320,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_R(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -339,7 +338,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_S(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -357,7 +356,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_T(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -375,7 +374,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_U(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -393,7 +392,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_V(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -411,7 +410,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_W(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -429,7 +428,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_valid_station_X(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -450,7 +449,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_invalid_station_Y(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -462,7 +461,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_invalid_station_Z(self):
 
-		for subj in self.B2:
+		for subj in B2:
 			for i in range(10):
 				for j in range(10):
 
@@ -477,7 +476,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_M(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -489,7 +488,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_N(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -501,7 +500,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_O(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -513,7 +512,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_P(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -525,7 +524,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_Q(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -537,7 +536,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_R(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -549,7 +548,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_S(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -561,7 +560,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_T(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -573,7 +572,7 @@ class HeaderCase(unittest.TestCase):
 
 	def test_unused_subject_U(self):
 
-		for station in self.B1:
+		for station in B1:
 			for i in range(10):
 				for j in range(10):
 
@@ -588,8 +587,8 @@ class HeaderCase(unittest.TestCase):
 
 	def test_invalid_numbering(self):
 
-		for station in self.B1:
-			for sub in self.B2:
+		for station in B1:
+			for sub in B2:
 				for i in range(10):
 					for B34 in f"{i}{station}", f"{station}{i}":
 

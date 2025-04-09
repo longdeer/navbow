@@ -80,6 +80,8 @@ import re
 
 
 G_NAVTEX_MESSAGE_HEADER = re.compile(r"^ZCZC (?P<tcB1>[A-X])(?P<tcB2>[A-LV-Z])(?P<tcB34>\d\d)$")
+B1 = "ABCDEFGHIJKLMNOPQRSTUVWX"
+B2 = "ABCDEFGHIJKLVWXYZ"
 
 
 
