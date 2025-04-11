@@ -43,8 +43,10 @@ if	__name__ == "__main__":
 
 	FOLDER	= ""
 	SYMBOLS	= set()
+	ARCHIVE = dict()
 	WORDS	= defaultdict(int)
 	BROKEN	= list()
+	ERROR	= list()
 
 	for branch,folders,files in fstree(FOLDER):
 		for file in files:
@@ -52,10 +54,16 @@ if	__name__ == "__main__":
 			if (broken := byte_scan(file)) is not None : BROKEN.append(broken)
 			else:
 
+				name = file.name
 				current  = sanit_scan(file)
-				SYMBOLS |= current["symbols"]
+				message = current["air_lines"]
 
-				for chunk in current["chunks"]: WORDS[chunk] += 1
+				if "*" in current["symbols"]: ERROR.append(message)
+				elif(ARCHIVE.get(name) != message):
+
+					ARCHIVE[name] = message
+					SYMBOLS |= current["symbols"]
+					for chunk in current["chunks"]: WORDS[chunk] += 1
 
 			print(f"processed {file}")
 
@@ -64,7 +72,11 @@ if	__name__ == "__main__":
 
 		print(f"{sorted(SYMBOLS)}", file=dump)
 		print(file=dump)
-		for broken in BROKEN : print(broken, file=dump)
+		print(f"brokens:", file=dump)
+		for broken in BROKEN : print("\n".join(broken), file=dump)
+		print(file=dump)
+		print(f"errors:", file=dump)
+		for error in ERROR : print("\n".join(error), file=dump)
 		print(file=dump)
 		for word,f in sorted(WORDS.items(), key=lambda E : E[1], reverse=True):
 			print(f"{word}: {f}", file=dump)
