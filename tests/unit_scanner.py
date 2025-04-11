@@ -33,8 +33,6 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_invalid(self):	self.assertIsNotNone(byte_scan(os.path.join(self.wd, "WZ29")))
 	def test_byte_scan_valid(self):		self.assertIsNone(byte_scan(os.path.join(self.wd, "KA60")))
-
-
 	def test_statescan_JA94(self):
 
 		self.assertEqual(
