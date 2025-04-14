@@ -67,7 +67,7 @@ G_COORDINATE = re.compile(
 				E
 			)
 		)
-		[,.:]?										# possible syntax ending
+		[\.,:]?										# possible syntax ending
 	""",
 	re.VERBOSE
 )
