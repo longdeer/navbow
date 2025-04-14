@@ -30,8 +30,12 @@ class Navanalyzer:
 
 	def __init__(self, station :str):
 
+		assert (
+
+			isinstance(station,str) and len(station) == 1 and station.upper() in B1
+		),	f"Invalid station literal {station}"
+
 		self.station = station.upper()
-		assert self.station in B1, "Invalid station literal"
 
 
 

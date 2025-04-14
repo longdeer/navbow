@@ -40,6 +40,35 @@ class AnalyzerCase(unittest.TestCase):
 			)
 
 
+	def test_invalid_length_station(self):
+
+		for i in range(0,len(B1) -1,2):
+
+			self.assertRaisesRegex(
+
+				AssertionError,
+				"Invalid station literal",
+				Navanalyzer,
+				B1[i:i+2]
+			)
+
+
+	def test_invalid_type_station(self):
+
+		for invalid in (
+
+			420, 69., True, False, None, ..., print, unittest, Navanalyzer,
+			[ "A" ],( "B", ),{ "C" },{ "station": "D" }
+		):
+			self.assertRaisesRegex(
+
+				AssertionError,
+				"Invalid station literal",
+				Navanalyzer,
+				invalid
+			)
+
+
 
 
 
