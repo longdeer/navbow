@@ -1,7 +1,11 @@
-from NavtexBoWAnalyzer.header		import B1
-from NavtexBoWAnalyzer.header		import B2
-from NavtexBoWAnalyzer.coordinates	import G_COORDINATE
-from NavtexBoWAnalyzer.numerical	import G_NUMERICAL
+from NavtexBoWAnalyzer.header			import B1
+from NavtexBoWAnalyzer.header			import B2
+from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
+from NavtexBoWAnalyzer.coordinates		import G_COORDINATE
+from NavtexBoWAnalyzer.numerical		import G_NUMERICAL
+from NavtexBoWAnalyzer.alphanumerical	import G_ALPHANUMERICAL
+from NavtexBoWAnalyzer.scanner			import byte_scan
+from NavtexBoWAnalyzer.scanner			import sanit_scan
 
 
 
@@ -43,8 +47,6 @@ if	__name__ == "__main__":
 	from	shutil						import copyfile
 	from	collections					import defaultdict
 	from	pygwarts.hagrid.walks		import fstree
-	from	NavtexBoWAnalyzer.scanner	import byte_scan
-	from	NavtexBoWAnalyzer.scanner	import sanit_scan
 
 	ROOT	= ""
 	FOLDER1	= ""
@@ -57,12 +59,13 @@ if	__name__ == "__main__":
 	WORDS	= defaultdict(int)
 	BROKEN	= list()
 	ERROR	= list()
+	WRONGS	= list()
 	ALPHAS	= defaultdict(int)
 	NUMBS	= defaultdict(int)
+	ALNUMBS	= defaultdict(int)
 	OTHER	= defaultdict(int)
 	COORD	= defaultdict(int)
-	DIGIT	= re.compile(r"\(?\d+([\-,.:/]\d+)?\)?[-,.:]?")
-	AWORD	= re.compile(r"\(?[A-Z]+[\-/]?[A-Z]+\)?[-,.:]?")
+	AWORD	= re.compile(r"\(?[A-Z]+[\-/]?[A-Z]+\)?[\-\.,:]?")
 
 	for sprout in [ fstree(FOLDER1), fstree(FOLDER2), fstree(FOLDER3), fstree(FOLDER4), fstree(FOLDER5) ]:
 		for branch, folders, files in sprout:
@@ -71,11 +74,20 @@ if	__name__ == "__main__":
 				if (broken := byte_scan(file)) is not None : BROKEN.append(broken)
 				else:
 
-					name = file.name
-					current = sanit_scan(file)
-					message = "\n".join(current["air_lines"])
+					name	= file.name
+					current	= sanit_scan(file)
+					message	= "\n".join(current["air_lines"])
+					header	= current["air_lines"][0]
+					eos		= current["air_lines"][-1]
+					body	= current["chunks"] - set(header.split()) - { "NNNN" }
 
 					if "*" in current["symbols"]: ERROR.append(message)
+					elif(
+
+						not G_NAVTEX_MESSAGE_HEADER.fullmatch(header)
+						or
+						not eos == "NNNN"
+					):	WRONGS.append(message)
 					elif(ARCHIVE.get(name) != message):
 
 						ARCHIVE[name] = message
@@ -84,11 +96,12 @@ if	__name__ == "__main__":
 						os.makedirs(os.path.dirname(good_path), exist_ok=True)
 						with open(good_path, "w") as good_file : good_file.write(message)
 
-						for chunk in current["chunks"]:
+						for chunk in body:
 							WORDS[chunk] += 1
 
 							if		G_COORDINATE.fullmatch(chunk): COORD[chunk] += 1
 							elif	G_NUMERICAL.fullmatch(chunk): NUMBS[chunk] += 1
+							elif	G_ALPHANUMERICAL.fullmatch(chunk): ALNUMBS[chunk] += 1
 							elif	AWORD.fullmatch(chunk): ALPHAS[chunk] += 1
 							else:	OTHER[chunk] += 1
 
@@ -108,7 +121,13 @@ if	__name__ == "__main__":
 	with open("", "w") as dump:
 
 		print(f"errors:", file=dump)
-		for error in ERROR : print(error, file=dump)
+		for error in ERROR : print(error + "\n", file=dump)
+		print(file=dump)
+
+	with open("", "w") as dump:
+
+		print(f"wrongs:\n", file=dump)
+		for wrong in WRONGS : print(wrong + "\n", file=dump)
 		print(file=dump)
 
 	with open("", "w") as dump:
@@ -119,6 +138,11 @@ if	__name__ == "__main__":
 	with open("", "w") as dump:
 
 		for word,f in sorted(NUMBS.items(), key=lambda E : E[1], reverse=True):
+			print(f"{word}: {f}", file=dump)
+
+	with open("", "w") as dump:
+
+		for word,f in sorted(ALNUMBS.items(), key=lambda E : E[1], reverse=True):
 			print(f"{word}: {f}", file=dump)
 
 	with open("", "w") as dump:
