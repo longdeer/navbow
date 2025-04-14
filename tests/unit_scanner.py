@@ -227,7 +227,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_statescan_NA22(self):
+	def test_statescan_IA76(self):
 
 		self.assertEqual(
 
