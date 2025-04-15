@@ -1,4 +1,5 @@
 from pathlib	import Path
+from typing		import Set
 from typing		import List
 from typing		import Dict
 
@@ -36,7 +37,7 @@ def byte_scan(path :str | Path) -> str | None :
 
 
 
-def sanit_scan(path :str | Path) -> Dict[str,int|str|List[str]] :
+def sanit_scan(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
 
 	"""
 		Scans message in utf-8 mode (after byte_scan) and disassembles it to:

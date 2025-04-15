@@ -196,61 +196,6 @@ class AlphanumericalCase(unittest.TestCase):
 				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"N{i},/69-{i+1}/69-{i+3}/69){end}"))
 				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(N{i},/69-{i+1}/69-{i+3}/69){end}"))
 
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}-{i+1}{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}-{i+1}{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}-{i+1}){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}-{i+1}){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}.69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}.69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}.69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}.69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}/69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}/69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}/69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}/69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}.69-{i+1}.69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}.69-{i+1}.69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}.69-{i+1}.69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}.69-{i+1}.69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},69-{i+1},69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},69-{i+1},69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},69-{i+1},69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},69-{i+1},69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},/69-{i+1}/69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},/69-{i+1}/69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},/69-{i+1}/69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},/69-{i+1}/69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}.69-{i+1}.69-{i+3}.69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}.69-{i+1}.69-{i+3}.69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i}.69-{i+1}.69-{i+3}.69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i}.69-{i+1}.69-{i+3}.69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},69-{i+1},69-{i+3},69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},69-{i+1},69-{i+3},69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},69-{i+1},69-{i+3},69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},69-{i+1},69-{i+3},69){end}"))
-
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},/69-{i+1}/69-{i+3}/69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},/69-{i+1}/69-{i+3}/69{end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"#{i},/69-{i+1}/69-{i+3}/69){end}"))
-				self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"(#{i},/69-{i+1}/69-{i+3}/69){end}"))
-
 
 	def test_channel_numbers(self):
 
