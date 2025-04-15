@@ -48,10 +48,10 @@ class SannerCase(unittest.TestCase):
 				],
 				"air_lines": [
 
-					"ZCZC JA94",
-					"151930 UTC FEB",
-					"CANCEL GERMAN NAV WARN 079/19",
-					"NNNN",
+					[ "ZCZC", "JA94" ],
+					[ "151930", "UTC", "FEB" ],
+					[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+					[ "NNNN" ]
 				],
 				"chunks": set((
 
@@ -92,13 +92,13 @@ class SannerCase(unittest.TestCase):
 				],
 				"air_lines": [
 
-					"ZCZC BA33",
-					"181136 UTC MAR 19",
-					"NORWEGIAN NAV. WARNING 198/2019",
-					"CHART 73",
-					"AREA LOFOTEN INNERSIDEN",
-					"FESTVAAG LIGHT 68-10.2N 014-12.6E IS UNLIT.",
-					"NNNN",
+					[ "ZCZC", "BA33" ],
+					[ "181136", "UTC", "MAR", "19" ],
+					[ "NORWEGIAN", "NAV.", "WARNING", "198/2019" ],
+					[ "CHART", "73" ],
+					[ "AREA", "LOFOTEN", "INNERSIDEN" ],
+					[ "FESTVAAG", "LIGHT", "68-10.2N", "014-12.6E", "IS", "UNLIT." ],
+					[ "NNNN" ]
 				],
 				"chunks": set((
 
@@ -153,17 +153,26 @@ class SannerCase(unittest.TestCase):
 				],
 				"air_lines": [
 
-					"ZCZC IA76",
-					"210800 UTC JAN",
-					"BALTIC ICE INFORMATION",
-					"VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL 'ICEINFO'",
-					"ON VHF OR",
-					"PHONE +46 (0)10 492 76 00 AS FOLLOWS:",
-					"WHEN PASSING LAT N60 ON VHF CH 78.",
-					"ARRIVAL REPORT ON VHF CH 16 WHEN THE SHIP IS WELL MOORED.",
-					"DEPARTURE REPORT ON VHF CH 16 LATEST 6 HOURS BEFORE DEPARTURE.",
-					"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
-					"NNNN",
+					[ "ZCZC", "IA76" ],
+					[ "210800", "UTC", "JAN" ],
+					[ "BALTIC", "ICE", "INFORMATION" ],
+					[
+						"VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO",
+						"TRAFFIC", "RESTRICTIONS","SHALL", "CALL", "'ICEINFO'"
+					],
+					[ "ON", "VHF", "OR" ],
+					[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+					[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH", "78." ],
+					[
+						"ARRIVAL", "REPORT", "ON", "VHF", "CH", "16",
+						"WHEN", "THE","SHIP", "IS", "WELL", "MOORED."
+					],
+					[
+						"DEPARTURE", "REPORT", "ON", "VHF", "CH", "16",
+						"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
+					],
+					[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
+					[ "NNNN" ]
 				],
 				"chunks": set((
 
@@ -249,17 +258,26 @@ class SannerCase(unittest.TestCase):
 				],
 				"air_lines": [
 
-					"ZCZC IA76",
-					"210800 UTC JAN",
-					"BALTIC ICE INFORMATION",
-					"VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL 'ICEINFO'",
-					"ON VHF OR",
-					"PHONE +46 (0)10 492 76 00 AS FOLLOWS:",
-					"WHEN PASSING LAT N60 ON VHF CH 78.",
-					"ARRIVAL REPORT ON VHF CH 16 WHEN THE SHIP IS WELL MOORED.",
-					"DEPARTURE REPORT ON VHF CH 16 LATEST 6 HOURS BEFORE DEPARTURE.",
-					"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
-					"NNNN",
+					[ "ZCZC", "IA76" ],
+					[ "210800", "UTC", "JAN" ],
+					[ "BALTIC", "ICE", "INFORMATION" ],
+					[
+						"VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO",
+						"TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "'ICEINFO'"
+					],
+					[ "ON", "VHF", "OR" ],
+					[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+					[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH", "78." ],
+					[
+						"ARRIVAL", "REPORT", "ON", "VHF", "CH", "16",
+						"WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."
+					],
+					[
+						"DEPARTURE", "REPORT", "ON", "VHF", "CH", "16",
+						"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
+					],
+					[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
+					[ "NNNN" ]
 				],
 				"chunks": set((
 

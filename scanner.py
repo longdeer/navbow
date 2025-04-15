@@ -77,9 +77,8 @@ def sanit_scan(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
 
 						for char in current : symbols.add(char)
 
-					proper = " ".join(air)
-					air_lines.append(proper)
-					sanit |= (proper != raw) <<1
+					air_lines.append(air)
+					sanit |= (" ".join(air) != raw) <<1
 					sanit |= 1
 
 	except:	return
