@@ -7,7 +7,7 @@ import re
 
 
 
-G_NUMERICAL = re.compile(
+P_NUMERICAL = re.compile(
 
 	r"""
 		\(?				# possible parenthesizing at the beginning

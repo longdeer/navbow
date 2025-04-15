@@ -1,5 +1,5 @@
 import	unittest
-from	NavtexBoWAnalyzer.coordinates import G_COORDINATE
+from	NavtexBoWAnalyzer.coordinates import P_COORDINATE
 
 
 
@@ -20,19 +20,19 @@ class CoordinatesCase(unittest.TestCase):
 					M = str(m).zfill(2)
 					S = str(s).zfill(2)
 
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}N"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}.99N"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}N"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}.99N"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}N"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99N"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}N"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}.99N"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}N"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}.99N"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}N"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99N"))
 
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}S"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}.99S"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}S"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}.99S"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}S"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99S"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}S"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}.99S"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}S"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}.99S"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}S"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99S"))
 
 
 	def test_valid_EW(self):
@@ -45,19 +45,19 @@ class CoordinatesCase(unittest.TestCase):
 					M = str(m).zfill(2)
 					S = str(s).zfill(2)
 
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}E"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}.99E"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}E"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}.99E"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}E"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99E"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}E"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}.99E"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}E"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}.99E"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}E"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99E"))
 
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}W"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}.99W"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}W"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}.99W"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}W"))
-					self.assertTrue(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99W"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}W"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}.99W"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}W"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}.99W"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}W"))
+					self.assertTrue(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99W"))
 
 
 	def test_invalid_SN(self):
@@ -70,19 +70,19 @@ class CoordinatesCase(unittest.TestCase):
 					M = str(m).zfill(2)
 					S = str(s).zfill(2)
 
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}N"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}.99N"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}N"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}.99N"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}N"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99N"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}N"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}.99N"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}N"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}.99N"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}N"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99N"))
 
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}S"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}.99S"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}S"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}.99S"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}S"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99S"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}S"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}.99S"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}S"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}.99S"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}S"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99S"))
 
 
 	def test_invalid_EW(self):
@@ -95,19 +95,19 @@ class CoordinatesCase(unittest.TestCase):
 					M = str(m).zfill(2)
 					S = str(s).zfill(2)
 
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}E"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}.99E"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}E"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}.99E"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}E"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99E"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}E"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}.99E"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}E"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}.99E"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}E"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99E"))
 
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}W"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}.99W"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}W"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}.99W"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}W"))
-					self.assertIsNone(G_COORDINATE.fullmatch(f"{D}-{M}-{S}.99W"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}W"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}.99W"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}W"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}.99W"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}W"))
+					self.assertIsNone(P_COORDINATE.fullmatch(f"{D}-{M}-{S}.99W"))
 
 
 
