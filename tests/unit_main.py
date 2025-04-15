@@ -1,4 +1,5 @@
 import	unittest
+from	NavtexBoWAnalyzer.tests.unit_cdt			import *
 from	NavtexBoWAnalyzer.tests.unit_header			import *
 from	NavtexBoWAnalyzer.tests.unit_scanner		import *
 from	NavtexBoWAnalyzer.tests.unit_analyzer		import *
