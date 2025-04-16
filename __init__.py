@@ -1,10 +1,13 @@
+from typing								import Set
+from typing								import List
+from typing								import Dict
+from typing								import Literal
 from NavtexBoWAnalyzer.header			import B1
 from NavtexBoWAnalyzer.header			import B2
 from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
 from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
 from NavtexBoWAnalyzer.numerical		import P_NUMERICAL
 from NavtexBoWAnalyzer.alphanumerical	import P_ALPHANUMERICAL
-from NavtexBoWAnalyzer.scanner			import byte_scan
 from NavtexBoWAnalyzer.scanner			import sanit_scan
 
 
@@ -28,120 +31,81 @@ class Navanalyzer:
 		lngdeer@gmail.com
 	"""
 
-	def __init__(self, station :str):
+	def __init__(self, station :str, BoW :Dict[str,int]):
 
+		assert isinstance(BoW, dict), f"Uncompatible bag of words type {type(BoW)}"
 		assert (
 
 			isinstance(station,str) and len(station) == 1 and station.upper() in B1
 		),	f"Invalid station literal {station}"
 
 		self.station = station.upper()
+		self.BoW = BoW
+
+	def __call__(self, path :str) -> Dict[str,int|Set[str]|List[str]] | None :
+
+		if	(sanit := sanit_scan(path)) is not None:
+
+			coords	= set()
+			nums	= set()
+			alnums	= set()
+			known	= set()
+			unknown	= set()
+			lines	= sanit["air_lines"]
+			words	= sanit["chunks"]
+			state	= sanit["sanit"]
+			header, *_, eos	= lines
+			state  ^= self.is_valid_header(" ".join(header)) <<2
+			state  ^= (eos == [ "NNNN" ]) <<3
 
 
+			for word in words:
 
+				if		P_COORDINATE.fullmatch(word):		coords.add(word)
+				elif	P_ALPHANUMERICAL.fullmatch(word):	alnums.add(word)
+				elif	P_NUMERICAL.fullmatch(word):		nums.add(word)
 
-
-
-
-
-if	__name__ == "__main__":
-
-	import	os
-	import	re
-	from	shutil						import copyfile
-	from	collections					import defaultdict
-	from	pygwarts.hagrid.walks		import fstree
-
-	ROOT	= ""
-	TARGET	= ""
-	SYMBOLS	= set()
-	ARCHIVE = dict()
-	BROKEN	= list()
-	ERRORS	= list()
-	WRONGS	= list()
-	NUMBS	= defaultdict(int)
-	ALNUMBS	= defaultdict(int)
-	OTHER	= defaultdict(int)
-	COORD	= defaultdict(int)
-
-	for Y in range(2013,2025):
-		for branch, folders, files in fstree(os.path.join(ROOT,str(Y))):
-			for file in files:
-
-				if (broken := byte_scan(file)) is not None : BROKEN.append(broken)
 				else:
 
-					name	= file.name
-					current	= sanit_scan(file)
-					message	= "\n".join(current["air_lines"])
-					header	= current["air_lines"][0]
-					eos		= current["air_lines"][-1]
-					body	= current["chunks"] - set(header.split()) - { "NNNN" }
+					match self.BoW_state(word):
 
-					if "*" in current["symbols"]: ERRORS.append(message)
-					elif(
+						case 1:
 
-						not G_NAVTEX_MESSAGE_HEADER.fullmatch(header)
-						or
-						not eos == "NNNN"
-					):	WRONGS.append(message)
-					elif(ARCHIVE.get(name) != message):
+							known.add(word)
+							state |= 1 <<4
 
-						ARCHIVE[name] = message
-						SYMBOLS |= current["symbols"]
-						good_path = os.path.join(ROOT, "good", os.path.relpath(file,ROOT))
-						os.makedirs(os.path.dirname(good_path), exist_ok=True)
-						with open(good_path, "w") as good_file : good_file.write(message)
+						case 0:
 
-						for chunk in body:
-
-							if		P_COORDINATE.fullmatch(chunk): COORD[chunk] += 1
-							elif	G_NUMERICAL.fullmatch(chunk): NUMBS[chunk] += 1
-							elif	P_ALPHANUMERICAL.fullmatch(chunk): ALNUMBS[chunk] += 1
-							else:	OTHER[chunk] += 1
-
-				print(f"processed {file}")
+							unknown.add(word)
+							state |= 1 <<5
 
 
-	with open(os.path.join(TARGET, "1-sb-scan"), "w") as dump:
+			return {
 
-		print(f"{sorted(SYMBOLS)}", file=dump)
-		print(file=dump)
-		print(f"brokens:", file=dump)
-		for broken in BROKEN : print("\n".join(broken), file=dump)
-		print(file=dump)
+				"state":	state,
+				"coords":	coords,
+				"nums":		nums,
+				"alnums":	alnums,
+				"known":	known,
+				"unknown":	unknown,
+				"lines":	lines,
+			}
 
-	with open(os.path.join(TARGET, "2-errors-scan"), "w") as dump:
 
-		print(f"errors:", file=dump)
-		for error in ERRORS : print(error + "\n", file=dump)
-		print(file=dump)
 
-	with open(os.path.join(TARGET, "3-wrongs-scan"), "w") as dump:
 
-		print(f"wrongs:\n", file=dump)
-		for wrong in WRONGS : print(wrong + "\n", file=dump)
-		print(file=dump)
+	def is_valid_header(self, header :str) -> bool :
 
-	with open(os.path.join(TARGET, "4-numbs-scan"), "w") as dump:
+		try:	return G_NAVTEX_MESSAGE_HEADER.fullmatch(header).group("tcB1") == self.station
+		except:	return False
 
-		for word,f in sorted(NUMBS.items(), key=lambda E : E[1], reverse=True):
-			print(f"{word}: {f}", file=dump)
 
-	with open(os.path.join(TARGET, "5-alnums-scan"), "w") as dump:
 
-		for word,f in sorted(ALNUMBS.items(), key=lambda E : E[1], reverse=True):
-			print(f"{word}: {f}", file=dump)
 
-	with open(os.path.join(TARGET, "6-others-scan"), "w") as dump:
+	def BoW_state(self, word :str) -> Literal[0|1] :
 
-		for word,f in sorted(OTHER.items(), key=lambda E : E[1], reverse=True):
-			print(f"{word}: {f}", file=dump)
-
-	with open(os.path.join(TARGET, "7-coords-scan"), "w") as dump:
-
-		for word,f in sorted(COORD.items(), key=lambda E : E[1], reverse=True):
-			print(f"{word}: {f}", file=dump)
+		if	isinstance(state := self.BoW.get(word,-1), int):
+			return max(state **0,0)
 
 
 

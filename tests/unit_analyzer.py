@@ -16,8 +16,8 @@ class AnalyzerCase(unittest.TestCase):
 
 		for station in B1:
 
-			self.assertIsInstance(Navanalyzer(station), Navanalyzer)
-			self.assertIsInstance(Navanalyzer(station.lower()), Navanalyzer)
+			self.assertIsInstance(Navanalyzer(station, dict()), Navanalyzer)
+			self.assertIsInstance(Navanalyzer(station.lower(), dict()), Navanalyzer)
 
 
 	def test_invalid_station_init(self):
@@ -29,14 +29,14 @@ class AnalyzerCase(unittest.TestCase):
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				invalid
+				invalid, dict()
 			)
 			self.assertRaisesRegex(
 
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				invalid.lower()
+				invalid.lower(), dict()
 			)
 
 
@@ -49,7 +49,7 @@ class AnalyzerCase(unittest.TestCase):
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				B1[i:i+2]
+				B1[i:i+2], dict()
 			)
 
 
@@ -65,7 +65,24 @@ class AnalyzerCase(unittest.TestCase):
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				invalid
+				invalid, dict()
+			)
+
+
+	def test_invalid_BoW_init(self):
+
+		for invalid in (
+
+			int(), float(), bool(), None, ..., print, unittest, Navanalyzer,
+			[ "dict" ],( "dict", ),{ "dict" }
+		):
+
+			self.assertRaisesRegex(
+
+				AssertionError,
+				"Uncompatible bag of words type",
+				Navanalyzer,
+				"A", invalid
 			)
 
 
