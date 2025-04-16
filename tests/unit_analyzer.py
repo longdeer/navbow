@@ -88,6 +88,10 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
+
+
+
+
 	def test_A_valid_header(self):
 
 		an = Navanalyzer("A", dict())
@@ -338,6 +342,38 @@ class AnalyzerCase(unittest.TestCase):
 			[ "ZCZC AB00" ],( "ZCZC AB00", ),{ "ZCZC AB00" },{ "header": "ZCZC AB00" }
 		):
 			self.assertFalse(an.is_valid_header(invalid))
+
+
+
+
+
+
+
+
+	def test_BoW_state_int(self):
+
+		bow = dict()
+		an = Navanalyzer("B", bow)
+
+		for i in range(-100,101):
+			bow["WARNING"] = i
+
+			if i: self.assertEqual(an.BoW_state("WARNING"),1)
+			else: self.assertEqual(an.BoW_state("WARNING"),0)
+
+
+	def test_BoW_state_obj(self):
+
+		bow = dict()
+		an = Navanalyzer("C", bow)
+
+		for invalid in (
+
+			"ZCZC", float(), True, None, ..., print, unittest, Navanalyzer,
+			[ 1 ],( 1, ),{ 1 },{ "state": 1 }
+		):
+			bow["WARNING"] = invalid
+			self.assertEqual(an.BoW_state("WARNING"),1)
 
 
 

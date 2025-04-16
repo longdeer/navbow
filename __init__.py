@@ -96,16 +96,30 @@ class Navanalyzer:
 
 	def is_valid_header(self, header :str) -> bool :
 
+		"""
+			Helper method that will try to extract a B1 from the "header" string and return True
+			if it is the same letter than "station" field, obtained in initiation time. Returns
+			False in any other cases, including Exception raises.
+		"""
+
 		try:	return G_NAVTEX_MESSAGE_HEADER.fullmatch(header).group("tcB1") == self.station
 		except:	return False
 
 
 
 
-	def BoW_state(self, word :str) -> Literal[0|1] :
+	def BoW_state(self, word :str) -> Literal[0|1] | None :
 
-		if	isinstance(state := self.BoW.get(word,-1), int):
-			return max(state **0,0)
+		"""
+			Helper method that implements inspection of "BoW". If "word" mapped with anything in
+			"BoW" it will be converted to 0 or 1, depending is it mapped with zero or not. That means
+			the "word state" in BoW always evaluates as 0, either "word" not in "BoW" or it's mapping
+			is 0, or as 1 in case of any other than 0 mapping.
+		"""
+
+		if	isinstance(state := self.BoW.get(word,0), int):
+			if state == 0 : return 0
+		return 1
 
 
 
