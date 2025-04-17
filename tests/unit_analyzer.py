@@ -1,4 +1,6 @@
+import	os
 import	unittest
+import	NavtexBoWAnalyzer
 from	NavtexBoWAnalyzer		 import Navanalyzer
 from	NavtexBoWAnalyzer.header import B1
 from	NavtexBoWAnalyzer.header import B2
@@ -12,12 +14,14 @@ from	NavtexBoWAnalyzer.header import B2
 
 class AnalyzerCase(unittest.TestCase):
 
+	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
+
 	def test_valid_station_init(self):
 
 		for station in B1:
 
-			self.assertIsInstance(Navanalyzer(station, dict()), Navanalyzer)
-			self.assertIsInstance(Navanalyzer(station.lower(), dict()), Navanalyzer)
+			self.assertIsInstance(Navanalyzer(station), Navanalyzer)
+			self.assertIsInstance(Navanalyzer(station.lower()), Navanalyzer)
 
 
 	def test_invalid_station_init(self):
@@ -29,14 +33,14 @@ class AnalyzerCase(unittest.TestCase):
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				invalid, dict()
+				invalid
 			)
 			self.assertRaisesRegex(
 
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				invalid.lower(), dict()
+				invalid.lower()
 			)
 
 
@@ -49,7 +53,7 @@ class AnalyzerCase(unittest.TestCase):
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				B1[i:i+2], dict()
+				B1[i:i+2]
 			)
 
 
@@ -65,24 +69,7 @@ class AnalyzerCase(unittest.TestCase):
 				AssertionError,
 				"Invalid station literal",
 				Navanalyzer,
-				invalid, dict()
-			)
-
-
-	def test_invalid_BoW_init(self):
-
-		for invalid in (
-
-			int(), float(), bool(), None, ..., print, unittest, Navanalyzer,
-			[ "dict" ],( "dict", ),{ "dict" }
-		):
-
-			self.assertRaisesRegex(
-
-				AssertionError,
-				"Uncompatible bag of words type",
-				Navanalyzer,
-				"A", invalid
+				invalid
 			)
 
 
@@ -94,286 +81,254 @@ class AnalyzerCase(unittest.TestCase):
 
 	def test_A_valid_header(self):
 
-		an = Navanalyzer("A", dict())
+		analyzer = Navanalyzer("A")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC A{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC A{subject}{str(i).zfill(2)}"))
 
 
 	def test_B_valid_header(self):
 
-		an = Navanalyzer("B", dict())
+		analyzer = Navanalyzer("B")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC B{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC B{subject}{str(i).zfill(2)}"))
 
 
 	def test_C_valid_header(self):
 
-		an = Navanalyzer("C", dict())
+		analyzer = Navanalyzer("C")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC C{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC C{subject}{str(i).zfill(2)}"))
 
 
 	def test_D_valid_header(self):
 
-		an = Navanalyzer("D", dict())
+		analyzer = Navanalyzer("D")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC D{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC D{subject}{str(i).zfill(2)}"))
 
 
 	def test_E_valid_header(self):
 
-		an = Navanalyzer("E", dict())
+		analyzer = Navanalyzer("E")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC E{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC E{subject}{str(i).zfill(2)}"))
 
 
 	def test_F_valid_header(self):
 
-		an = Navanalyzer("F", dict())
+		analyzer = Navanalyzer("F")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC F{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC F{subject}{str(i).zfill(2)}"))
 
 
 	def test_G_valid_header(self):
 
-		an = Navanalyzer("G", dict())
+		analyzer = Navanalyzer("G")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC G{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC G{subject}{str(i).zfill(2)}"))
 
 
 	def test_H_valid_header(self):
 
-		an = Navanalyzer("H", dict())
+		analyzer = Navanalyzer("H")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC H{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC H{subject}{str(i).zfill(2)}"))
 
 
 	def test_I_valid_header(self):
 
-		an = Navanalyzer("I", dict())
+		analyzer = Navanalyzer("I")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC I{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC I{subject}{str(i).zfill(2)}"))
 
 
 	def test_J_valid_header(self):
 
-		an = Navanalyzer("J", dict())
+		analyzer = Navanalyzer("J")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC J{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC J{subject}{str(i).zfill(2)}"))
 
 
 	def test_K_valid_header(self):
 
-		an = Navanalyzer("K", dict())
+		analyzer = Navanalyzer("K")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC K{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC K{subject}{str(i).zfill(2)}"))
 
 
 	def test_L_valid_header(self):
 
-		an = Navanalyzer("L", dict())
+		analyzer = Navanalyzer("L")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC L{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC L{subject}{str(i).zfill(2)}"))
 
 
 	def test_M_valid_header(self):
 
-		an = Navanalyzer("M", dict())
+		analyzer = Navanalyzer("M")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC M{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC M{subject}{str(i).zfill(2)}"))
 
 
 	def test_N_valid_header(self):
 
-		an = Navanalyzer("N", dict())
+		analyzer = Navanalyzer("N")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC N{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC N{subject}{str(i).zfill(2)}"))
 
 
 	def test_O_valid_header(self):
 
-		an = Navanalyzer("O", dict())
+		analyzer = Navanalyzer("O")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC O{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC O{subject}{str(i).zfill(2)}"))
 
 
 	def test_P_valid_header(self):
 
-		an = Navanalyzer("P", dict())
+		analyzer = Navanalyzer("P")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC P{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC P{subject}{str(i).zfill(2)}"))
 
 
 	def test_Q_valid_header(self):
 
-		an = Navanalyzer("Q", dict())
+		analyzer = Navanalyzer("Q")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC Q{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC Q{subject}{str(i).zfill(2)}"))
 
 
 	def test_R_valid_header(self):
 
-		an = Navanalyzer("R", dict())
+		analyzer = Navanalyzer("R")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC R{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC R{subject}{str(i).zfill(2)}"))
 
 
 	def test_S_valid_header(self):
 
-		an = Navanalyzer("S", dict())
+		analyzer = Navanalyzer("S")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC S{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC S{subject}{str(i).zfill(2)}"))
 
 
 	def test_T_valid_header(self):
 
-		an = Navanalyzer("T", dict())
+		analyzer = Navanalyzer("T")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC T{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC T{subject}{str(i).zfill(2)}"))
 
 
 	def test_U_valid_header(self):
 
-		an = Navanalyzer("U", dict())
+		analyzer = Navanalyzer("U")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC U{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC U{subject}{str(i).zfill(2)}"))
 
 
 	def test_V_valid_header(self):
 
-		an = Navanalyzer("V", dict())
+		analyzer = Navanalyzer("V")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC V{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC V{subject}{str(i).zfill(2)}"))
 
 
 	def test_W_valid_header(self):
 
-		an = Navanalyzer("W", dict())
+		analyzer = Navanalyzer("W")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC W{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC W{subject}{str(i).zfill(2)}"))
 
 
 	def test_X_valid_header(self):
 
-		an = Navanalyzer("X", dict())
+		analyzer = Navanalyzer("X")
 
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(an.is_valid_header(f"ZCZC X{subject}{str(i).zfill(2)}"))
+				self.assertTrue(analyzer.is_valid_header(f"ZCZC X{subject}{str(i).zfill(2)}"))
 
 
 	def test_invalid_header(self):
 
-		an = Navanalyzer("A", dict())
+		analyzer = Navanalyzer("A")
 
 		for invalid in (
 
 			"ZCZC", int(), float(), bool(), None, ..., print, unittest, Navanalyzer,
 			[ "ZCZC AB00" ],( "ZCZC AB00", ),{ "ZCZC AB00" },{ "header": "ZCZC AB00" }
 		):
-			self.assertFalse(an.is_valid_header(invalid))
-
-
-
-
-
-
-
-
-	def test_BoW_state_int(self):
-
-		bow = dict()
-		an = Navanalyzer("B", bow)
-
-		for i in range(-100,101):
-			bow["WARNING"] = i
-
-			if i: self.assertEqual(an.BoW_state("WARNING"),1)
-			else: self.assertEqual(an.BoW_state("WARNING"),0)
-
-
-	def test_BoW_state_obj(self):
-
-		bow = dict()
-		an = Navanalyzer("C", bow)
-
-		for invalid in (
-
-			"ZCZC", float(), True, None, ..., print, unittest, Navanalyzer,
-			[ 1 ],( 1, ),{ 1 },{ "state": 1 }
-		):
-			bow["WARNING"] = invalid
-			self.assertEqual(an.BoW_state("WARNING"),1)
+			self.assertFalse(analyzer.is_valid_header(invalid))
 
 
 

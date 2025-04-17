@@ -8,7 +8,7 @@ from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
 from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
 from NavtexBoWAnalyzer.numerical		import P_NUMERICAL
 from NavtexBoWAnalyzer.alphanumerical	import P_ALPHANUMERICAL
-from NavtexBoWAnalyzer.scanner			import sanit_scan
+from NavtexBoWAnalyzer.scanner			import sanit_state
 
 
 
@@ -31,64 +31,74 @@ class Navanalyzer:
 		lngdeer@gmail.com
 	"""
 
-	def __init__(self, station :str, BoW :Dict[str,int]):
+	def __init__(self, station :str):
 
-		assert isinstance(BoW, dict), f"Uncompatible bag of words type {type(BoW)}"
 		assert (
 
 			isinstance(station,str) and len(station) == 1 and station.upper() in B1
 		),	f"Invalid station literal {station}"
 
 		self.station = station.upper()
-		self.BoW = BoW
 
-	def __call__(self, path :str) -> Dict[str,int|Set[str]|List[str]] | None :
+	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|Set[str]|List[str]] | None :
 
-		if	(sanit := sanit_scan(path)) is not None:
+		"""
+			Ananlysis implementation that uses dictionary 
+		"""
 
-			coords	= set()
-			nums	= set()
-			alnums	= set()
-			known	= set()
-			unknown	= set()
-			lines	= sanit["air_lines"]
-			words	= sanit["chunks"]
-			state	= sanit["sanit"]
-			header, *_, eos	= lines
-			state  ^= self.is_valid_header(" ".join(header)) <<2
-			state  ^= (eos == [ "NNNN" ]) <<3
+		# assert isinstance(BoW, dict), f"Uncompatible bag of words type {type(BoW)}"
 
+		if	isinstance(sanit := sanit_state(path), dict):
+			state = sanit.get("sanit")
 
-			for word in words:
+			if	isinstance(state, int) and state:
 
-				if		P_COORDINATE.fullmatch(word):		coords.add(word)
-				elif	P_ALPHANUMERICAL.fullmatch(word):	alnums.add(word)
-				elif	P_NUMERICAL.fullmatch(word):		nums.add(word)
-
-				else:
-
-					match self.BoW_state(word):
-
-						case 1:
-
-							known.add(word)
-							state |= 1 <<4
-
-						case 0:
-
-							unknown.add(word)
-							state |= 1 <<5
+				coords	= set()
+				nums	= set()
+				alnums	= set()
+				known	= set()
+				unknown	= set()
+				lines	= sanit["air_lines"]
+				words	= sanit["chunks"]
+				header, *_, eos	= lines
+				state  ^= self.is_valid_header(" ".join(header)) <<2
+				state  ^= (eos == [ "NNNN" ]) <<3
 
 
-			return {
+				for word in words:
 
+					if		P_COORDINATE.fullmatch(word):		coords.add(word)
+					elif	P_ALPHANUMERICAL.fullmatch(word):	alnums.add(word)
+					elif	P_NUMERICAL.fullmatch(word):		nums.add(word)
+					else:
+
+						try:	BoW_state = BoW[word]
+						except:	BoW_state = 0
+						match	BoW_state:
+
+							case None | 0:
+
+								unknown.add(word)
+								state |= 1 <<5
+
+							case _:
+
+								known.add(word)
+								state |= 1 <<4
+				return {
+
+					"state":	state,
+					"coords":	coords,
+					"nums":		nums,
+					"alnums":	alnums,
+					"known":	known,
+					"unknown":	unknown,
+					"lines":	lines,
+				}
+			return	{
+
+				"message":	sanit.get("message"),
 				"state":	state,
-				"coords":	coords,
-				"nums":		nums,
-				"alnums":	alnums,
-				"known":	known,
-				"unknown":	unknown,
-				"lines":	lines,
 			}
 
 
@@ -104,22 +114,6 @@ class Navanalyzer:
 
 		try:	return G_NAVTEX_MESSAGE_HEADER.fullmatch(header).group("tcB1") == self.station
 		except:	return False
-
-
-
-
-	def BoW_state(self, word :str) -> Literal[0|1] | None :
-
-		"""
-			Helper method that implements inspection of "BoW". If "word" mapped with anything in
-			"BoW" it will be converted to 0 or 1, depending is it mapped with zero or not. That means
-			the "word state" in BoW always evaluates as 0, either "word" not in "BoW" or it's mapping
-			is 0, or as 1 in case of any other than 0 mapping.
-		"""
-
-		if	isinstance(state := self.BoW.get(word,0), int):
-			if state == 0 : return 0
-		return 1
 
 
 
