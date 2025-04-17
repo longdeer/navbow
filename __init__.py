@@ -101,46 +101,6 @@ class Navanalyzer:
 
 
 
-	def extract(self, lines :List[List[str]]) -> Tuple[List[Tuple[str,int]],List[Tuple[str,int]]] :
-
-		"""
-			[ extracted words ],[( unmatched punctuation, line index )]
-		"""
-
-		words = list()
-		punct = list()
-		stack = list()
-
-		for i,line in enumerate(lines,1):
-			for word in line:
-				current = str()
-
-				for char in word:
-					match char:
-
-						case ")":
-
-							if stack and stack[-1][0] == "(" : stack.pop()
-							else: stack.append(( char,i ))
-
-						case "'":
-
-							if stack and stack[-1][0] == "'" : stack.pop()
-							else: stack.append(( char,i ))
-
-						case "\"":
-
-							if stack and stack[-1][0] == "\"": stack.pop()
-							else: stack.append(( char,i ))
-
-
-						case "(":	stack.append(( char,i ))
-						case "'":	stack.append(( char,i ))
-						case "\"":	stack.append(( char,i ))
-						case _:		current += char
-
-				words.append(( current,i ))
-		return	words,punct + stack
 
 
 

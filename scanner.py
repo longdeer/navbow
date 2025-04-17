@@ -14,6 +14,67 @@ from typing		import Tuple
 
 
 
+def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[str,int]],List[Tuple[str,int]]] :
+
+	"""
+		[ extracted words ],[( unmatched punctuation, line index )]
+	"""
+
+	words = list()
+	punct = list()
+	stack = list()
+
+	for i,line in enumerate(lines,1):
+		for word in line:
+
+			t = list(word)
+			e = len(t) -1
+			w = str()
+			s = 0
+
+			while s <= e:
+				match t[s]:
+
+					case "(":
+
+						if	t[e] != ")": punct.append(( "(",i ))
+						else:
+
+							s += 1
+							e -= 1
+							continue
+
+					case "'":
+
+						if	t[e] != "'": punct.append(( "'",i ))
+						else:
+
+							s += 1
+							e -= 1
+							continue
+
+					case "\"":
+
+						if	t[e] != "\"": punct.append(( "\"",i ))
+						else:
+
+							s += 1
+							e -= 1
+							continue
+
+				w += t[s]
+				s += 1
+
+			words.append(( w,i ))
+	return	words,punct + stack
+
+
+
+
+
+
+
+
 def byte_scan(path :str | Path) -> Tuple[bool,str] :
 
 	"""

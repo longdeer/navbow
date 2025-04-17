@@ -1,6 +1,7 @@
 import	os
 import	unittest
 import	NavtexBoWAnalyzer
+from	NavtexBoWAnalyzer.scanner import word_scan
 from	NavtexBoWAnalyzer.scanner import byte_scan
 from	NavtexBoWAnalyzer.scanner import sanit_state
 
@@ -29,6 +30,52 @@ class SannerCase(unittest.TestCase):
 	# RA28
 	# SE94
 	# OL66
+
+
+	def test_word_scan_1(self):
+
+		lines = [
+
+			[ "151930", "UTC", "FEB" ],
+			[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				[
+					( "151930",1 ), ( "UTC",1 ), ( "FEB",1 ),
+					( "CANCEL",2 ), ( "GERMAN",2 ), ( "NAV",2 ), ( "WARN",2 ), ( "079/19",2 )
+				],
+				[]
+			)
+		)
+
+
+	def test_word_scan_2(self):
+
+		lines = [
+
+			[ "(151930)", "((UTC))", "'FEB'" ],
+			[ "('CANCEL')", "'('GERMAN')'", "\"NAV\"", "(\"WARN\")", "079'19" ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				[
+					( "151930",1 ), ( "UTC",1 ), ( "FEB",1 ),
+					( "CANCEL",2 ), ( "GERMAN",2 ), ( "NAV",2 ), ( "WARN",2 ), ( "079'19",2 )
+				],
+				[( "'",2 )]
+			)
+		)
+
+
+
+
+
+
 
 
 	def test_byte_scan_invalid(self):
@@ -70,6 +117,10 @@ class SannerCase(unittest.TestCase):
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
+
+
+
+
 
 
 
