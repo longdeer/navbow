@@ -1,13 +1,16 @@
 from typing								import List
 from typing								import Dict
 from typing								import Tuple
+from collections						import defaultdict
 from NavtexBoWAnalyzer.header			import B1
 from NavtexBoWAnalyzer.header			import B2
 from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
 from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
 from NavtexBoWAnalyzer.numerical		import P_NUMERICAL
+from NavtexBoWAnalyzer.cdt				import G_MESSAGE_CDT
 from NavtexBoWAnalyzer.alphanumerical	import P_ALPHANUMERICAL
 from NavtexBoWAnalyzer.scanner			import sanit_state
+from NavtexBoWAnalyzer.scanner			import word_scan
 
 
 
@@ -39,7 +42,7 @@ class Navanalyzer:
 
 		self.station = station.upper()
 
-	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|List[str]|Dict[str,List[str]]] :
+	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] :
 
 		"""
 			Ananlysis implementation that uses dictionary 
@@ -48,29 +51,35 @@ class Navanalyzer:
 		if	isinstance(sanit := sanit_state(path), dict):
 			state = sanit.get("sanit")
 
-			if	isinstance(state, int) and state:
-				analysis = {
 
-					"known":	list(),
-					"unknown":	list(),
-					"coord":	list(),
-					"nums":		list(),
-					"alnums":	list(),
-					"punc":		list(),
+			if	isinstance(state, int) and state:
+
+
+				raw_lines	= sanit["air_lines"]
+				analysis	= {
+
+					"coords":	defaultdict(lambda : defaultdict(int)),
+					"alnums":	defaultdict(lambda : defaultdict(int)),
+					"nums":		defaultdict(lambda : defaultdict(int)),
+					"known":	defaultdict(lambda : defaultdict(int)),
+					"unknown":	defaultdict(lambda : defaultdict(int)),
+					"punc":		defaultdict(lambda : defaultdict(int)),
 				}
 
 
-				lines	= sanit["air_lines"]
-				header, *body, eos	= lines
+				header, *body, eos = raw_lines
 				state  ^= self.is_valid_header(" ".join(header)) <<2
 				state  ^= (eos == [ "NNNN" ]) <<3
+				scan	= word_scan(body)
 
 
-				for word in words:
+				for line,unmatch in scan[1]: analysis["punc"][unmatch][line] += 1
+				for line,word in scan[0]:
 
-					if		P_COORDINATE.fullmatch(word):		coords.add(word)
-					elif	P_ALPHANUMERICAL.fullmatch(word):	alnums.add(word)
-					elif	P_NUMERICAL.fullmatch(word):		nums.add(word)
+
+					if		P_COORDINATE.fullmatch(word):		analysis["coords"][word][line] += 1
+					elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][line] += 1
+					elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][line] += 1
 					else:
 
 						try:	BoW_state = BoW[word]
@@ -79,17 +88,17 @@ class Navanalyzer:
 
 							case None | 0:
 
-								unknown.add(word)
+								analysis["unknown"][word][line] += 1
 								state |= 1 <<5
 
 							case _:
 
-								known.add(word)
+								analysis["known"][word][line] += 1
 								state |= 1 <<4
 				return {
 
 					"state":	state,
-					"lines":	lines,
+					"lines":	raw_lines,
 					"analysis":	analysis,
 				}
 			return	{

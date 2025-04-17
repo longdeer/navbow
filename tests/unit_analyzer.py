@@ -340,45 +340,60 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_extract_1(self):
+	def test_analysis_1(self):
+
+		analyzer = Navanalyzer("W")
+		result = analyzer.with_mapping(os.path.join(self.wd, "WZ29"), dict())
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 2)
+		self.assertEqual(result.get("state"), 0)
+		self.assertIsInstance(result.get("message"), str)
+		self.assertIn("*", result.get("message"))
+
+
+	def test_analysis_2(self):
 
 		analyzer = Navanalyzer("J")
-		lines = [
-
-			[ "151930", "UTC", "FEB" ],
-			[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
-		]
+		result = analyzer.with_mapping(os.path.join(self.wd, "JA94"), dict())
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 3)
+		self.assertEqual(result.get("state"), 45) # 1 + 4 + 8 + 32
+		self.assertIsInstance(result.get("lines"), list)
 		self.assertEqual(
 
-			analyzer.extract(lines),
-			(
-				[
-					( "151930",1 ), ( "UTC",1 ), ( "FEB",1 ),
-					( "CANCEL",2 ), ( "GERMAN",2 ), ( "NAV",2 ), ( "WARN",2 ), ( "079/19",2 )
-				],
-				[]
-			)
+			result.get("lines"),
+			[
+				[ "ZCZC", "JA94" ],
+				[ "151930", "UTC", "FEB" ],
+				[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+				[ "NNNN" ]
+			]
 		)
-
-
-	# def test_extract_2(self):
-
-	# 	analyzer = Navanalyzer("J")
-	# 	lines = [
-
-	# 		[ "ZCZC", "(JA94)" ],
-	# 		[ "151930", "((UTC))", "'FEB'" ],
-	# 		[ "('CANCEL')", "'('GERMAN')'", "\"NAV\"", "(\"WARN\")", "079'19" ],
-	# 		[ "NNNN" ]
-	# 	]
-	# 	self.assertEqual(
-
-	# 		analyzer.extract(lines),
-	# 		[
-	# 			"ZCZC", "JA94", "151930", "UTC", "FEB", "CANCEL",
-	# 			"GERMAN","NAV", "WARN", "079", "19", "NNNN"
-	# 		],[ "'",3 ]
-	# 	)
+		self.assertIsInstance(result.get("analysis"), dict)
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertFalse(len(result["analysis"]["coords"]))
+		self.assertIn("alnums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["alnums"], dict)
+		self.assertFalse(len(result["analysis"]["alnums"]))
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["151930"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["079/19"][2],1)
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+		self.assertEqual(result["analysis"]["unknown"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["FEB"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["CANCEL"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["GERMAN"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["NAV"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["WARN"][2],1)
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertFalse(len(result["analysis"]["known"]))
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
 
 
 
