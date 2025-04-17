@@ -1,7 +1,11 @@
+from os			import access	as osaccess
+from os			import path		as ospath
+from os			import R_OK
 from pathlib	import Path
 from typing		import Set
 from typing		import List
 from typing		import Dict
+from typing		import Tuple
 
 
 
@@ -10,25 +14,30 @@ from typing		import Dict
 
 
 
-def byte_scan(path :str | Path) -> str | None :
+def byte_scan(path :str | Path) -> Tuple[bool,str] :
 
 	"""
-		Reads "path" file in byte mode for validation.
-		If any not utf-8 symbol will be encountered, recreates message, substituting such symbols
-		with "*", and returns this string. Returns None otherwise, which must mean all symbols
-		are utf-8 compatible.
+		Reads "path" file in byte mode and recreates whole message. If any not utf-8 symbol will be
+		encountered, it will be substituted with "*" and "broken" flag will be set to True.
+		Returns the tuple of "broken" flag and recreated message string. Doesn't handle any
+		possible Exceptions, but ensures "path" is accessible file.
 	"""
 
-	message = str()
-	invalid = False
+	message	= str()
+	broken	= False
 
-	with open(path, "rb") as file:
-		while(B := file.read(1)):
+	if	isinstance(path, str | Path) and ospath.isfile(path) and osaccess(path, R_OK):
 
-			try:	message += B.decode()
-			except:	message,invalid = message + "*",True
+		with open(path, "rb") as file:
+			while(B := file.read(1)):
 
-	if	invalid : return message
+
+				try:	message += B.decode()
+				except:	message,broken = message + "*",True
+
+
+		return	broken,	message
+	return		True,	message
 
 
 

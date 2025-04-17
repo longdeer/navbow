@@ -31,8 +31,35 @@ class SannerCase(unittest.TestCase):
 	# OL66
 
 
-	def test_byte_scan_invalid(self):	self.assertIsNotNone(byte_scan(os.path.join(self.wd, "WZ29")))
-	def test_byte_scan_valid(self):		self.assertIsNone(byte_scan(os.path.join(self.wd, "KA60")))
+	def test_byte_scan_invalid(self):
+
+		broken,message = byte_scan(os.path.join(self.wd, "WZ29"))
+		self.assertTrue(broken)
+		self.assertIsInstance(message,str)
+		self.assertTrue(len(message))
+
+	def test_byte_scan_valid(self):
+
+		broken,message = byte_scan(os.path.join(self.wd, "KA60"))
+		self.assertFalse(broken)
+		self.assertIsInstance(message,str)
+		self.assertTrue(len(message))
+
+	def test_byte_scan_others(self):
+
+		for other in (
+
+			int(), float(), bool(), None, ..., print, unittest,
+			[ "file" ],( "file", ),{ "file" },{ "path": "file" }
+		):
+			broken,message = byte_scan(other)
+			self.assertTrue(broken)
+			self.assertIsInstance(message,str)
+			self.assertFalse(len(message))
+
+
+
+
 	def test_statescan_JA94(self):
 
 		self.assertEqual(
