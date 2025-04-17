@@ -14,59 +14,63 @@ from typing		import Tuple
 
 
 
-def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[str,int]],List[Tuple[str,int]]] :
+def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[int,str]]] :
 
 	"""
 		[ extracted words ],[( unmatched punctuation, line index )]
 	"""
 
 	words = list()
-	punct = list()
 	stack = list()
 
 	for i,line in enumerate(lines,1):
 		for word in line:
 
-			t = list(word)
-			e = len(t) -1
-			w = str()
+			current = list()
+			buffer = 0
 			s = 0
 
-			while s <= e:
-				match t[s]:
+			while s <len(word):
+				match word[s]:
 
-					case "(":
+					case "("	if not current : stack.append(( i,"(" ))
+					case "'"	if not current : stack.append(( i,"'" ))
+					case "\""	if not current : stack.append(( i,"\"" ))
+					case _:		current += word[s]
 
-						if	t[e] != ")": punct.append(( "(",i ))
-						else:
-
-							s += 1
-							e -= 1
-							continue
-
-					case "'":
-
-						if	t[e] != "'": punct.append(( "'",i ))
-						else:
-
-							s += 1
-							e -= 1
-							continue
-
-					case "\"":
-
-						if	t[e] != "\"": punct.append(( "\"",i ))
-						else:
-
-							s += 1
-							e -= 1
-							continue
-
-				w += t[s]
 				s += 1
 
-			words.append(( w,i ))
-	return	words,punct + stack
+
+			for char in current[::-1]:
+
+				if char in ")'\"" : buffer += 1
+				else: break
+
+
+			if	buffer:
+				for j in range(-buffer,0):
+					match current[j]:
+
+						case ")" if stack and stack[-1][1] == "(":
+
+							stack.pop()
+							current.pop(j)
+
+						case "'" if stack and stack[-1][1] == "'":
+
+							stack.pop()
+							current.pop(j)
+
+						case "\"" if stack and stack[-1][1] == "\"":
+
+							stack.pop()
+							current.pop(j)
+
+						case _: stack.append(( i,current[j] ))
+
+
+			words.append(( str().join(current),i ))
+	return	words,stack
 
 
 
