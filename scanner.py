@@ -17,26 +17,40 @@ from typing		import Tuple
 def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[int,str]]] :
 
 	"""
-		[ extracted words ],[( unmatched punctuation, line index )]
+		Accepts list of lists of words, that represents message lines, and scans every single string
+		to distinguish words and punctuation. Every opening brackets and quotes will be stripped
+		by default no matter their matching, whenever closing unmatched will stay in final word.
+		Returns two lists:
+			- list of tuples of two: line index and word;
+			- list of tuples of two: line index and unmatched punctuation.
 	"""
 
 	words = list()
 	stack = list()
 
+
 	for i,line in enumerate(lines,1):
 		for word in line:
+
 
 			current = list()
 			buffer = 0
 			s = 0
 
+
 			while s <len(word):
 				match word[s]:
+
+					case ")"	if not current and stack and stack[-1][1] == "(" : stack.pop()
+					case "'"	if not current and stack and stack[-1][1] == "'" : stack.pop()
+					case "\""	if not current and stack and stack[-1][1] == "\"" : stack.pop()
 
 					case "("	if not current : stack.append(( i,"(" ))
 					case "'"	if not current : stack.append(( i,"'" ))
 					case "\""	if not current : stack.append(( i,"\"" ))
+
 					case _:		current += word[s]
+
 
 				s += 1
 
@@ -66,10 +80,11 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 							stack.pop()
 							current.pop(j)
 
+
 						case _: stack.append(( i,current[j] ))
 
 
-			words.append(( str().join(current),i ))
+			words.append(( i,str().join(current) ))
 	return	words,stack
 
 

@@ -37,15 +37,15 @@ class SannerCase(unittest.TestCase):
 		lines = [
 
 			[ "151930", "UTC", "FEB" ],
-			[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+			[ "CANCEL", "GERMAN", "NAV", "WARN", "079'19" ],
 		]
 		self.assertEqual(
 
 			word_scan(lines),
 			(
 				[
-					( "151930",1 ), ( "UTC",1 ), ( "FEB",1 ),
-					( "CANCEL",2 ), ( "GERMAN",2 ), ( "NAV",2 ), ( "WARN",2 ), ( "079/19",2 )
+					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
+					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN" ),( 2,"079'19" )
 				],
 				[]
 			)
@@ -64,12 +64,104 @@ class SannerCase(unittest.TestCase):
 			word_scan(lines),
 			(
 				[
-					( "151930",1 ), ( "UTC",1 ), ( "FEB",1 ),
-					( "CANCEL",2 ), ( "GERMAN",2 ), ( "NAV",2 ), ( "WARN",2 ), ( "079'19",2 )
+					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
+					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN" ),( 2,"079'19" )
 				],
-				[( "'",2 )]
+				[]
 			)
 		)
+
+
+	def test_word_scan_3(self):
+
+		lines = [
+
+			[ "(151930", "UTC)", "(FEB" ],
+			[ "CANCEL", "(GERMAN))", "(\"NAV", "WARN\")", "\"(079'19)\"" ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				[
+					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
+					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN" ),( 2,"079'19" )
+				],
+				[]
+			)
+		)
+
+
+	def test_word_scan_4(self):
+
+		lines = [
+
+			[ "(151930", "UTC))", "(FEB" ],
+			[ "(CANCEL", "(GERMAN))", "(\"NAV", "WARN)", "(079'19)\"" ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				[
+					( 1, "151930" ),( 1, "UTC)" ),( 1, "FEB" ),
+					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN)" ),( 2,"079'19\"" )
+				],
+				[
+					( 1,")" ),( 1,"(" ),( 2,"(" ),( 2,"\"" ),( 2,")" ),( 2,"\"" )
+				]
+			)
+		)
+
+
+	def test_word_scan_5(self):
+
+		lines = [
+
+			[ "((151930", "UTC)", "(FEB" ],
+			[ "CANCEL", "'(GERMAN))", "\"(NAV", "WARN\")", "\"(079'19\")" ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				[
+					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
+					( 2,"CANCEL" ),( 2,"GERMAN)" ),( 2,"NAV" ),( 2,"WARN\")" ),( 2,"079'19\")" )
+				],
+				[
+					( 1,"(" ),( 1,"(" ),( 2,"'" ),( 2,")" ),( 2,"\"" ),( 2,"(" ),
+					( 2,"\"" ),( 2,")" ),( 2,"\"" ),( 2,"(" ),( 2,"\"" ),( 2,")" )
+				]
+			)
+		)
+
+
+	def test_word_scan_6(self):
+
+		lines = [
+
+			[ "((((((((()))))))))", "('\"\"')", "(''\"\"()())" ],
+			[ "''('\"()\"')''", "''''''''''", "\"\"\"\"\"\"\"\"\"\"" ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			([( 1,"" ),( 1,"" ),( 1,"" ),( 2,"" ),( 2,"" ),( 2,"" )],[])
+		)
+
+
+	def test_word_scan_7(self):
+
+		lines = []
+		self.assertEqual(word_scan(lines),([],[]))
+
+
+	def test_word_scan_8(self):
+
+		lines = [[],[],[]]
+		self.assertEqual(word_scan(lines),([],[]))
+
 
 
 
