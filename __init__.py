@@ -1,7 +1,6 @@
-from typing								import Set
 from typing								import List
 from typing								import Dict
-from typing								import Literal
+from typing								import Tuple
 from NavtexBoWAnalyzer.header			import B1
 from NavtexBoWAnalyzer.header			import B2
 from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
@@ -40,27 +39,29 @@ class Navanalyzer:
 
 		self.station = station.upper()
 
-	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|Set[str]|List[str]] | None :
+	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|List[str]|Dict[str,List[str]]] :
 
 		"""
 			Ananlysis implementation that uses dictionary 
 		"""
 
-		# assert isinstance(BoW, dict), f"Uncompatible bag of words type {type(BoW)}"
-
 		if	isinstance(sanit := sanit_state(path), dict):
 			state = sanit.get("sanit")
 
 			if	isinstance(state, int) and state:
+				analysis = {
 
-				coords	= set()
-				nums	= set()
-				alnums	= set()
-				known	= set()
-				unknown	= set()
+					"known":	list(),
+					"unknown":	list(),
+					"coord":	list(),
+					"nums":		list(),
+					"alnums":	list(),
+					"punc":		list(),
+				}
+
+
 				lines	= sanit["air_lines"]
-				words	= sanit["chunks"]
-				header, *_, eos	= lines
+				header, *body, eos	= lines
 				state  ^= self.is_valid_header(" ".join(header)) <<2
 				state  ^= (eos == [ "NNNN" ]) <<3
 
@@ -88,18 +89,58 @@ class Navanalyzer:
 				return {
 
 					"state":	state,
-					"coords":	coords,
-					"nums":		nums,
-					"alnums":	alnums,
-					"known":	known,
-					"unknown":	unknown,
 					"lines":	lines,
+					"analysis":	analysis,
 				}
 			return	{
 
 				"message":	sanit.get("message"),
 				"state":	state,
 			}
+
+
+
+
+	def extract(self, lines :List[List[str]]) -> Tuple[List[Tuple[str,int]],List[Tuple[str,int]]] :
+
+		"""
+			[ extracted words ],[( unmatched punctuation, line index )]
+		"""
+
+		words = list()
+		punct = list()
+		stack = list()
+
+		for i,line in enumerate(lines,1):
+			for word in line:
+				current = str()
+
+				for char in word:
+					match char:
+
+						case ")":
+
+							if stack and stack[-1][0] == "(" : stack.pop()
+							else: stack.append(( char,i ))
+
+						case "'":
+
+							if stack and stack[-1][0] == "'" : stack.pop()
+							else: stack.append(( char,i ))
+
+						case "\"":
+
+							if stack and stack[-1][0] == "\"": stack.pop()
+							else: stack.append(( char,i ))
+
+
+						case "(":	stack.append(( char,i ))
+						case "'":	stack.append(( char,i ))
+						case "\"":	stack.append(( char,i ))
+						case _:		current += char
+
+				words.append(( current,i ))
+		return	words,punct + stack
 
 
 

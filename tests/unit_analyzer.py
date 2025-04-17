@@ -14,7 +14,10 @@ from	NavtexBoWAnalyzer.header import B2
 
 class AnalyzerCase(unittest.TestCase):
 
+
 	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
+	maxDiff = None
+
 
 	def test_valid_station_init(self):
 
@@ -329,6 +332,53 @@ class AnalyzerCase(unittest.TestCase):
 			[ "ZCZC AB00" ],( "ZCZC AB00", ),{ "ZCZC AB00" },{ "header": "ZCZC AB00" }
 		):
 			self.assertFalse(analyzer.is_valid_header(invalid))
+
+
+
+
+
+
+
+
+	def test_extract_1(self):
+
+		analyzer = Navanalyzer("J")
+		lines = [
+
+			[ "151930", "UTC", "FEB" ],
+			[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+		]
+		self.assertEqual(
+
+			analyzer.extract(lines),
+			(
+				[
+					( "151930",1 ), ( "UTC",1 ), ( "FEB",1 ),
+					( "CANCEL",2 ), ( "GERMAN",2 ), ( "NAV",2 ), ( "WARN",2 ), ( "079/19",2 )
+				],
+				[]
+			)
+		)
+
+
+	# def test_extract_2(self):
+
+	# 	analyzer = Navanalyzer("J")
+	# 	lines = [
+
+	# 		[ "ZCZC", "(JA94)" ],
+	# 		[ "151930", "((UTC))", "'FEB'" ],
+	# 		[ "('CANCEL')", "'('GERMAN')'", "\"NAV\"", "(\"WARN\")", "079'19" ],
+	# 		[ "NNNN" ]
+	# 	]
+	# 	self.assertEqual(
+
+	# 		analyzer.extract(lines),
+	# 		[
+	# 			"ZCZC", "JA94", "151930", "UTC", "FEB", "CANCEL",
+	# 			"GERMAN","NAV", "WARN", "079", "19", "NNNN"
+	# 		],[ "'",3 ]
+	# 	)
 
 
 
