@@ -82,20 +82,20 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
 		for raw in raw_lines:
 			air = list()
 
+			if	(split := raw.split()):
+				for word in split:
 
-			for word in raw.split():
-
-				current = word.upper()
-				air.append(current)
-				chunks.add(current)
-
-
-				for char in current : symbols.add(char)
+					current = word.upper()
+					air.append(current)
+					chunks.add(current)
 
 
-			air_lines.append(air)
-			sanit |= (" ".join(air) != raw) <<1
-			sanit |= 1
+					for char in current : symbols.add(char)
+
+
+				air_lines.append(air)
+				sanit |= (" ".join(air) != raw) <<1
+				sanit |= 1
 
 
 		return {

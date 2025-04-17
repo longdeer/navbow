@@ -57,7 +57,61 @@ class SannerCase(unittest.TestCase):
 			self.assertIsInstance(message,str)
 			self.assertFalse(len(message))
 
+	def test_byte_scan_empty(self):
 
+		broken,message = byte_scan(os.path.join(self.wd, "empty"))
+		self.assertFalse(broken)
+		self.assertIsInstance(message,str)
+		self.assertFalse(len(message))
+
+	def test_byte_scan_spaces(self):
+
+		broken,message = byte_scan(os.path.join(self.wd, "spaces"))
+		self.assertFalse(broken)
+		self.assertIsInstance(message,str)
+		self.assertTrue(len(message))
+
+
+
+
+	def test_sanit_invalid(self):
+
+		scan = sanit_state(os.path.join(self.wd, "WZ29"))
+		self.assertIsInstance(scan, dict)
+		self.assertEqual(len(scan),2)
+		self.assertEqual(scan.get("sanit"),0)
+		self.assertIsInstance(scan.get("message"),str)
+		self.assertTrue(len(scan.get("message")))
+
+
+	def test_sanit_empty(self):
+
+		self.assertEqual(
+
+			sanit_state(os.path.join(self.wd, "empty")),
+			{
+				"raw_lines":	[],
+				"air_lines":	[],
+				"chunks":		set(),
+				"symbols":		set(),
+				"sanit":		0,
+			}
+		)
+
+
+	def test_sanit_spaces(self):
+
+		self.assertEqual(
+
+			sanit_state(os.path.join(self.wd, "spaces")),
+			{
+				"raw_lines":	[],
+				"air_lines":	[],
+				"chunks":		set(),
+				"symbols":		set(),
+				"sanit":		0,
+			}
+		)
 
 
 	def test_sanit_JA94(self):
