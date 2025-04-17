@@ -2,7 +2,7 @@ import	os
 import	unittest
 import	NavtexBoWAnalyzer
 from	NavtexBoWAnalyzer.scanner import byte_scan
-from	NavtexBoWAnalyzer.scanner import sanit_scan
+from	NavtexBoWAnalyzer.scanner import sanit_state
 
 
 
@@ -60,11 +60,11 @@ class SannerCase(unittest.TestCase):
 
 
 
-	def test_statescan_JA94(self):
+	def test_sanit_JA94(self):
 
 		self.assertEqual(
 
-			sanit_scan(os.path.join(self.wd, "JA94")),
+			sanit_state(os.path.join(self.wd, "JA94")),
 			{
 				"raw_lines": [
 
@@ -100,11 +100,11 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_statescan_BA33(self):
+	def test_sanit_BA33(self):
 
 		self.assertEqual(
 
-			sanit_scan(os.path.join(self.wd, "BA33")),
+			sanit_state(os.path.join(self.wd, "BA33")),
 			{
 				"raw_lines": [
 
@@ -158,11 +158,11 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_statescan_NA22(self):
+	def test_sanit_NA22(self):
 
 		self.assertEqual(
 
-			sanit_scan(os.path.join(self.wd, "IA76")),
+			sanit_state(os.path.join(self.wd, "IA76")),
 			{
 				"raw_lines": [
 
@@ -263,11 +263,11 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_statescan_IA76(self):
+	def test_sanit_IA76(self):
 
 		self.assertEqual(
 
-			sanit_scan(os.path.join(self.wd, "IA76")),
+			sanit_state(os.path.join(self.wd, "IA76")),
 			{
 				"raw_lines": [
 

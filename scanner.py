@@ -31,8 +31,13 @@ def byte_scan(path :str | Path) -> Tuple[bool,str] :
 		with open(path, "rb") as file:
 			while(B := file.read(1)):
 
+				try:
 
-				try:	message += B.decode()
+					match (symbol := B.decode()):
+
+						case "\r":	message += "\n"
+						case _:		message += symbol
+
 				except:	message,broken = message + "*",True
 
 
@@ -46,12 +51,12 @@ def byte_scan(path :str | Path) -> Tuple[bool,str] :
 
 
 
-def sanit_scan(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
+def sanit_state(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
 
 	"""
-		Scans message in utf-8 mode (after byte_scan) and disassembles it to:
+		Scans message with "byte_scan" and disassembles it to:
 			- raw_lines, unmodified strings obtained after split to lines;
-			- air_lines, fully sanitized proper strings of splitted lines;
+			- air_lines, fully sanitized proper strings of lines split;
 			- chunks, set of strings (every word);
 			- symbols, all non-whitespace symbols in the message.
 		Also maintains a "sanit" state integer that is:
@@ -59,45 +64,52 @@ def sanit_scan(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
 			- has first bit set if any proper line "proper" encountered;
 			- has second bit set if any proper line "proper" and corresponding "raw" line
 			inequality encountered.
-		Returns the dictionary of mentioned key-value pairs, or None if any Exceptions caught.
+		Returns the dictionary of mentioned key-value pairs in case of False value , or a dictionary with
+		zero "sanit" and "message" string from "byte_scan" if one encountered not utf-8 symbol.
 	"""
 
 	sanit		= 0
-	chunks		= set()
-	symbols		= set()
-	raw_lines	= list()
-	air_lines	= list()
+	F,message	= byte_scan(path)
 
-	try:
+	if	not F:
 
-		with open(path) as file:
-			for line in file:
+		raw_lines	= [ line for line in message.split("\n") if line and not line.isspace() ]
+		air_lines	= list()
+		symbols		= set()
+		chunks		= set()
 
-				raw = line.rstrip("\n")
-				raw_lines.append(raw)
-				air = list()
 
-				if	(split := raw.split()):
-					for word in split:
+		for raw in raw_lines:
+			air = list()
 
-						current = word.upper()
-						air.append(current)
-						chunks.add(current)
 
-						for char in current : symbols.add(char)
+			for word in raw.split():
 
-					air_lines.append(air)
-					sanit |= (" ".join(air) != raw) <<1
-					sanit |= 1
+				current = word.upper()
+				air.append(current)
+				chunks.add(current)
 
-	except:	return
-	else:	return {
 
-		"raw_lines":	raw_lines,
-		"air_lines":	air_lines,
-		"symbols":		symbols,
-		"chunks":		chunks,
-		"sanit":		sanit,
+				for char in current : symbols.add(char)
+
+
+			air_lines.append(air)
+			sanit |= (" ".join(air) != raw) <<1
+			sanit |= 1
+
+
+		return {
+
+			"raw_lines":	raw_lines,
+			"air_lines":	air_lines,
+			"symbols":		symbols,
+			"chunks":		chunks,
+			"sanit":		sanit,
+		}
+	return	{
+
+		"message":	message,
+		"sanit":	sanit,
 	}
 
 
