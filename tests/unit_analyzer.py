@@ -396,6 +396,74 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertFalse(len(result["analysis"]["punc"]))
 
 
+	def test_analysis_3(self):
+
+		analyzer = Navanalyzer("O")
+		result = analyzer.with_mapping(
+
+			os.path.join(self.wd, "OL66"),
+			{
+				"CTF":		1,
+				"SOUND":	1,
+				"SOUTH":	1,
+				"CONTACT":	1,
+				"CANCEL":	0,
+			}
+		)
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 3)
+		self.assertEqual(result.get("state"), 47) # 1 + 2 + 4 + 8 + 32
+		self.assertIsInstance(result.get("lines"), list)
+		self.assertEqual(
+
+			result.get("lines"),
+			[
+				[ "ZCZC", "OL66" ],
+				[ "OL66" ],
+				[ "FOSNNI", "SUBFACTS", "AND", "GUNFACTS", "WARNING", "(ALL", "TIMES", "UTC):" ],
+				[ "1.", "DIVED", "SUBMARINE", "OPERATIONS", "IN", "PROGRESS:" ],
+				[
+					"INNER", "SOUND", "-", "INSIDE", "OF", "SKYE", "SOUTH", "OF",
+					"RUBHA", "REIDH", "NORTH", "OF", "MALLAIG.", "BETWEEN"
+				],
+				[ "120600", "AND", "130700", "SEP." ],
+				[ "2.", "LIVE", "GUNNERY", "FIRINGS", "IN", "PROGRESS:", "NIL." ],
+				[
+					"FULL", "DETAILS", "IN", "HM", "COASTGUARD", "RESCUE",
+					"CENTRES", "VHF", "AND", "MF", "BROADCASTS", "OR", "CONTACT"
+				],
+				[ "CTF", "311", "PHONE", "(44)(0)1923", "956366." ],
+				[ "CANCEL", "OL65" ],
+				[ "NNNN" ]
+			]
+		)
+		self.assertIsInstance(result.get("analysis"), dict)
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertFalse(len(result["analysis"]["coords"]))
+		self.assertIn("alnums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["alnums"], dict)
+		self.assertFalse(len(result["analysis"]["alnums"]))
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["151930"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["079/19"][2],1)
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+		self.assertEqual(result["analysis"]["unknown"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["FEB"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["CANCEL"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["GERMAN"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["NAV"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["WARN"][2],1)
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertFalse(len(result["analysis"]["known"]))
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
+
+
 
 
 

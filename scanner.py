@@ -26,66 +26,40 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 			- list of tuples of two: line index and unmatched punctuation.
 	"""
 
+	scope = { ")":"(", "'":"'", "\"":"\"" }
 	words = defaultdict(list)
 	stack = list()
 
 
 	for i,line in enumerate(lines,1):
 		for word in line:
-
-
 			current = list()
-			buffer = 0
-			s = 0
 
 
-			while s <len(word):
-				match word[s]:
-
-					case ")"	if not current and stack and stack[-1][1] == "(" : stack.pop()
-					case "'"	if not current and stack and stack[-1][1] == "'" : stack.pop()
-					case "\""	if not current and stack and stack[-1][1] == "\"": stack.pop()
-
-					case "("	if not current : stack.append(( i,"(" ))
-					case "'"	if not current : stack.append(( i,"'" ))
-					case "\""	if not current : stack.append(( i,"\"" ))
-
-					case _:		current += word[s]
+			for char in word:
+				match char:
 
 
-				s += 1
+					case ")" | "'" | "\"":
 
+						if	stack and stack[-1][1] == scope[char]:
+							if	current:
 
-			for char in current[::-1]:
-
-				if char in ")'\"" : buffer += 1
-				else: break
-
-
-			if	buffer:
-				for j in range(-buffer,0):
-					match current[j]:
-
-						case ")" if stack and stack[-1][1] == "(":
+								words[i].append(str().join(current))
+								current = list()
 
 							stack.pop()
-							current.pop(j)
-
-						case "'" if stack and stack[-1][1] == "'":
-
-							stack.pop()
-							current.pop(j)
-
-						case "\"" if stack and stack[-1][1] == "\"":
-
-							stack.pop()
-							current.pop(j)
+						else:
+							stack.append(( i,char ))
+							if current : current.append(char) # openning
 
 
-						case _: stack.append(( i,current[j] ))
+					# Always count as openning
+					case "(":	stack.append(( i,char ))
+					case _:		current.append(char)
 
 
-			words[i].append(str().join(current))
+			if current : words[i].append(str().join(current))
 	return	words,stack
 
 
