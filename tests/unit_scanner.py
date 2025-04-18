@@ -15,6 +15,7 @@ from	NavtexBoWAnalyzer.scanner import sanit_state
 class SannerCase(unittest.TestCase):
 
 	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
+	maxDiff = None
 	# Invalid:
 	# WZ29
 	# Not sanit:
@@ -33,7 +34,7 @@ class SannerCase(unittest.TestCase):
 	# SE94
 
 
-	def test_word_scan_1(self):
+	def test_word_scan_001(self):
 
 		lines = [
 
@@ -53,7 +54,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_2(self):
+	def test_word_scan_002(self):
 
 		lines = [
 
@@ -73,7 +74,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_3(self):
+	def test_word_scan_003(self):
 
 		lines = [
 
@@ -93,7 +94,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_4(self):
+	def test_word_scan_004(self):
 
 		lines = [
 
@@ -116,7 +117,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_5(self):
+	def test_word_scan_005(self):
 
 		lines = [
 
@@ -139,7 +140,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_6(self):
+	def test_word_scan_006(self):
 
 		lines = [
 
@@ -149,7 +150,7 @@ class SannerCase(unittest.TestCase):
 		self.assertEqual(word_scan(lines),({},[]))
 
 
-	def test_word_scan_7(self):
+	def test_word_scan_007(self):
 
 		lines = [[ "CTF", "311", "PHONE", "(44)(0)1923", "956366." ]]
 		self.assertEqual(
@@ -164,19 +165,19 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_8(self):
+	def test_word_scan_008(self):
 
 		lines = []
 		self.assertEqual(word_scan(lines),({},[]))
 
 
-	def test_word_scan_9(self):
+	def test_word_scan_009(self):
 
 		lines = [[],[],[]]
 		self.assertEqual(word_scan(lines),({},[]))
 
 
-	def test_word_scan_10(self):
+	def test_word_scan_010(self):
 
 		lines = [
 
@@ -190,7 +191,7 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_11(self):
+	def test_word_scan_011(self):
 
 		lines = [
 
@@ -210,40 +211,55 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_word_scan_12(self):
+	def test_word_scan_012(self):
 
 		lines = [[ "ANTICYCLONE'S", "INFLUENCE" ]]
 		self.assertEqual(word_scan(lines),({ 1: [ "ANTICYCLONE'S", "INFLUENCE" ]},[( 1,"'" )]))
 
 
-	def test_word_scan_13(self):
+	def test_word_scan_013(self):
 
 		lines = [[ "ANTICYCLONE'", "INFLUENCE" ]]
 		self.assertEqual(word_scan(lines),({ 1: [ "ANTICYCLONE'", "INFLUENCE" ]},[( 1,"'" )]))
 
 
-	def test_word_scan_14(self):
+	def test_word_scan_014(self):
 
 		lines = [[ "BUOY", "M2", "53", "29'N", "5", "26'W" ]]
 		self.assertEqual(word_scan(lines),({ 1: [ "BUOY", "M2", "53", "29'N", "5", "26", "W" ]},[]))
 
 
-	def test_word_scan_15(self):
+	def test_word_scan_015(self):
 
 		lines = [
 
 			[ "BUOY.", "BUOY..", "BUOY.,", "BUOY.:", "BUOY:.",  ],
 			[ "BUOY,", "BUOY,.", "BUOY,,", "BUOY,:", "BUOY:,",  ],
-			[ "BUOY:", "BUOY::", "BUOY,,:", "BUOY.,:", "BUOY..:",  ],
+			[ "BUOY:", "BUOY::", "BUOY,,:", "BUOY.,:", "BUOY..:"  ],
 		]
 		self.assertEqual(
 
 			word_scan(lines),
 			(
 				{
-					1: [ "BUOY", "BUOY.", "BUOY.", "BUOY.", "BUOY:",  ],
-					2: [ "BUOY", "BUOY,", "BUOY,", "BUOY,", "BUOY:",  ],
-					3: [ "BUOY", "BUOY:", "BUOY,,", "BUOY.,", "BUOY..",  ],
+					1: [ "BUOY", "BUOY.", "BUOY.", "BUOY.", "BUOY", "."  ],
+					2: [ "BUOY", "BUOY", ".", "BUOY", ",", "BUOY", ":", "BUOY", ","  ],
+					3: [ "BUOY", "BUOY", ":", "BUOY", ",", "BUOY.", ":", "BUOY.."  ]
+				},
+				[]
+			)
+		)
+
+
+	def test_word_scan_016(self):
+
+		lines = [[ "N-ERN", "ADRIATIC", "-", "BRIJUNI", "-", "CHRT:100-16"  ]]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				{
+					1: [ "N-ERN", "ADRIATIC", "-", "BRIJUNI", "-", "CHRT", "100-16"  ]
 				},
 				[]
 			)

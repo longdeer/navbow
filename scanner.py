@@ -15,15 +15,16 @@ from typing			import Tuple
 
 
 
-def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[int,str]]] :
+def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[int,str]]] :
 
 	"""
 		Accepts list of lists of words, that represents message lines, and scans every single string
 		to distinguish words and punctuation. Every opening brackets and quotes will be stripped
 		by default no matter their matching, whenever closing unmatched will stay in final word.
-		Returns two lists:
-			- list of tuples of two: line index and word;
-			- list of tuples of two: line index and unmatched punctuation.
+		Coma and colon are treated like a word separation. One dot at the end of a word will be stripped,
+		if word has more than one symbol. Returns tuple of two:
+			- dictionary which is mapping of tuples line number with list of words;
+			- list of tuples of two: line number and unmatched punctuation.
 	"""
 
 	scope = { ")":"(", "'":"'", "\"":"\"" }
@@ -40,10 +41,13 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 				match char:
 
 
+					# Every punctuation that matched in stack will form a word
+					# and pop the stack. Every unmatched will go in stack and
+					# in word if "current" is not empty.
 					case ")" | "'" | "\"":
 
 						if	stack and stack[-1][1] == scope[char]:
-							if	current and current[-1] in ",.:" : current.pop()
+							if	1 <len(current) and current[-1] == "." : current.pop()
 							if	current:
 
 								words[i].append(str().join(current))
@@ -52,15 +56,21 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 							stack.pop()
 						else:
 							stack.append(( i,char ))
-							if current : current.append(char) # openning
+							if current : current.append(char)
 
 
-					# Always count as openning
-					case "(":	stack.append(( i,char ))
+					# Immediately separates a word. If in sequence,
+					# every even char will go to "current" as a part of new word.
+					case "," | ":" if current:
+
+						words[i].append(str().join(current))
+						current = list()
+
+					case "(":	stack.append(( i,char )) # Always count opening
 					case _:		current.append(char)
 
 
-			if current and current[-1] in ",.:" : current.pop()
+			if 1 <len(current) and current[-1] == "." : current.pop()
 			if current : words[i].append(str().join(current))
 	return	words,stack
 
