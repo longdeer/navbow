@@ -43,6 +43,7 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 					case ")" | "'" | "\"":
 
 						if	stack and stack[-1][1] == scope[char]:
+							if	current and current[-1] in ",.:" : current.pop()
 							if	current:
 
 								words[i].append(str().join(current))
@@ -59,6 +60,7 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 					case _:		current.append(char)
 
 
+			if current and current[-1] in ",.:" : current.pop()
 			if current : words[i].append(str().join(current))
 	return	words,stack
 

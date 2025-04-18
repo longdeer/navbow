@@ -157,7 +157,7 @@ class SannerCase(unittest.TestCase):
 			word_scan(lines),
 			(
 				{
-					1: [ "CTF", "311", "PHONE", "44", "0", "1923", "956366." ],
+					1: [ "CTF", "311", "PHONE", "44", "0", "1923", "956366" ],
 				},
 				[]
 			)
@@ -226,6 +226,28 @@ class SannerCase(unittest.TestCase):
 
 		lines = [[ "BUOY", "M2", "53", "29'N", "5", "26'W" ]]
 		self.assertEqual(word_scan(lines),({ 1: [ "BUOY", "M2", "53", "29'N", "5", "26", "W" ]},[]))
+
+
+	def test_word_scan_15(self):
+
+		lines = [
+
+			[ "BUOY.", "BUOY..", "BUOY.,", "BUOY.:", "BUOY:.",  ],
+			[ "BUOY,", "BUOY,.", "BUOY,,", "BUOY,:", "BUOY:,",  ],
+			[ "BUOY:", "BUOY::", "BUOY,,:", "BUOY.,:", "BUOY..:",  ],
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				{
+					1: [ "BUOY", "BUOY.", "BUOY.", "BUOY.", "BUOY:",  ],
+					2: [ "BUOY", "BUOY,", "BUOY,", "BUOY,", "BUOY:",  ],
+					3: [ "BUOY", "BUOY:", "BUOY,,", "BUOY.,", "BUOY..",  ],
+				},
+				[]
+			)
+		)
 
 
 
