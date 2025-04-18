@@ -106,7 +106,7 @@ def byte_scan(path :str | Path) -> Tuple[bool,str] :
 
 
 
-def sanit_state(path :str | Path) -> Dict[str,int|Set[str]|List[str]] | None :
+def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 
 	"""
 		Scans message with "byte_scan" and disassembles it to:
