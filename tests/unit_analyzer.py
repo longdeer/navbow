@@ -340,7 +340,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_1(self):
+	def test_analysis_WZ29(self):
 
 		analyzer = Navanalyzer("W")
 		result = analyzer.with_mapping(os.path.join(self.wd, "WZ29"), dict())
@@ -351,7 +351,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("*", result.get("message"))
 
 
-	def test_analysis_2(self):
+	def test_analysis_JA94(self):
 
 		analyzer = Navanalyzer("J")
 		result = analyzer.with_mapping(os.path.join(self.wd, "JA94"), dict())
@@ -396,7 +396,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertFalse(len(result["analysis"]["punc"]))
 
 
-	def test_analysis_3(self):
+	def test_analysis_OL66(self):
 
 		analyzer = Navanalyzer("O")
 		result = analyzer.with_mapping(
@@ -444,6 +444,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("alnums", result["analysis"])
 		self.assertIsInstance(result["analysis"]["alnums"], dict)
 		self.assertFalse(len(result["analysis"]["alnums"]))
+
 		self.assertIn("nums", result["analysis"])
 		self.assertIsInstance(result["analysis"]["nums"], dict)
 		self.assertEqual(result["analysis"]["nums"]["1"][3],1)
@@ -455,6 +456,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["nums"]["0"][8],1)
 		self.assertEqual(result["analysis"]["nums"]["1923"][8],1)
 		self.assertEqual(result["analysis"]["nums"]["956366"][8],1)
+
 		self.assertIn("unknown", result["analysis"])
 		self.assertIsInstance(result["analysis"]["unknown"], dict)
 		self.assertEqual(result["analysis"]["unknown"]["OL66"][1],1)
@@ -522,6 +524,206 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+
+
+
+	def test_analysis_QA42(self):
+
+		analyzer = Navanalyzer("Q")
+		result = analyzer.with_mapping(
+
+			os.path.join(self.wd, "QA42"),
+			{
+				"CTF":			1,
+				"SOUND":		1,
+				"SOUTH":		1,
+				"CONTACT":		1,
+				"UNTIL":		1,
+				"FURTHER":		1,
+				"FROM":			1,
+				"UTC":			1,
+				"CONDUCTING":	1,
+				"UNDERWATER":	1,
+				"GAS":			1,
+				"PIPELINE":		0,
+				"CANCEL":		0,
+			}
+		)
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 3)
+		self.assertEqual(result.get("state"), 125) # 1 + 4 + 8 + 16 + 32 + 64
+		self.assertIsInstance(result.get("lines"), list)
+		self.assertEqual(
+
+			result.get("lines"),
+			[
+				[ "ZCZC", "QA42" ],
+				[ "092240", "UTC", "JUN", "19" ],
+				[ "SPLIT", "RADIO" ],
+				[ "NAV", "WNG", "NR", "193/19" ],
+				[ "N-ERN", "ADRIATIC", "-", "BRIJUNI", "-", "CHRT:100-16" ],
+				[
+					"UNTIL", "FURTHER", "NOTICEFROM", "0700", "LT", "TO", "1900",
+					"LT", "(FROM", "0500", "UTC", "TO", "1700", "UTC)M/V"
+				],
+				[
+					"REFUL", "CONDUCTING", "UNDERWATER", "GAS", "PIPELINE",
+					"MAINTENANCE", "WORKS", "BETWEEN", "POSITIONS:"
+				],
+				[ "A)", "44", "543", "N", "-", "013", "487", "E" ],
+				[ "B)", "44", "537", "N", "-", "013", "477", "E" ],
+				[ "C)", "44", "530", "N", "-", "013", "455", "E" ],
+				[ "D)", "44", "531", "N", "-", "013", "436", "E" ],
+				[ "E)", "44", "508", "N", "-", "013", "386", "E" ],
+				[ "CONTACT", "VHF", "CH", "16." ],
+				[
+					"NAVIGATION", "AND", "FISHING", "IN", "RADIUS", "05",
+					"MILES", "FROM", "THE", "VESSEL", "PROHIBITED."
+				],
+				[ "NNNN" ]
+			]
+		)
+
+		self.assertIsInstance(result.get("analysis"), dict)
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertFalse(len(result["analysis"]["coords"]))
+		self.assertIn("alnums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["alnums"], dict)
+		self.assertFalse(len(result["analysis"]["alnums"]))
+
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["092240"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["19"][1],1)
+
+		self.assertEqual(result["analysis"]["nums"]["193/19"][3],1)
+
+		self.assertEqual(result["analysis"]["nums"]["100-16"][4],1)
+
+		self.assertEqual(result["analysis"]["nums"]["0700"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["1900"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["0500"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["1700"][5],1)
+
+		self.assertEqual(result["analysis"]["nums"]["44"][7],1)
+		self.assertEqual(result["analysis"]["nums"]["543"][7],1)
+		self.assertEqual(result["analysis"]["nums"]["013"][7],1)
+		self.assertEqual(result["analysis"]["nums"]["487"][7],1)
+
+		self.assertEqual(result["analysis"]["nums"]["44"][8],1)
+		self.assertEqual(result["analysis"]["nums"]["537"][8],1)
+		self.assertEqual(result["analysis"]["nums"]["013"][8],1)
+		self.assertEqual(result["analysis"]["nums"]["477"][8],1)
+
+		self.assertEqual(result["analysis"]["nums"]["44"][9],1)
+		self.assertEqual(result["analysis"]["nums"]["530"][9],1)
+		self.assertEqual(result["analysis"]["nums"]["013"][9],1)
+		self.assertEqual(result["analysis"]["nums"]["455"][9],1)
+
+		self.assertEqual(result["analysis"]["nums"]["44"][10],1)
+		self.assertEqual(result["analysis"]["nums"]["531"][10],1)
+		self.assertEqual(result["analysis"]["nums"]["013"][10],1)
+		self.assertEqual(result["analysis"]["nums"]["436"][10],1)
+
+		self.assertEqual(result["analysis"]["nums"]["44"][11],1)
+		self.assertEqual(result["analysis"]["nums"]["508"][11],1)
+		self.assertEqual(result["analysis"]["nums"]["013"][11],1)
+		self.assertEqual(result["analysis"]["nums"]["386"][11],1)
+
+		self.assertEqual(result["analysis"]["nums"]["16"][12],1)
+
+		self.assertEqual(result["analysis"]["nums"]["05"][13],1)
+
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+
+		self.assertEqual(result["analysis"]["unknown"]["JUN"][1],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["SPLIT"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["RADIO"][2],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["NAV"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["WNG"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["NR"][3],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["N-ERN"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["ADRIATIC"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][4],2)
+		self.assertEqual(result["analysis"]["unknown"]["BRIJUNI"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["CHRT"][4],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["NOTICEFROM"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["LT"][5],2)
+		self.assertEqual(result["analysis"]["unknown"]["TO"][5],2)
+		self.assertEqual(result["analysis"]["unknown"]["M/V"][5],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["REFUL"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["PIPELINE"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["MAINTENANCE"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["WORKS"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["BETWEEN"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["POSITIONS"][6],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["A)"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["N"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["E"][7],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["B)"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["N"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["E"][8],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["C)"][9],1)
+		self.assertEqual(result["analysis"]["unknown"]["N"][9],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][9],1)
+		self.assertEqual(result["analysis"]["unknown"]["E"][9],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["D)"][10],1)
+		self.assertEqual(result["analysis"]["unknown"]["N"][10],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][10],1)
+		self.assertEqual(result["analysis"]["unknown"]["E"][10],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["E)"][11],1)
+		self.assertEqual(result["analysis"]["unknown"]["N"][11],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][11],1)
+		self.assertEqual(result["analysis"]["unknown"]["E"][11],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["VHF"][12],1)
+		self.assertEqual(result["analysis"]["unknown"]["CH"][12],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["NAVIGATION"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["AND"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["FISHING"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["IN"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["RADIUS"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["MILES"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["THE"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["VESSEL"][13],1)
+		self.assertEqual(result["analysis"]["unknown"]["PROHIBITED"][13],1)
+
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertEqual(result["analysis"]["known"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["known"]["UTC"][5],2)
+		self.assertEqual(result["analysis"]["known"]["UNTIL"][5],1)
+		self.assertEqual(result["analysis"]["known"]["FURTHER"][5],1)
+		self.assertEqual(result["analysis"]["known"]["FROM"][5],1)
+		self.assertEqual(result["analysis"]["known"]["GAS"][6],1)
+		self.assertEqual(result["analysis"]["known"]["CONDUCTING"][6],1)
+		self.assertEqual(result["analysis"]["known"]["UNDERWATER"][6],1)
+		self.assertEqual(result["analysis"]["known"]["CONTACT"][12],1)
+		self.assertEqual(result["analysis"]["known"]["FROM"][13],1)
+
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertEqual(result["analysis"]["punc"][")"][7],1)
+		self.assertEqual(result["analysis"]["punc"][")"][8],1)
+		self.assertEqual(result["analysis"]["punc"][")"][9],1)
+		self.assertEqual(result["analysis"]["punc"][")"][10],1)
+		self.assertEqual(result["analysis"]["punc"][")"][11],1)
 
 
 
