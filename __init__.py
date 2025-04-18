@@ -55,7 +55,8 @@ class Navanalyzer:
 			if	isinstance(state, int) and state:
 
 
-				raw_lines	= sanit["air_lines"]
+				raw_lines	= sanit["raw_lines"]
+				air_lines	= sanit["air_lines"]
 				analysis	= {
 
 					"coords":	defaultdict(lambda : defaultdict(int)),
@@ -67,7 +68,7 @@ class Navanalyzer:
 				}
 
 
-				header, *body, eos = raw_lines
+				header, *body, eos = air_lines
 				state  ^= self.is_valid_header(" ".join(header)) <<2
 				state  ^= (eos == [ "NNNN" ]) <<3
 				scan	= word_scan(body)
@@ -75,6 +76,7 @@ class Navanalyzer:
 
 				for line,unmatch in scan[1]: analysis["punc"][unmatch][line] += 1
 				for i in range(1,len(scan[0]) +1):
+
 
 					line = scan[0][i]
 					state |= bool(G_MESSAGE_CDT.fullmatch(" ".join(line))) <<6
@@ -87,6 +89,7 @@ class Navanalyzer:
 						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][i] += 1
 						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][i] += 1
 						else:
+
 
 							try:	BoW_state = BoW[word]
 							except:	BoW_state = 0
@@ -103,9 +106,10 @@ class Navanalyzer:
 									state |= 1 <<4
 				return {
 
-					"state":	state,
-					"lines":	raw_lines,
 					"analysis":	analysis,
+					"state":	state,
+					"air":		air_lines,
+					"raw":		raw_lines,
 				}
 			return	{
 

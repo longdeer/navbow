@@ -356,12 +356,13 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = Navanalyzer("J")
 		result = analyzer.with_mapping(os.path.join(self.wd, "JA94"), dict())
 		self.assertIsInstance(result, dict)
-		self.assertEqual(len(result), 3)
+		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
-		self.assertIsInstance(result.get("lines"), list)
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
 		self.assertEqual(
 
-			result.get("lines"),
+			result.get("air"),
 			[
 				[ "ZCZC", "JA94" ],
 				[ "151930", "UTC", "FEB" ],
@@ -411,12 +412,13 @@ class AnalyzerCase(unittest.TestCase):
 			}
 		)
 		self.assertIsInstance(result, dict)
-		self.assertEqual(len(result), 3)
+		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 63) # 1 + 2 + 4 + 8 + 16 + 32
-		self.assertIsInstance(result.get("lines"), list)
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
 		self.assertEqual(
 
-			result.get("lines"),
+			result.get("air"),
 			[
 				[ "ZCZC", "OL66" ],
 				[ "OL66" ],
@@ -551,12 +553,13 @@ class AnalyzerCase(unittest.TestCase):
 			}
 		)
 		self.assertIsInstance(result, dict)
-		self.assertEqual(len(result), 3)
+		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 125) # 1 + 4 + 8 + 16 + 32 + 64
-		self.assertIsInstance(result.get("lines"), list)
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
 		self.assertEqual(
 
-			result.get("lines"),
+			result.get("air"),
 			[
 				[ "ZCZC", "QA42" ],
 				[ "092240", "UTC", "JUN", "19" ],
@@ -750,12 +753,13 @@ class AnalyzerCase(unittest.TestCase):
 			}
 		)
 		self.assertIsInstance(result, dict)
-		self.assertEqual(len(result), 3)
+		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 61) # 1 + 4 + 8 + 16 + 32
-		self.assertIsInstance(result.get("lines"), list)
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
 		self.assertEqual(
 
-			result.get("lines"),
+			result.get("air"),
 			[
 				[ "ZCZC", "SE94" ],
 				[ "171900", "NAVTEX-HAMBURG", "(NCC)" ],

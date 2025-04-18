@@ -335,7 +335,7 @@ class SannerCase(unittest.TestCase):
 
 			sanit_state(os.path.join(self.wd, "empty")),
 			{
-				"raw_lines":	[],
+				"raw_lines":	[ "" ],
 				"air_lines":	[],
 				"chunks":		set(),
 				"symbols":		set(),
@@ -350,7 +350,7 @@ class SannerCase(unittest.TestCase):
 
 			sanit_state(os.path.join(self.wd, "spaces")),
 			{
-				"raw_lines":	[],
+				"raw_lines":	[ "","\t","     "," \t \t","","" ],
 				"air_lines":	[],
 				"chunks":		set(),
 				"symbols":		set(),
@@ -371,6 +371,7 @@ class SannerCase(unittest.TestCase):
 					"151930 UTC FEB",
 					"CANCEL GERMAN NAV WARN 079/19",
 					"NNNN",
+					""
 				],
 				"air_lines": [
 
@@ -407,6 +408,7 @@ class SannerCase(unittest.TestCase):
 			{
 				"raw_lines": [
 
+					"",
 					"ZCZC BA33",
 					"181136 UTC MAR 19",
 					"NORWEGIAN NAV. WARNING 198/2019",
@@ -414,7 +416,7 @@ class SannerCase(unittest.TestCase):
 					"AREA LOFOTEN INNERSIDEN",
 					"FESTVAAG LIGHT 68-10.2N 014-12.6E IS UNLIT.",
 					"NNNN",
-
+					""
 				],
 				"air_lines": [
 
@@ -461,103 +463,55 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "IA76")),
+			sanit_state(os.path.join(self.wd, "NA22")),
 			{
 				"raw_lines": [
 
-					"ZCZC IA76",
-					"210800 UTC JAN",
-					"BALTIC ICE INFORMATION",
-					"VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL 'ICEINFO'",
-					"ON VHF OR",
-					"PHONE +46 (0)10 492 76 00 AS FOLLOWS:",
-					"WHEN PASSING LAT N60 ON VHF CH 78.",
-					"ARRIVAL REPORT ON VHF CH 16 WHEN THE SHIP IS WELL MOORED.",
-					"DEPARTURE REPORT ON VHF CH 16 LATEST 6 HOURS BEFORE DEPARTURE.",
-					"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
+					"ZCZC NA22",
+					"110905 UTC MAR 19",
+					"NORWEGIAN NAV. WARNING 184/2019",
+					"CHART  36",
+					"AREA GRIP",
+					"HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE",
 					"NNNN",
+					""
 				],
 				"air_lines": [
 
-					[ "ZCZC", "IA76" ],
-					[ "210800", "UTC", "JAN" ],
-					[ "BALTIC", "ICE", "INFORMATION" ],
-					[
-						"VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO",
-						"TRAFFIC", "RESTRICTIONS","SHALL", "CALL", "'ICEINFO'"
-					],
-					[ "ON", "VHF", "OR" ],
-					[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
-					[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH", "78." ],
-					[
-						"ARRIVAL", "REPORT", "ON", "VHF", "CH", "16",
-						"WHEN", "THE","SHIP", "IS", "WELL", "MOORED."
-					],
-					[
-						"DEPARTURE", "REPORT", "ON", "VHF", "CH", "16",
-						"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
-					],
-					[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
+					[ "ZCZC", "NA22" ],
+					[ "110905", "UTC", "MAR", "19" ],
+					[ "NORWEGIAN", "NAV.", "WARNING", "184/2019" ],
+					[ "CHART", "36" ],
+					[ "AREA", "GRIP" ],
+					[ "HILBAAAN", "RACON", "63-12.0N", "007-43.8E", "IS", "INOPERATIVE" ],
 					[ "NNNN" ]
 				],
 				"chunks": set((
 
-					"+46",
-					"UTC",
-					"PORTS",
 					"ZCZC",
-					"INFORMATION",
-					"PHONE",
-					"76",
-					"DEPARTURE",
-					"'ICEINFO'",
-					"210800",
-					"ON",
-					"16",
-					"'BALTICE.ORG'",
-					"00",
-					"BALTIC",
-					"AS",
-					"TRAFFIC",
-					"WHEN",
-					"WELL",
-					"OR",
-					"THE",
-					"6",
-					"N60",
-					"RESTRICTIONS",
-					"CALL",
-					"SHALL",
-					"SHIP",
-					"VHF",
+					"NA22",
+					"UTC",
+					"110905",
+					"MAR",
+					"19",
+					"NORWEGIAN",
+					"NAV.",
+					"WARNING",
+					"184/2019",
+					"CHART",
+					"36",
+					"AREA",
+					"GRIP",
+					"HILBAAAN",
+					"RACON",
+					"63-12.0N",
+					"007-43.8E",
 					"IS",
-					"ARRIVAL",
-					"REPORT",
-					"VESSELS",
-					"(0)10",
+					"INOPERATIVE",
 					"NNNN",
-					"MOORED.",
-					"BEFORE",
-					"BOUND",
-					"LAT",
-					"ICE",
-					"IA76",
-					"PASSING",
-					"LATEST",
-					"JAN",
-					"78.",
-					"CH",
-					"GO",
-					"TO",
-					"FOR",
-					"DEPARTURE.",
-					"FOLLOWS:",
-					"HOURS",
-					"492",
-					"SUBJECT",
 				)),
-				"symbols":	set("(9PRZDG+:6A0WM.SU48C2H1FJE)T7BIOLN'V"),
-				"sanit":	1,
+				"symbols":	set("-./0123456789ABCEGHILMNOPRSTUVWZ"),
+				"sanit":	3,
 			}
 		)
 

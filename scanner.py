@@ -140,31 +140,29 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 
 	if	not F:
 
-		raw_lines	= [ line for line in message.split("\n") if line and not line.isspace() ]
+		raw_lines	= [ line for line in message.split("\n") ]
 		air_lines	= list()
 		symbols		= set()
 		chunks		= set()
 
 
 		for raw in raw_lines:
-			air = list()
-
-			if	(split := raw.split()):
-				for word in split:
-
-					current = word.upper()
-					air.append(current)
-					chunks.add(current)
+			if	raw and not raw.isspace() and not (air := list()):
+				if	(split := raw.split()):
+					for word in split:
 
 
-					for char in current : symbols.add(char)
+						current = word.upper()
+						air.append(current)
+						chunks.add(current)
 
 
-				air_lines.append(air)
-				sanit |= (" ".join(air) != raw) <<1
-				sanit |= 1
+						for char in current : symbols.add(char)
 
 
+					air_lines.append(air)
+					sanit |= (" ".join(air) != raw) <<1
+					sanit |= 1
 		return {
 
 			"raw_lines":	raw_lines,
