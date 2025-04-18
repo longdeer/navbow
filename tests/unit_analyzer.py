@@ -357,7 +357,7 @@ class AnalyzerCase(unittest.TestCase):
 		result = analyzer.with_mapping(os.path.join(self.wd, "JA94"), dict())
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 3)
-		self.assertEqual(result.get("state"), 45) # 1 + 4 + 8 + 32
+		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
 		self.assertIsInstance(result.get("lines"), list)
 		self.assertEqual(
 

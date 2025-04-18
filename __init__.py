@@ -74,27 +74,33 @@ class Navanalyzer:
 
 
 				for line,unmatch in scan[1]: analysis["punc"][unmatch][line] += 1
-				for line,word in scan[0]:
+				for i in range(1,len(scan[0]) +1):
+
+					line = scan[0][i]
+					state |= bool(G_MESSAGE_CDT.fullmatch(" ".join(line))) <<6
 
 
-					if		P_COORDINATE.fullmatch(word):		analysis["coords"][word][line] += 1
-					elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][line] += 1
-					elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][line] += 1
-					else:
+					for word in line:
 
-						try:	BoW_state = BoW[word]
-						except:	BoW_state = 0
-						match	BoW_state:
 
-							case None | 0:
+						if		P_COORDINATE.fullmatch(word):		analysis["coords"][word][i] += 1
+						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][i] += 1
+						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][i] += 1
+						else:
 
-								analysis["unknown"][word][line] += 1
-								state |= 1 <<5
+							try:	BoW_state = BoW[word]
+							except:	BoW_state = 0
+							match	BoW_state:
 
-							case _:
+								case None | 0:
 
-								analysis["known"][word][line] += 1
-								state |= 1 <<4
+									analysis["unknown"][word][i] += 1
+									state |= 1 <<5
+
+								case _:
+
+									analysis["known"][word][i] += 1
+									state |= 1 <<4
 				return {
 
 					"state":	state,
@@ -106,10 +112,6 @@ class Navanalyzer:
 				"message":	sanit.get("message"),
 				"state":	state,
 			}
-
-
-
-
 
 
 

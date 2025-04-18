@@ -1,11 +1,12 @@
-from os			import access	as osaccess
-from os			import path		as ospath
-from os			import R_OK
-from pathlib	import Path
-from typing		import Set
-from typing		import List
-from typing		import Dict
-from typing		import Tuple
+from os				import access	as osaccess
+from os				import path		as ospath
+from os				import R_OK
+from pathlib		import Path
+from collections	import defaultdict
+from typing			import Set
+from typing			import List
+from typing			import Dict
+from typing			import Tuple
 
 
 
@@ -25,7 +26,7 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 			- list of tuples of two: line index and unmatched punctuation.
 	"""
 
-	words = list()
+	words = defaultdict(list)
 	stack = list()
 
 
@@ -43,7 +44,7 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 
 					case ")"	if not current and stack and stack[-1][1] == "(" : stack.pop()
 					case "'"	if not current and stack and stack[-1][1] == "'" : stack.pop()
-					case "\""	if not current and stack and stack[-1][1] == "\"" : stack.pop()
+					case "\""	if not current and stack and stack[-1][1] == "\"": stack.pop()
 
 					case "("	if not current : stack.append(( i,"(" ))
 					case "'"	if not current : stack.append(( i,"'" ))
@@ -84,7 +85,7 @@ def word_scan(lines :List[List[str]]) -> Tuple[List[Tuple[int,str]],List[Tuple[i
 						case _: stack.append(( i,current[j] ))
 
 
-			words.append(( i,str().join(current) ))
+			words[i].append(str().join(current))
 	return	words,stack
 
 

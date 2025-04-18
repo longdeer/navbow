@@ -43,10 +43,10 @@ class SannerCase(unittest.TestCase):
 
 			word_scan(lines),
 			(
-				[
-					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
-					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN" ),( 2,"079'19" )
-				],
+				{
+					1: [ "151930", "UTC", "FEB" ],
+					2: [ "CANCEL", "GERMAN", "NAV", "WARN", "079'19" ],
+				},
 				[]
 			)
 		)
@@ -63,10 +63,10 @@ class SannerCase(unittest.TestCase):
 
 			word_scan(lines),
 			(
-				[
-					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
-					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN" ),( 2,"079'19" )
-				],
+				{
+					1: [ "151930", "UTC", "FEB" ],
+					2: [ "CANCEL", "GERMAN", "NAV", "WARN", "079'19" ],
+				},
 				[]
 			)
 		)
@@ -83,10 +83,10 @@ class SannerCase(unittest.TestCase):
 
 			word_scan(lines),
 			(
-				[
-					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
-					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN" ),( 2,"079'19" )
-				],
+				{
+					1: [ "151930", "UTC", "FEB" ],
+					2: [ "CANCEL", "GERMAN", "NAV", "WARN", "079'19" ],
+				},
 				[]
 			)
 		)
@@ -103,10 +103,10 @@ class SannerCase(unittest.TestCase):
 
 			word_scan(lines),
 			(
-				[
-					( 1, "151930" ),( 1, "UTC)" ),( 1, "FEB" ),
-					( 2,"CANCEL" ),( 2,"GERMAN" ),( 2,"NAV" ),( 2,"WARN)" ),( 2,"079'19\"" )
-				],
+				{
+					1: [ "151930", "UTC)", "FEB" ],
+					2: [ "CANCEL", "GERMAN", "NAV", "WARN)", "079'19\"" ],
+				},
 				[
 					( 1,")" ),( 1,"(" ),( 2,"(" ),( 2,"\"" ),( 2,")" ),( 2,"\"" )
 				]
@@ -125,10 +125,10 @@ class SannerCase(unittest.TestCase):
 
 			word_scan(lines),
 			(
-				[
-					( 1,"151930" ),( 1,"UTC" ),( 1,"FEB" ),
-					( 2,"CANCEL" ),( 2,"GERMAN)" ),( 2,"NAV" ),( 2,"WARN\")" ),( 2,"079'19\")" )
-				],
+				{
+					1: [ "151930", "UTC", "FEB" ],
+					2: [ "CANCEL", "GERMAN)", "NAV", "WARN\")", "079'19\")" ],
+				},
 				[
 					( 1,"(" ),( 1,"(" ),( 2,"'" ),( 2,")" ),( 2,"\"" ),( 2,"(" ),
 					( 2,"\"" ),( 2,")" ),( 2,"\"" ),( 2,"(" ),( 2,"\"" ),( 2,")" )
@@ -147,21 +147,26 @@ class SannerCase(unittest.TestCase):
 		self.assertEqual(
 
 			word_scan(lines),
-			([( 1,"" ),( 1,"" ),( 1,"" ),( 2,"" ),( 2,"" ),( 2,"" )],[])
+			(
+				{
+					1: [ "","","" ],
+					2: [ "","","" ]
+				},
+				[]
+			)
 		)
 
 
 	def test_word_scan_7(self):
 
 		lines = []
-		self.assertEqual(word_scan(lines),([],[]))
+		self.assertEqual(word_scan(lines),({},[]))
 
 
 	def test_word_scan_8(self):
 
 		lines = [[],[],[]]
-		self.assertEqual(word_scan(lines),([],[]))
-
+		self.assertEqual(word_scan(lines),({},[]))
 
 
 
