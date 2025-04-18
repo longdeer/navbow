@@ -638,7 +638,6 @@ class AnalyzerCase(unittest.TestCase):
 
 		self.assertIn("unknown", result["analysis"])
 		self.assertIsInstance(result["analysis"]["unknown"], dict)
-
 		self.assertEqual(result["analysis"]["unknown"]["JUN"][1],1)
 
 		self.assertEqual(result["analysis"]["unknown"]["SPLIT"][2],1)
@@ -724,6 +723,137 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["punc"][")"][9],1)
 		self.assertEqual(result["analysis"]["punc"][")"][10],1)
 		self.assertEqual(result["analysis"]["punc"][")"][11],1)
+
+
+
+
+	def test_analysis_SE94(self):
+
+		analyzer = Navanalyzer("S")
+		result = analyzer.with_mapping(
+
+			os.path.join(self.wd, "SE94"),
+			{
+				"CTF":			1,
+				"SOUND":		1,
+				"SOUTH":		1,
+				"CONTACT":		1,
+				"UNTIL":		1,
+				"FURTHER":		1,
+				"FROM":			1,
+				"UTC":			1,
+				"CONDUCTING":	1,
+				"UNDERWATER":	1,
+				"GAS":			1,
+				"PIPELINE":		0,
+				"CANCEL":		0,
+			}
+		)
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 3)
+		self.assertEqual(result.get("state"), 61) # 1 + 4 + 8 + 16 + 32
+		self.assertIsInstance(result.get("lines"), list)
+		self.assertEqual(
+
+			result.get("lines"),
+			[
+				[ "ZCZC", "SE94" ],
+				[ "171900", "NAVTEX-HAMBURG", "(NCC)" ],
+				[ "WEATHERFORECAST", "FOR", "GERMAN", "BIGHT", "UNTIL", "18.11.2019", "12", "UTC:" ],
+				[ "NORTHEAST", "TO", "NORTH", "4", "INCREASING", "ABOUT", "6", "EASTERN", "PART", "LATER" ],
+				[
+					"DECREASING", "A", "LITTLE", "AND", "SHIFTING",
+					"EAST", "EASTERN", "PART", "AT", "TIMES", "MISTY"
+				],
+				[ "SEA", "INCREASING", "25", "METRE." ],
+				[ "OUTLOOK", "UNTIL", "19.11.2019", "00", "UTC:" ],
+				[ "WESTERN", "PART", "NORTH", "6", "TO", "7", "OTHERWISE", "EAST", "TO", "SOUTHEAST", "5." ],
+				[ "NNNN" ]
+			]
+		)
+		self.assertIsInstance(result.get("analysis"), dict)
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertFalse(len(result["analysis"]["coords"]))
+		self.assertIn("alnums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["alnums"], dict)
+		self.assertFalse(len(result["analysis"]["alnums"]))
+
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["171900"][1],1)
+
+		self.assertEqual(result["analysis"]["nums"]["18.11.2019"][2],1)
+		self.assertEqual(result["analysis"]["nums"]["12"][2],1)
+
+		self.assertEqual(result["analysis"]["nums"]["4"][3],1)
+		self.assertEqual(result["analysis"]["nums"]["6"][3],1)
+
+		self.assertEqual(result["analysis"]["nums"]["25"][5],1)
+
+		self.assertEqual(result["analysis"]["nums"]["19.11.2019"][6],1)
+		self.assertEqual(result["analysis"]["nums"]["00"][6],1)
+
+		self.assertEqual(result["analysis"]["nums"]["6"][7],1)
+		self.assertEqual(result["analysis"]["nums"]["7"][7],1)
+		self.assertEqual(result["analysis"]["nums"]["5"][7],1)
+
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+
+		self.assertEqual(result["analysis"]["unknown"]["NAVTEX-HAMBURG"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["NCC"][1],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["WEATHERFORECAST"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["FOR"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["GERMAN"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["BIGHT"][2],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["NORTHEAST"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["TO"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["NORTH"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["INCREASING"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["ABOUT"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["EASTERN"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["PART"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["LATER"][3],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["DECREASING"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["A"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["LITTLE"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["AND"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["SHIFTING"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["EAST"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["EASTERN"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["PART"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["AT"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["TIMES"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["MISTY"][4],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["SEA"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["INCREASING"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["METRE"][5],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["OUTLOOK"][6],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["WESTERN"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["PART"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["NORTH"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["TO"][7],2)
+		self.assertEqual(result["analysis"]["unknown"]["OTHERWISE"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["EAST"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["SOUTHEAST"][7],1)
+
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertEqual(result["analysis"]["known"]["UNTIL"][2],1)
+		self.assertEqual(result["analysis"]["known"]["UTC"][2],1)
+		self.assertEqual(result["analysis"]["known"]["UNTIL"][6],1)
+		self.assertEqual(result["analysis"]["known"]["UTC"][6],1)
+
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
 
 
 
