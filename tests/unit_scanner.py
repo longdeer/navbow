@@ -20,10 +20,10 @@ class SannerCase(unittest.TestCase):
 	# WZ29
 	# Not sanit:
 	# OL66
+	# NA22
 	# Valid:
 	# JA94
 	# BA33
-	# NA22
 	# GA10
 	# IA76
 	# QA42
@@ -534,7 +534,6 @@ class SannerCase(unittest.TestCase):
 					"ARRIVAL REPORT ON VHF CH 16 WHEN THE SHIP IS WELL MOORED.",
 					"DEPARTURE REPORT ON VHF CH 16 LATEST 6 HOURS BEFORE DEPARTURE.",
 					"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
-					"NNNN",
 				],
 				"air_lines": [
 
@@ -547,17 +546,16 @@ class SannerCase(unittest.TestCase):
 					],
 					[ "ON", "VHF", "OR" ],
 					[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
-					[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH", "78." ],
+					[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
 					[
-						"ARRIVAL", "REPORT", "ON", "VHF", "CH", "16",
+						"ARRIVAL", "REPORT", "ON", "VHF", "CH16",
 						"WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."
 					],
 					[
-						"DEPARTURE", "REPORT", "ON", "VHF", "CH", "16",
+						"DEPARTURE", "REPORT", "ON", "VHF", "CH16",
 						"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
 					],
 					[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
-					[ "NNNN" ]
 				],
 				"chunks": set((
 
@@ -594,7 +592,6 @@ class SannerCase(unittest.TestCase):
 					"REPORT",
 					"VESSELS",
 					"(0)10",
-					"NNNN",
 					"MOORED.",
 					"BEFORE",
 					"BOUND",

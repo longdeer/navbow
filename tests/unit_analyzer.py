@@ -14,7 +14,23 @@ from	NavtexBoWAnalyzer.header import B2
 
 class AnalyzerCase(unittest.TestCase):
 
-
+	# Broken:
+	# WZ29			+
+	# Not sanit:
+	# OL66			+
+	# NA22			+
+	# Bad EoS:
+	# IA76			+
+	# Valid:
+	# JA94			+
+	# BA33
+	# GA10
+	# QA42			+
+	# KA60
+	# MZ56
+	# VA28
+	# RA28
+	# SE94			+
 	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
 	maxDiff = None
 
@@ -922,6 +938,128 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+
+
+
+	def test_analysis_IA76(self):
+
+		analyzer = Navanalyzer("I")
+		result = analyzer.with_mapping(os.path.join(self.wd, "IA76"), { "ICE": 1 })
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 4)
+		self.assertEqual(result.get("state"), 117) # 1 + 4 + 16 + 32 + 64
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
+		self.assertEqual(
+
+			result.get("air"),
+			[
+				[ "ZCZC", "IA76" ],
+				[ "210800", "UTC", "JAN" ],
+				[ "BALTIC", "ICE", "INFORMATION" ],
+				[
+					"VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO",
+					"TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "'ICEINFO'"
+				],
+				[ "ON", "VHF", "OR" ],
+				[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+				[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+				[
+					"ARRIVAL", "REPORT", "ON", "VHF", "CH16",
+					"WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."
+				],
+				[
+					"DEPARTURE", "REPORT", "ON", "VHF", "CH16",
+					"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
+				],
+				[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
+			]
+		)
+
+		self.assertIsInstance(result.get("analysis"), dict)
+
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertFalse(len(result["analysis"]["coords"]))
+
+		self.assertIn("alnums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["alnums"], dict)
+		self.assertEqual(result["analysis"]["alnums"]["N60"][6],1)
+		self.assertEqual(result["analysis"]["alnums"]["CH78"][6],1)
+		self.assertEqual(result["analysis"]["alnums"]["CH16"][7],1)
+		self.assertEqual(result["analysis"]["alnums"]["CH16"][8],1)
+
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["0"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["10"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["492"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["76"][5],1)
+		self.assertEqual(result["analysis"]["nums"]["00"][5],1)
+
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+		self.assertEqual(result["analysis"]["unknown"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["JAN"][1],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["BALTIC"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["INFORMATION"][2],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["VESSELS"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["BOUND"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["FOR"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["PORTS"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["SUBJECT"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["TO"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["TRAFFIC"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["RESTRICTIONS"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["SHALL"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["CALL"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["ICEINFO"][3],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["ON"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["VHF"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["OR"][4],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["PHONE"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["+46"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["AS"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["FOLLOWS"][5],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["WHEN"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["PASSING"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["LAT"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["ON"][6],1)
+		self.assertEqual(result["analysis"]["unknown"]["VHF"][6],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["ARRIVAL"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["REPORT"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["ON"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["VHF"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["WHEN"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["THE"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["SHIP"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["IS"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["WELL"][7],1)
+		self.assertEqual(result["analysis"]["unknown"]["MOORED"][7],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["DEPARTURE"][8],2)
+		self.assertEqual(result["analysis"]["unknown"]["REPORT"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["ON"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["VHF"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["LATEST"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["HOURS"][8],1)
+		self.assertEqual(result["analysis"]["unknown"]["BEFORE"][8],1)
+
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertEqual(result["analysis"]["known"]["ICE"][2],1)
+
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
+
 
 
 
