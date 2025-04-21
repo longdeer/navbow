@@ -357,6 +357,31 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
+	def test_states(self):
+
+		analyzer = Navanalyzer("B")
+
+		for state in [ 0 ] + list(range(1,128,2)):
+			with self.subTest(state=state):
+
+				self.assertEqual(
+
+					analyzer.with_mapping(
+
+						os.path.join(self.wd, "states", str(state)),
+						{ "NAV": 1 }
+
+					).get("state"),
+					state
+				)
+
+
+
+
+
+
+
+
 	def test_analysis_WZ29(self):
 
 		analyzer = Navanalyzer("W")

@@ -46,6 +46,81 @@ class Navanalyzer:
 
 		"""
 			Ananlysis implementation that uses dictionary 
+
+			0	- broken bytes detected by byte_scan;
+			1	- message without header, EoS, CDT and any words (only numerical, alphanumerical
+				and coordinates);
+			3	- sanitized message without header, EoS, CDT and any words (only numerical, alphanumerical
+				and coordinates);
+			5	- message without EoS, CDT and any words (only numerical, alphanumerical and coordinates);
+			7	- sanitized message without EoS, CDT and any words (only numerical, alphanumerical
+				and coordinates);
+			9	- message without header, CDT and any words (only numerical, alphanumerical and coordinates);
+			11	- sanitized message without header, CDT and any words (only numerical, alphanumerical
+				and coordinates);
+			13	- message without CDT and any words (only numerical, alphanumerical and coordinates);
+			15	- sanitized message without CDT and any words (only numerical, alphanumerical and
+				coordinates);
+			17	- message without header, EoS, CDT, with known word;
+			19	- sanitized message without header, EoS, CDT, with known word;
+			21	- message without EoS, CDT, with known word;
+			23	- sanitized message without EoS, CDT, with known word;
+			25	- message without header, CDT, with known word;
+			27	- sanitized message without header, CDT, with known word;
+			29	- message without CDT, with known word;
+			31	- sanitized message without CDT, with known word;
+			33	- message without header, EoS, CDT, with unknown word;
+			35	- sanitized message without header, EoS, CDT, with unknown word;
+			37	- message without EoS, CDT, with unknown word;
+			39	- sanitized message without EoS, CDT, with unknown word;
+			41	- message without header, CDT, with unknown word;
+			43	- sanitized message without header, CDT, with unknown word;
+			45	- message without CDT, with unknown word;
+			47	- sanitized message without CDT, with unknown word;
+			49	- message without header, EoS, CDT, with known and unkown words;
+			51	- sanitized message without header, EoS, CDT, with known and unkown words;
+			53	- message without EoS, CDT, with known and unkown words;
+			55	- sanitized message without EoS, CDT, with known and unkown words;
+			57	- message without header, CDT, with known and unkown words;
+			59	- sanitized message without header, CDT, with known and unkown words;
+			61	- message without CDT, with known and unkown words;
+			63	- sanitized message without CDT, with known and unkown words;
+			65	- message without header, EOS and any words (only numerical, alphanumerical and coordinates);
+			67	- sanitized message without header, EOS and any words (only numerical, alphanumerical
+				and coordinates);
+			69	- message without EOS and any words (only numerical, alphanumerical and coordinates);
+			71	- sanitized message without EOS and any words (only numerical, alphanumerical and
+				coordinates);
+			73	- message without header and any words (only numerical, alphanumerical and coordinates);
+			75	- sanitized message without header and any words (only numerical, alphanumerical and
+				coordinates);
+			77	- message without any words (only numerical, alphanumerical and coordinates);
+			79	- sanitized message without any words (only numerical, alphanumerical and
+				coordinates);
+			81	- message without header, EOS, with known word;
+			83	- sanitized message without header, EOS, with known word;
+			85	- message without EOS, with known word;
+			87	- sanitized message without EOS, with known word;
+			89	- message without header, with known word;
+			91	- sanitized message without header, with known word;
+			93	- message with known word;
+			95	- sanitized message with known word;
+			97	- message without header, EoS, with unkown word;
+			99	- sanitized message without header, EoS, with unkown word;
+			101	- message without EoS, with unkown word;
+			103	- sanitized message without EoS, with unkown word;
+			105	- message without header, with unkown word;
+			107	- sanitized message without header, with unkown word;
+			109	- message with unkown word;
+			111	- sanitized message with unkown word;
+			113	- message without header, EoS, with known and unkown words;
+			115	- sanitized message without header, EoS, with known and unkown words;
+			117	- message without EoS, with known and unkown words;
+			119	- sanitized message without EoS, with known and unkown words;
+			121	- message without header, with known and unkown words;
+			123	- sanitized message without header, with known and unkown words;
+			125	- message with known and unkown words;
+			127	- sanitized message with known and unkown words;
 		"""
 
 		if	isinstance(sanit := sanit_state(path), dict):
