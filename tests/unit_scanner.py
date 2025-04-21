@@ -276,14 +276,14 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_invalid(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "WZ29"))
+		broken,message = byte_scan(os.path.join(self.wd, "msg", "WZ29"))
 		self.assertTrue(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
 
 	def test_byte_scan_valid(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "KA60"))
+		broken,message = byte_scan(os.path.join(self.wd, "msg", "KA60"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -302,14 +302,14 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_empty(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "empty"))
+		broken,message = byte_scan(os.path.join(self.wd, "msg", "empty"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertFalse(len(message))
 
 	def test_byte_scan_spaces(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "spaces"))
+		broken,message = byte_scan(os.path.join(self.wd, "msg", "spaces"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -323,7 +323,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_sanit_invalid(self):
 
-		scan = sanit_state(os.path.join(self.wd, "WZ29"))
+		scan = sanit_state(os.path.join(self.wd, "msg", "WZ29"))
 		self.assertIsInstance(scan, dict)
 		self.assertEqual(len(scan),2)
 		self.assertEqual(scan.get("sanit"),0)
@@ -335,7 +335,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "empty")),
+			sanit_state(os.path.join(self.wd, "msg", "empty")),
 			{
 				"raw_lines":	[ "" ],
 				"air_lines":	[],
@@ -350,7 +350,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "spaces")),
+			sanit_state(os.path.join(self.wd, "msg", "spaces")),
 			{
 				"raw_lines":	[ "","\t","     "," \t \t","","" ],
 				"air_lines":	[],
@@ -365,7 +365,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "JA94")),
+			sanit_state(os.path.join(self.wd, "msg", "JA94")),
 			{
 				"raw_lines": [
 
@@ -406,7 +406,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "BA33")),
+			sanit_state(os.path.join(self.wd, "msg", "BA33")),
 			{
 				"raw_lines": [
 
@@ -465,7 +465,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "NA22")),
+			sanit_state(os.path.join(self.wd, "msg", "NA22")),
 			{
 				"raw_lines": [
 
@@ -522,7 +522,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "IA76")),
+			sanit_state(os.path.join(self.wd, "msg", "IA76")),
 			{
 				"raw_lines": [
 
@@ -532,9 +532,9 @@ class SannerCase(unittest.TestCase):
 					"VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL 'ICEINFO'",
 					"ON VHF OR",
 					"PHONE +46 (0)10 492 76 00 AS FOLLOWS:",
-					"WHEN PASSING LAT N60 ON VHF CH 78.",
-					"ARRIVAL REPORT ON VHF CH 16 WHEN THE SHIP IS WELL MOORED.",
-					"DEPARTURE REPORT ON VHF CH 16 LATEST 6 HOURS BEFORE DEPARTURE.",
+					"WHEN PASSING LAT N60 ON VHF CH78.",
+					"ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.",
+					"DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.",
 					"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
 				],
 				"air_lines": [
@@ -572,7 +572,6 @@ class SannerCase(unittest.TestCase):
 					"'ICEINFO'",
 					"210800",
 					"ON",
-					"16",
 					"'BALTICE.ORG'",
 					"00",
 					"BALTIC",
@@ -603,8 +602,8 @@ class SannerCase(unittest.TestCase):
 					"PASSING",
 					"LATEST",
 					"JAN",
-					"78.",
-					"CH",
+					"CH78.",
+					"CH16",
 					"GO",
 					"TO",
 					"FOR",

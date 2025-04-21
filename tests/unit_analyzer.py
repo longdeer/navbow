@@ -360,7 +360,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_WZ29(self):
 
 		analyzer = Navanalyzer("W")
-		result = analyzer.with_mapping(os.path.join(self.wd, "WZ29"), dict())
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "WZ29"), dict())
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 2)
 		self.assertEqual(result.get("state"), 0)
@@ -371,7 +371,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_JA94(self):
 
 		analyzer = Navanalyzer("J")
-		result = analyzer.with_mapping(os.path.join(self.wd, "JA94"), dict())
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "JA94"), dict())
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
@@ -419,7 +419,7 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = Navanalyzer("O")
 		result = analyzer.with_mapping(
 
-			os.path.join(self.wd, "OL66"),
+			os.path.join(self.wd, "msg", "OL66"),
 			{
 				"CTF":		1,
 				"SOUND":	1,
@@ -552,7 +552,7 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = Navanalyzer("Q")
 		result = analyzer.with_mapping(
 
-			os.path.join(self.wd, "QA42"),
+			os.path.join(self.wd, "msg", "QA42"),
 			{
 				"CTF":			1,
 				"SOUND":		1,
@@ -752,7 +752,7 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = Navanalyzer("S")
 		result = analyzer.with_mapping(
 
-			os.path.join(self.wd, "SE94"),
+			os.path.join(self.wd, "msg", "SE94"),
 			{
 				"CTF":			1,
 				"SOUND":		1,
@@ -882,7 +882,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_NA22(self):
 
 		analyzer = Navanalyzer("M")
-		result = analyzer.with_mapping(os.path.join(self.wd, "NA22"), dict())
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "NA22"), dict())
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 107) # 1 + 2 + 8 + 32 + 64
@@ -946,7 +946,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_IA76(self):
 
 		analyzer = Navanalyzer("I")
-		result = analyzer.with_mapping(os.path.join(self.wd, "IA76"), { "ICE": 1 })
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "IA76"), { "ICE": 1 })
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 117) # 1 + 4 + 16 + 32 + 64
@@ -1067,7 +1067,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_VA28(self):
 
 		analyzer = Navanalyzer("V")
-		result = analyzer.with_mapping(os.path.join(self.wd, "VA28"), { "ICE": 1 })
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "VA28"), { "ICE": 1 })
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 101) # 1 + 4 + 32 + 64
@@ -1150,7 +1150,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_MZ56(self):
 
 		analyzer = Navanalyzer("V")
-		result = analyzer.with_mapping(os.path.join(self.wd, "MZ56"), { "HAND": 1 })
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "MZ56"), { "HAND": 1 })
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 121) # 1 + 8 + 16 + 32 + 64
