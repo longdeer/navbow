@@ -67,7 +67,6 @@ P_COORDINATE = re.compile(
 				E
 			)
 		)
-		[\.,:]?										# possible syntax ending
 	""",
 	re.VERBOSE
 )

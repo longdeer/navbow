@@ -10,7 +10,6 @@ import re
 P_ALPHANUMERICAL = re.compile(
 
 	r"""
-		\(?												# possible parenthesizing at the beginning
 		(
 			(											# meters/miles/nautical
 				[\d\-\.,]*\d+N?M(/S)?					# miles unit, possibly
@@ -28,8 +27,6 @@ P_ALPHANUMERICAL = re.compile(
 				\d+([\.,]\d+)?(-\d+([\.,]\d+)?)?[KM]?HZ	# radio frequency, possibly decimal or range
 			)
 		)
-		\)?												# possible parenthesizing at the end
-		[\.,:]?											# possible syntax ending
 	""",
 	re.VERBOSE
 )
