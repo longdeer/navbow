@@ -862,6 +862,70 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
+	def test_analysis_NA22(self):
+
+		analyzer = Navanalyzer("M")
+		result = analyzer.with_mapping(os.path.join(self.wd, "NA22"), dict())
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 4)
+		self.assertEqual(result.get("state"), 107) # 1 + 2 + 8 + 32 + 64
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
+		self.assertEqual(
+
+			result.get("air"),
+			[
+				[ "ZCZC", "NA22" ],
+				[ "110905", "UTC", "MAR", "19" ],
+				[ "NORWEGIAN", "NAV.", "WARNING", "184/2019" ],
+				[ "CHART", "N36" ],
+				[ "AREA", "GRIP" ],
+				[ "HILBAAAN", "RACON", "63-12.0N", "007-43.8E", "IS", "INOPERATIVE" ],
+				[ "NNNN" ]
+			]
+		)
+		self.assertIsInstance(result.get("analysis"), dict)
+
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertEqual(result["analysis"]["coords"]["63-12.0N"][5],1)
+		self.assertEqual(result["analysis"]["coords"]["007-43.8E"][5],1)
+
+		self.assertIn("alnums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["alnums"], dict)
+		self.assertEqual(result["analysis"]["alnums"]["N36"][3],1)
+
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["110905"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["19"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["184/2019"][2],1)
+
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+		self.assertEqual(result["analysis"]["unknown"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["MAR"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["NORWEGIAN"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["NAV"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["WARNING"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["CHART"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["AREA"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["GRIP"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["HILBAAAN"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["RACON"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["IS"][5],1)
+		self.assertEqual(result["analysis"]["unknown"]["INOPERATIVE"][5],1)
+
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertFalse(len(result["analysis"]["known"]))
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
+
+
+
+
 
 
 
