@@ -21,6 +21,7 @@ class AnalyzerCase(unittest.TestCase):
 	# NA22			+
 	# Bad EoS:
 	# IA76			+
+	# VA28			+
 	# Valid:
 	# JA94			+
 	# BA33
@@ -28,7 +29,6 @@ class AnalyzerCase(unittest.TestCase):
 	# QA42			+
 	# KA60
 	# MZ56
-	# VA28
 	# RA28
 	# SE94			+
 	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
@@ -1055,6 +1055,89 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"]["ICE"][2],1)
+
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
+
+
+
+
+	def test_analysis_VA28(self):
+
+		analyzer = Navanalyzer("V")
+		result = analyzer.with_mapping(os.path.join(self.wd, "VA28"), { "ICE": 1 })
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 4)
+		self.assertEqual(result.get("state"), 101) # 1 + 4 + 32 + 64
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
+		self.assertEqual(
+
+			result.get("air"),
+			[
+				[ "ZCZC", "VA28" ],
+				[ "050550", "UTC", "AUG" ],
+				[ "WZ", "724" ],
+				[
+					"GMDSS.", "HUMBER", "COASTGUARD.", "1.", "MF", "R/T",
+					"AND", "DSC", "SERVICES", "FROM", "LANGHAM", "SITE"
+				],
+				[
+					"52-56.5N", "000-57.2E.", "OFF", "AIR.", "2.",
+					"CANCEL", "WZ", "597", "(GA73)", "(VA10)."
+				],
+				[ "NNN" ],
+			]
+		)
+
+		self.assertIsInstance(result.get("analysis"), dict)
+
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertEqual(result["analysis"]["coords"]["52-56.5N"][4],1)
+		self.assertEqual(result["analysis"]["coords"]["000-57.2E"][4],1)
+
+		self.assertIn("alnums", result["analysis"])
+		self.assertFalse(len(result["analysis"]["alnums"]))
+
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["050550"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["724"][2],1)
+		self.assertEqual(result["analysis"]["nums"]["1"][3],1)
+		self.assertEqual(result["analysis"]["nums"]["2"][4],1)
+		self.assertEqual(result["analysis"]["nums"]["597"][4],1)
+
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+		self.assertEqual(result["analysis"]["unknown"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["AUG"][1],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["WZ"][2],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["GMDSS"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["HUMBER"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["COASTGUARD"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["MF"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["R/T"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["AND"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["DSC"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["SERVICES"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["FROM"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["LANGHAM"][3],1)
+		self.assertEqual(result["analysis"]["unknown"]["SITE"][3],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["OFF"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["AIR"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["CANCEL"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["WZ"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["GA73"][4],1)
+		self.assertEqual(result["analysis"]["unknown"]["VA10"][4],1)
+
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertFalse(len(result["analysis"]["known"]))
 
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
