@@ -22,13 +22,14 @@ class AnalyzerCase(unittest.TestCase):
 	# Bad EoS:
 	# IA76			+
 	# VA28			+
+	# Bad header:
+	# MZ56			+
 	# Valid:
 	# JA94			+
 	# BA33
 	# GA10
 	# QA42			+
 	# KA60
-	# MZ56
 	# RA28
 	# SE94			+
 	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
@@ -1143,6 +1144,62 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+
+
+
+	def test_analysis_MZ56(self):
+
+		analyzer = Navanalyzer("V")
+		result = analyzer.with_mapping(os.path.join(self.wd, "MZ56"), { "HAND": 1 })
+		self.assertIsInstance(result, dict)
+		self.assertEqual(len(result), 4)
+		self.assertEqual(result.get("state"), 121) # 1 + 8 + 16 + 32 + 64
+		self.assertIsInstance(result.get("raw"), list)
+		self.assertIsInstance(result.get("air"), list)
+		self.assertEqual(
+
+			result.get("air"),
+			[
+				[ "ZCZC", "MZ56" ],
+				[ "011713", "UTC", "AUG", "19" ],
+				[ "NAVAREA", "1", "-", "NO", "MESSAGES", "ON", "HAND" ],
+				[ "NNNN" ],
+			]
+		)
+
+		self.assertIsInstance(result.get("analysis"), dict)
+
+		self.assertIn("coords", result["analysis"])
+		self.assertIsInstance(result["analysis"]["coords"], dict)
+		self.assertFalse(len(result["analysis"]["coords"]))
+
+		self.assertIn("alnums", result["analysis"])
+		self.assertFalse(len(result["analysis"]["alnums"]))
+
+		self.assertIn("nums", result["analysis"])
+		self.assertIsInstance(result["analysis"]["nums"], dict)
+		self.assertEqual(result["analysis"]["nums"]["011713"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["19"][1],1)
+		self.assertEqual(result["analysis"]["nums"]["1"][2],1)
+
+		self.assertIn("unknown", result["analysis"])
+		self.assertIsInstance(result["analysis"]["unknown"], dict)
+		self.assertEqual(result["analysis"]["unknown"]["UTC"][1],1)
+		self.assertEqual(result["analysis"]["unknown"]["AUG"][1],1)
+
+		self.assertEqual(result["analysis"]["unknown"]["NAVAREA"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["-"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["NO"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["MESSAGES"][2],1)
+		self.assertEqual(result["analysis"]["unknown"]["ON"][2],1)
+
+		self.assertIn("known", result["analysis"])
+		self.assertIsInstance(result["analysis"]["known"], dict)
+		self.assertEqual(result["analysis"]["known"]["HAND"][2],1)
+
+		self.assertIn("punc", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punc"], dict)
+		self.assertFalse(len(result["analysis"]["punc"]))
 
 
 

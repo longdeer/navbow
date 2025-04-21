@@ -16,20 +16,22 @@ class SannerCase(unittest.TestCase):
 
 	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
 	maxDiff = None
-	# Invalid:
-	# WZ29
+	# Broken:
+	# WZ29			+
 	# Not sanit:
 	# OL66
-	# NA22
-	# Valid:
-	# JA94
-	# BA33
-	# GA10
-	# IA76
-	# QA42
-	# KA60
-	# MZ56
+	# NA22			+
+	# Bad EoS:
+	# IA76			+
 	# VA28
+	# Bad header:
+	# MZ56
+	# Valid:
+	# JA94			+
+	# BA33			+
+	# GA10
+	# QA42
+	# KA60			+
 	# RA28
 	# SE94
 
