@@ -1,14 +1,15 @@
 from typing								import List
 from typing								import Dict
 from typing								import Tuple
+from datetime							import datetime
 from collections						import defaultdict
 from NavtexBoWAnalyzer.header			import B1
-from NavtexBoWAnalyzer.header			import B2
 from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
 from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
 from NavtexBoWAnalyzer.numerical		import P_NUMERICAL
-from NavtexBoWAnalyzer.cdt				import G_MESSAGE_CDT
 from NavtexBoWAnalyzer.alphanumerical	import P_ALPHANUMERICAL
+from NavtexBoWAnalyzer.cdt				import G_MESSAGE_CDT
+from NavtexBoWAnalyzer.cdt				import MONTH_MAP
 from NavtexBoWAnalyzer.scanner			import sanit_state
 from NavtexBoWAnalyzer.scanner			import word_scan
 
@@ -181,15 +182,27 @@ class Navanalyzer:
 
 
 					line = scan[0][i]
-					state |= bool(G_MESSAGE_CDT.fullmatch(" ".join(line))) <<6
+
+
+					if	(match := G_MESSAGE_CDT.fullmatch(" ".join(line))):
+						
+						d,m,H,M,Y = match.group("day", "month", "hour", "minute", "year")
+						Y = int(f"20{Y}") if Y else int(datetime.today().strftime("%Y"))
+						m = MONTH_MAP[m]
+						d = int(d)
+						H = int(H)
+						M = int(M)
+
+						analysis["cdt"] = datetime(Y,m,d,H,M)
+						state |= 64
 
 
 					for word in line:
 
 
-						if		P_COORDINATE.fullmatch(word):		analysis["coords"][word][i] += 1
-						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][i] += 1
-						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][i] += 1
+						if		P_COORDINATE.fullmatch(word):		analysis["coords"][word][i]	+= 1
+						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][i]	+= 1
+						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][i]	+= 1
 						else:
 
 
@@ -206,7 +219,7 @@ class Navanalyzer:
 
 									analysis["known"][word][i] += 1
 									state |= 1 <<4
-				return {
+				return	{
 
 					"analysis":	analysis,
 					"state":	state,

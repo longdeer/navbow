@@ -1,5 +1,6 @@
 import	os
 import	unittest
+import	datetime
 import	NavtexBoWAnalyzer
 from	NavtexBoWAnalyzer		 import Navanalyzer
 from	NavtexBoWAnalyzer.header import B1
@@ -465,6 +466,15 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("cdt", result["analysis"])
+		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertEqual(
+
+			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
+		)
+
+
 
 
 	def test_analysis_OL66(self):
@@ -596,6 +606,8 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+		self.assertNotIn("cdt", result["analysis"])
 
 
 
@@ -797,6 +809,14 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["punc"][")"][10],1)
 		self.assertEqual(result["analysis"]["punc"][")"][11],1)
 
+		self.assertIn("cdt", result["analysis"])
+		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertEqual(
+
+			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			"06/09/2019 2240"
+		)
+
 
 
 
@@ -929,6 +949,8 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+		self.assertNotIn("cdt", result["analysis"])
+
 
 
 
@@ -992,6 +1014,14 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+		self.assertIn("cdt", result["analysis"])
+		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertEqual(
+
+			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			"03/11/2019 0905"
+		)
 
 
 
@@ -1114,6 +1144,14 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+		self.assertIn("cdt", result["analysis"])
+		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertEqual(
+
+			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
+		)
+
 
 
 
@@ -1197,6 +1235,14 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+		self.assertIn("cdt", result["analysis"])
+		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertEqual(
+
+			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
+		)
+
 
 
 
@@ -1253,6 +1299,14 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+		self.assertIn("cdt", result["analysis"])
+		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertEqual(
+
+			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			"08/01/2019 1713"
+		)
 
 
 

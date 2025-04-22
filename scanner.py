@@ -163,7 +163,7 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 					air_lines.append(air)
 					sanit |= (" ".join(air) != raw) <<1
 					sanit |= 1
-		return {
+		return	{
 
 			"raw_lines":	raw_lines,
 			"air_lines":	air_lines,
