@@ -361,7 +361,35 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = Navanalyzer("B")
 
-		for state in [ 0 ] + list(range(1,128,2)):
+		for state in [ 0 ] + list(range(1,65,2)):
+			with self.subTest(state=state):
+
+				self.assertEqual(
+
+					analyzer.with_mapping(
+
+						os.path.join(self.wd, "states", str(state)),
+						{ "NAV": 1 }
+
+					).get("state"),
+					state
+				)
+
+		for state in list(range(81,96,2)):
+			with self.subTest(state=state):
+
+				self.assertEqual(
+
+					analyzer.with_mapping(
+
+						os.path.join(self.wd, "states", str(state)),
+						{ "NAV": 1, "UTC": 1, "DEC": 1 }
+
+					).get("state"),
+					state
+				)
+
+		for state in list(range(97,128,2)):
 			with self.subTest(state=state):
 
 				self.assertEqual(

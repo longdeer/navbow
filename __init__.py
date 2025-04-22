@@ -85,18 +85,16 @@ class Navanalyzer:
 			59	- sanitized message without header, CDT, with known and unkown words;
 			61	- message without CDT, with known and unkown words;
 			63	- sanitized message without CDT, with known and unkown words;
-			65	- message without header, EOS and any words (only numerical, alphanumerical and coordinates);
-			67	- sanitized message without header, EOS and any words (only numerical, alphanumerical
-				and coordinates);
-			69	- message without EOS and any words (only numerical, alphanumerical and coordinates);
-			71	- sanitized message without EOS and any words (only numerical, alphanumerical and
-				coordinates);
-			73	- message without header and any words (only numerical, alphanumerical and coordinates);
-			75	- sanitized message without header and any words (only numerical, alphanumerical and
-				coordinates);
-			77	- message without any words (only numerical, alphanumerical and coordinates);
-			79	- sanitized message without any words (only numerical, alphanumerical and
-				coordinates);
+
+			65	- impossible state cause CDT must content any words;
+			67	- impossible state cause CDT must content any words;
+			69	- impossible state cause CDT must content any words;
+			71	- impossible state cause CDT must content any words;
+			73	- impossible state cause CDT must content any words;
+			75	- impossible state cause CDT must content any words;
+			77	- impossible state cause CDT must content any words;
+			79	- impossible state cause CDT must content any words;
+
 			81	- message without header, EOS, with known word;
 			83	- sanitized message without header, EOS, with known word;
 			85	- message without EOS, with known word;
