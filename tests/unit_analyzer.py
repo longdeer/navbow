@@ -107,7 +107,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC A{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC A{subject}{number}"),
+					( "A", subject, number )
+				)
 
 
 	def test_B_valid_header(self):
@@ -117,7 +122,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC B{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC B{subject}{number}"),
+					( "B", subject, number )
+				)
 
 
 	def test_C_valid_header(self):
@@ -127,7 +137,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC C{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC C{subject}{number}"),
+					( "C", subject, number )
+				)
 
 
 	def test_D_valid_header(self):
@@ -137,7 +152,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC D{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC D{subject}{number}"),
+					( "D", subject, number )
+				)
 
 
 	def test_E_valid_header(self):
@@ -147,7 +167,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC E{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC E{subject}{number}"),
+					( "E", subject, number )
+				)
 
 
 	def test_F_valid_header(self):
@@ -157,7 +182,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC F{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC F{subject}{number}"),
+					( "F", subject, number )
+				)
 
 
 	def test_G_valid_header(self):
@@ -167,7 +197,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC G{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC G{subject}{number}"),
+					( "G", subject, number )
+				)
 
 
 	def test_H_valid_header(self):
@@ -177,7 +212,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC H{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC H{subject}{number}"),
+					( "H", subject, number )
+				)
 
 
 	def test_I_valid_header(self):
@@ -187,7 +227,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC I{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC I{subject}{number}"),
+					( "I", subject, number )
+				)
 
 
 	def test_J_valid_header(self):
@@ -197,7 +242,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC J{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC J{subject}{number}"),
+					( "J", subject, number )
+				)
 
 
 	def test_K_valid_header(self):
@@ -207,7 +257,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC K{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC K{subject}{number}"),
+					( "K", subject, number )
+				)
 
 
 	def test_L_valid_header(self):
@@ -217,7 +272,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC L{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC L{subject}{number}"),
+					( "L", subject, number )
+				)
 
 
 	def test_M_valid_header(self):
@@ -227,7 +287,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC M{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC M{subject}{number}"),
+					( "M", subject, number )
+				)
 
 
 	def test_N_valid_header(self):
@@ -237,7 +302,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC N{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC N{subject}{number}"),
+					( "N", subject, number )
+				)
 
 
 	def test_O_valid_header(self):
@@ -247,7 +317,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC O{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC O{subject}{number}"),
+					( "O", subject, number )
+				)
 
 
 	def test_P_valid_header(self):
@@ -257,7 +332,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC P{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC P{subject}{number}"),
+					( "P", subject, number )
+				)
 
 
 	def test_Q_valid_header(self):
@@ -267,7 +347,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC Q{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC Q{subject}{number}"),
+					( "Q", subject, number )
+				)
 
 
 	def test_R_valid_header(self):
@@ -277,7 +362,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC R{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC R{subject}{number}"),
+					( "R", subject, number )
+				)
 
 
 	def test_S_valid_header(self):
@@ -287,7 +377,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC S{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC S{subject}{number}"),
+					( "S", subject, number )
+				)
 
 
 	def test_T_valid_header(self):
@@ -297,7 +392,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC T{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC T{subject}{number}"),
+					( "T", subject, number )
+				)
 
 
 	def test_U_valid_header(self):
@@ -307,7 +407,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC U{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC U{subject}{number}"),
+					( "U", subject, number )
+				)
 
 
 	def test_V_valid_header(self):
@@ -317,7 +422,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC V{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC V{subject}{number}"),
+					( "V", subject, number )
+				)
 
 
 	def test_W_valid_header(self):
@@ -327,7 +437,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC W{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC W{subject}{number}"),
+					( "W", subject, number )
+				)
 
 
 	def test_X_valid_header(self):
@@ -337,7 +452,12 @@ class AnalyzerCase(unittest.TestCase):
 		for subject in B2:
 			for i in range(100):
 
-				self.assertTrue(analyzer.is_valid_header(f"ZCZC X{subject}{str(i).zfill(2)}"))
+				number = str(i).zfill(2)
+				self.assertEqual(
+
+					analyzer.is_valid_header(f"ZCZC X{subject}{number}"),
+					( "X", subject, number )
+				)
 
 
 	def test_invalid_header(self):
@@ -466,6 +586,8 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("header", result["analysis"])
+		self.assertEqual(result["analysis"]["header"],( "J","A","94" ))
 		self.assertIn("cdt", result["analysis"])
 		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
 		self.assertEqual(
@@ -606,6 +728,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+		self.assertIn("header", result["analysis"])
+		self.assertEqual(result["analysis"]["header"],( "O","L","66" ))
 
 		self.assertNotIn("cdt", result["analysis"])
 
@@ -809,6 +934,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["punc"][")"][10],1)
 		self.assertEqual(result["analysis"]["punc"][")"][11],1)
 
+		self.assertIn("header", result["analysis"])
+		self.assertEqual(result["analysis"]["header"],( "Q","A","42" ))
+
 		self.assertIn("cdt", result["analysis"])
 		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
 		self.assertEqual(
@@ -949,6 +1077,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+		self.assertIn("header", result["analysis"])
+		self.assertEqual(result["analysis"]["header"],( "S","E","94" ))
+
 		self.assertNotIn("cdt", result["analysis"])
 
 
@@ -1014,6 +1145,8 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+		self.assertNotIn("header", result["analysis"])
 
 		self.assertIn("cdt", result["analysis"])
 		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
@@ -1144,6 +1277,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+		self.assertIn("header", result["analysis"])
+		self.assertEqual(result["analysis"]["header"],( "I","A","76" ))
+
 		self.assertIn("cdt", result["analysis"])
 		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
 		self.assertEqual(
@@ -1235,6 +1371,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
 
+		self.assertIn("header", result["analysis"])
+		self.assertEqual(result["analysis"]["header"],( "V","A","28" ))
+
 		self.assertIn("cdt", result["analysis"])
 		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
 		self.assertEqual(
@@ -1299,6 +1438,8 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
+
+		self.assertNotIn("header", result["analysis"])
 
 		self.assertIn("cdt", result["analysis"])
 		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)

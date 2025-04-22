@@ -172,9 +172,14 @@ class Navanalyzer:
 
 
 				header, *body, eos = air_lines
-				state  ^= self.is_valid_header(" ".join(header)) <<2
 				state  ^= (eos == [ "NNNN" ]) <<3
 				scan	= word_scan(body)
+
+
+				if	(SSN := self.is_valid_header(" ".join(header))) is not None:
+
+					analysis["header"] = SSN
+					state  |= 4
 
 
 				for line,unmatch in scan[1]: analysis["punc"][unmatch][line] += 1
@@ -235,7 +240,7 @@ class Navanalyzer:
 
 
 
-	def is_valid_header(self, header :str) -> bool :
+	def is_valid_header(self, header :str) -> Tuple[str,str,str] | None :
 
 		"""
 			Helper method that will try to extract a B1 from the "header" string and return True
@@ -243,8 +248,13 @@ class Navanalyzer:
 			False in any other cases, including Exception raises.
 		"""
 
-		try:	return G_NAVTEX_MESSAGE_HEADER.fullmatch(header).group("tcB1") == self.station
-		except:	return False
+		try:
+
+			match = G_NAVTEX_MESSAGE_HEADER.fullmatch(header)
+			station, subject, number = match.group("tcB1", "tcB2", "tcB34")
+
+			if	station == self.station : return station, subject, number
+		except:	return
 
 
 
