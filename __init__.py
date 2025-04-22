@@ -31,6 +31,39 @@ class Navanalyzer:
 
 		author: lngd
 		lngdeer@gmail.com
+
+
+		old:
+		Navtex messages analyzer solution
+
+		BoW			-	Bag of Words, the hash table of NAVTEX words, that are used in messages,
+						to check spelling against; it is assumed to be just a dict or a
+						pygwarts.irma.shelve.LibraryShelf instance
+		station		-	current station litera
+		categories	-	the most significant for current station message categories, that are to be
+						checked, might be provided as a string or as an array of characters/strings
+
+		Process NAVTEX header
+		If header is valid, None returned, otherwise corresponding message string
+
+		CDT - Creation Date & Time
+		As CDT line is optional for NAVTEX message, current method will search through
+		all (message body) lines for CDT. If found, will be processed, otherwise corresponding
+		message (about CDT absence) will be produced.
+		If no year specified, it will be obtained by the moment it is invoked.
+
+		Iterates through every space separated string in NAVTEX message body (all lines of message
+		except first, which must be header and second, that must be EoS) and searches for the
+		bag of words ("BoW") mapping occurence. The entire process relies on the scheme, where
+		every word in the "BoW" might be considered as "known" or "pend". While the key in "BoW"
+		is the word itself, the value either 0 for "pend" and 0< for "known". If the word not
+		in "BoW" it considered "unknown" with corresponding actions, like adding to the "body_issues"
+		and also added BoW as "pend". All "unknown" words goes to "NEW_TEXT_WORDS" set this
+		collection might be used to maintain "BoW".
+
+
+		scanned good symbols:
+		'()+,-./0123456789:=ABCDEFGHIJKLMNOPQRSTUVWXYZ
 	"""
 
 	def __init__(self, station :str):
@@ -42,7 +75,7 @@ class Navanalyzer:
 
 		self.station = station.upper()
 
-	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] :
+	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] | None :
 
 		"""
 			Ananlysis implementation that uses dictionary 
@@ -121,12 +154,8 @@ class Navanalyzer:
 			127	- sanitized message with known and unkown words;
 		"""
 
-		if	isinstance(sanit := sanit_state(path), dict):
-			state = sanit.get("sanit")
-
-
-			if	isinstance(state, int) and state:
-
+		if	isinstance(sanit := sanit_state(path), dict) and isinstance(state := sanit.get("sanit"), int):
+			if	state:
 
 				raw_lines	= sanit["raw_lines"]
 				air_lines	= sanit["air_lines"]

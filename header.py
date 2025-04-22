@@ -71,14 +71,6 @@ import re
 # messages and service messages must never be allocated B3B4 = 00. The correct use of B2
 # characters A, B, D and L will ensure that messages containing safety information will always
 # be printed or displayed on first receipt.
-
-
-
-
-
-
-
-
 G_NAVTEX_MESSAGE_HEADER = re.compile(r"^ZCZC (?P<tcB1>[A-X])(?P<tcB2>[A-LV-Z])(?P<tcB34>\d\d)$")
 B1 = "ABCDEFGHIJKLMNOPQRSTUVWX"
 B2 = "ABCDEFGHIJKLVWXYZ"

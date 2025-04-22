@@ -135,8 +135,8 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 		zero "sanit" and "message" string from "byte_scan" if one encountered not utf-8 symbol.
 	"""
 
-	sanit		= 0
 	F,message	= byte_scan(path)
+	sanit		= 0
 
 	if	not F:
 
