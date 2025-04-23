@@ -168,7 +168,7 @@ class Navanalyzer:
 					"known":	defaultdict(lambda : defaultdict(int)),
 					"unknown":	defaultdict(lambda : defaultdict(int)),
 					"pending":	defaultdict(lambda : defaultdict(int)),
-					"punc":		defaultdict(lambda : defaultdict(int)),
+					"punct":	defaultdict(lambda : defaultdict(int)),
 				}
 
 
@@ -184,7 +184,7 @@ class Navanalyzer:
 					state  |= 4
 
 
-				for i,unmatch in scan[1]: analysis["punc"][i][unmatch] += 1
+				for i,unmatch in scan[1]: analysis["punct"][i][unmatch] += 1
 				for i in range(1,len(scan[0]) +1):
 
 

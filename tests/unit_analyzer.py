@@ -587,9 +587,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("pending", result["analysis"])
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertFalse(len(result["analysis"]["pending"]))
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "J","A","94" ))
 		self.assertIn("cdt", result["analysis"])
@@ -743,9 +743,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertEqual(result["analysis"]["pending"][9]["CANCEL"],1)
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "O","L","66" ))
@@ -997,13 +997,13 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertEqual(result["analysis"]["pending"][6]["PIPELINE"],1)
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertEqual(result["analysis"]["punc"][7][")"],1)
-		self.assertEqual(result["analysis"]["punc"][8][")"],1)
-		self.assertEqual(result["analysis"]["punc"][9][")"],1)
-		self.assertEqual(result["analysis"]["punc"][10][")"],1)
-		self.assertEqual(result["analysis"]["punc"][11][")"],1)
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertEqual(result["analysis"]["punct"][7][")"],1)
+		self.assertEqual(result["analysis"]["punct"][8][")"],1)
+		self.assertEqual(result["analysis"]["punct"][9][")"],1)
+		self.assertEqual(result["analysis"]["punct"][10][")"],1)
+		self.assertEqual(result["analysis"]["punct"][11][")"],1)
 
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "Q","A","42" ))
@@ -1203,9 +1203,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertFalse(len(result["analysis"]["pending"]))
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "S","E","94" ))
@@ -1326,9 +1326,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertFalse(len(result["analysis"]["pending"]))
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 
 		self.assertNotIn("header", result["analysis"])
 
@@ -1480,9 +1480,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertFalse(len(result["analysis"]["pending"]))
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "I","A","76" ))
@@ -1622,9 +1622,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertFalse(len(result["analysis"]["pending"]))
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "V","A","28" ))
@@ -1722,9 +1722,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["pending"], dict)
 		self.assertFalse(len(result["analysis"]["pending"]))
 
-		self.assertIn("punc", result["analysis"])
-		self.assertIsInstance(result["analysis"]["punc"], dict)
-		self.assertFalse(len(result["analysis"]["punc"]))
+		self.assertIn("punct", result["analysis"])
+		self.assertIsInstance(result["analysis"]["punct"], dict)
+		self.assertFalse(len(result["analysis"]["punct"]))
 
 		self.assertNotIn("header", result["analysis"])
 
