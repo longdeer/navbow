@@ -37,7 +37,7 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 			current = list()
 
 
-			for char in word:
+			for j,char in enumerate(word):
 				match char:
 
 
@@ -59,8 +59,10 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 							if current : current.append(char)
 
 
-					# Immediately separates a word. If in sequence,
-					# every even char will go to "current" as a part of new word.
+					# Additional symbols that are treated like separators. If goes after stack closing,
+					# will be just skipped. Otherwise coma and colon immediately separates a word.
+					# If in sequence, every even char will go to "current" as a part of new word.
+					case "," | ":" | "-" | "." if 0 <j and word[j-1] in scope: continue
 					case "," | ":" if current:
 
 						words[i].append(str().join(current))

@@ -755,8 +755,6 @@ class AnalyzerCase(unittest.TestCase):
 
 			bow,
 			{
-				":":			0,
-
 				"CTF":			1,
 				"SOUND":		1,
 				"SOUTH":		1,
@@ -1615,7 +1613,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["unknown"][4]["WZ"],1)
 		self.assertEqual(result["analysis"]["unknown"][4]["GA73"],1)
 		self.assertEqual(result["analysis"]["unknown"][4]["VA10"],1)
-		self.assertEqual(result["analysis"]["unknown"][4]["."],1)
 
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
@@ -1643,8 +1640,6 @@ class AnalyzerCase(unittest.TestCase):
 
 			bow,
 			{
-				".":			0,
-
 				"ICE":			1,
 				"UTC":			0,
 				"AUG":			0,

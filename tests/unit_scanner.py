@@ -268,6 +268,28 @@ class SannerCase(unittest.TestCase):
 		)
 
 
+	def test_word_scan_017(self):
+
+		lines = [
+
+			[ "(NAV):", "(NAV).", "(NAV),", "(NAV)-" ],
+			[ "'NAV':", "'NAV'.", "'NAV',", "'NAV'-" ],
+			[ "\"NAV\":", "\"NAV\".", "\"NAV\",", "\"NAV\"-" ]
+		]
+		self.assertEqual(
+
+			word_scan(lines),
+			(
+				{
+					1: [ "NAV", "NAV", "NAV", "NAV" ],
+					2: [ "NAV", "NAV", "NAV", "NAV" ],
+					3: [ "NAV", "NAV", "NAV", "NAV" ]
+				},
+				[]
+			)
+		)
+
+
 
 
 
