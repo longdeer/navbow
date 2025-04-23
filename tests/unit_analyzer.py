@@ -545,7 +545,8 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_JA94(self):
 
 		analyzer = Navanalyzer("J")
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "JA94"), dict())
+		bow = dict()
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "JA94"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
@@ -598,6 +599,18 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
 			f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
 		)
+		self.assertEqual(
+
+			bow,
+			{
+				"UTC":		0,
+				"FEB":		0,
+				"CANCEL":	0,
+				"GERMAN":	0,
+				"NAV":		0,
+				"WARN":		0,
+			}
+		)
 
 
 
@@ -605,17 +618,15 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_OL66(self):
 
 		analyzer = Navanalyzer("O")
-		result = analyzer.with_mapping(
+		bow = {
 
-			os.path.join(self.wd, "msg", "OL66"),
-			{
-				"CTF":		1,
-				"SOUND":	1,
-				"SOUTH":	1,
-				"CONTACT":	1,
-				"CANCEL":	0,
-			}
-		)
+			"CTF":		1,
+			"SOUND":	1,
+			"SOUTH":	1,
+			"CONTACT":	1,
+			"CANCEL":	0,
+		}
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "OL66"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 63) # 1 + 2 + 4 + 8 + 16 + 32
@@ -719,6 +730,8 @@ class AnalyzerCase(unittest.TestCase):
 
 		self.assertEqual(result["analysis"]["unknown"][8]["PHONE"],1)
 
+		self.assertEqual(result["analysis"]["unknown"][9]["OL65"],1)
+
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"][4]["SOUND"],1)
@@ -738,6 +751,60 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "O","L","66" ))
 
 		self.assertNotIn("cdt", result["analysis"])
+		self.assertEqual(
+
+			bow,
+			{
+				":":			0,
+
+				"CTF":			1,
+				"SOUND":		1,
+				"SOUTH":		1,
+				"CONTACT":		1,
+				"CANCEL":		0,
+				"OL66":			0,
+				"FOSNNI":		0,
+				"SUBFACTS":		0,
+				"GUNFACTS":		0,
+				"WARNING":		0,
+				"ALL":			0,
+				"TIMES":		0,
+				"UTC":			0,
+				"DIVED":		0,
+				"SUBMARINE":	0,
+				"OPERATIONS":	0,
+				"INNER":		0,
+				"-":			0,
+				"INSIDE":		0,
+				"OF":			0,
+				"SKYE":			0,
+				"RUBHA":		0,
+				"REIDH":		0,
+				"NORTH":		0,
+				"MALLAIG":		0,
+				"BETWEEN":		0,
+				"SEP":			0,
+				"LIVE":			0,
+				"GUNNERY":		0,
+				"FIRINGS":		0,
+				"PROGRESS":		0,
+				"NIL":			0,
+				"FULL":			0,
+				"DETAILS":		0,
+				"IN":			0,
+				"HM":			0,
+				"COASTGUARD":	0,
+				"RESCUE":		0,
+				"CENTRES":		0,
+				"VHF":			0,
+				"AND":			0,
+				"MF":			0,
+				"BROADCASTS":	0,
+				"OR":			0,
+				"PHONE":		0,
+				"OL65":			0,
+			}
+		)
 
 
 
@@ -745,25 +812,23 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_QA42(self):
 
 		analyzer = Navanalyzer("Q")
-		result = analyzer.with_mapping(
+		bow = {
 
-			os.path.join(self.wd, "msg", "QA42"),
-			{
-				"CTF":			1,
-				"SOUND":		1,
-				"SOUTH":		1,
-				"CONTACT":		1,
-				"UNTIL":		1,
-				"FURTHER":		1,
-				"FROM":			1,
-				"UTC":			1,
-				"CONDUCTING":	1,
-				"UNDERWATER":	1,
-				"GAS":			1,
-				"PIPELINE":		0,
-				"CANCEL":		0,
-			}
-		)
+			"CTF":			1,
+			"SOUND":		1,
+			"SOUTH":		1,
+			"CONTACT":		1,
+			"UNTIL":		1,
+			"FURTHER":		1,
+			"FROM":			1,
+			"UTC":			1,
+			"CONDUCTING":	1,
+			"UNDERWATER":	1,
+			"GAS":			1,
+			"PIPELINE":		0,
+			"CANCEL":		0,
+		}
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "QA42"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 125) # 1 + 4 + 8 + 16 + 32 + 64
@@ -952,16 +1017,9 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
 			"06/09/2019 2240"
 		)
+		self.assertEqual(
 
-
-
-
-	def test_analysis_SE94(self):
-
-		analyzer = Navanalyzer("S")
-		result = analyzer.with_mapping(
-
-			os.path.join(self.wd, "msg", "SE94"),
+			bow,
 			{
 				"CTF":			1,
 				"SOUND":		1,
@@ -976,8 +1034,70 @@ class AnalyzerCase(unittest.TestCase):
 				"GAS":			1,
 				"PIPELINE":		0,
 				"CANCEL":		0,
+				"JUN":	0,
+				"SPLIT":	0,
+				"RADIO":	0,
+				"NAV":	0,
+				"WNG":	0,
+				"NR":	0,
+				"N-ERN":	0,
+				"ADRIATIC":	0,
+				"BRIJUNI":	0,
+				"CHRT":	0,
+				"NOTICEFROM":	0,
+				"LT":	0,
+				"TO":	0,
+				"M/V":	0,
+				"REFUL":	0,
+				"MAINTENANCE":	0,
+				"WORKS":	0,
+				"BETWEEN":	0,
+				"POSITIONS":	0,
+				"A)":	0,
+				"B)":	0,
+				"C)":	0,
+				"D)":	0,
+				"E)":	0,
+				"N":	0,
+				"-":	0,
+				"E":	0,
+				"VHF":	0,
+				"CH":	0,
+				"NAVIGATION":	0,
+				"AND":	0,
+				"FISHING":	0,
+				"IN":	0,
+				"RADIUS":	0,
+				"MILES":	0,
+				"THE":	0,
+				"VESSEL":	0,
+				"PROHIBITED":	0,
 			}
 		)
+
+
+
+
+	def test_analysis_SE94(self):
+
+		analyzer = Navanalyzer("S")
+		bow = {
+
+			"CTF":			1,
+			"SOUND":		1,
+			"SOUTH":		1,
+			"CONTACT":		1,
+			"UNTIL":		1,
+			"FURTHER":		1,
+			"FROM":			1,
+			"UTC":			1,
+			"CONDUCTING":	1,
+			"UNDERWATER":	1,
+			"GAS":			1,
+			"PIPELINE":		0,
+			"CANCEL":		0,
+		}
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "SE94"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 61) # 1 + 4 + 8 + 16 + 32
@@ -1093,6 +1213,54 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "S","E","94" ))
 
 		self.assertNotIn("cdt", result["analysis"])
+		self.assertEqual(
+
+			bow,
+			{
+				"CTF":				1,
+				"SOUND":			1,
+				"SOUTH":			1,
+				"CONTACT":			1,
+				"UNTIL":			1,
+				"FURTHER":			1,
+				"FROM":				1,
+				"UTC":				1,
+				"CONDUCTING":		1,
+				"UNDERWATER":		1,
+				"GAS":				1,
+				"NAVTEX-HAMBURG":	0,
+				"NCC":				0,
+				"WEATHERFORECAST":	0,
+				"FOR":				0,
+				"GERMAN":			0,
+				"BIGHT":			0,
+				"NORTHEAST":		0,
+				"ABOUT":			0,
+				"LATER":			0,
+				"DECREASING":		0,
+				"A":				0,
+				"LITTLE":			0,
+				"AND":				0,
+				"SHIFTING":			0,
+				"EASTERN":			0,
+				"AT":				0,
+				"TIMES":			0,
+				"MISTY":			0,
+				"SEA":				0,
+				"INCREASING":		0,
+				"METRE":			0,
+				"OUTLOOK":			0,
+				"WESTERN":			0,
+				"PART":				0,
+				"NORTH":			0,
+				"TO":				0,
+				"OTHERWISE":		0,
+				"EAST":				0,
+				"SOUTHEAST":		0,
+				"PIPELINE":			0,
+				"CANCEL":			0,
+			}
+		)
 
 
 
@@ -1100,7 +1268,8 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_NA22(self):
 
 		analyzer = Navanalyzer("M")
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "NA22"), dict())
+		bow = dict()
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "NA22"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 107) # 1 + 2 + 8 + 32 + 64
@@ -1172,6 +1341,24 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
 			"03/11/2019 0905"
 		)
+		self.assertEqual(
+
+			bow,
+			{
+				"UTC":			0,
+				"MAR":			0,
+				"NORWEGIAN":	0,
+				"NAV":			0,
+				"WARNING":		0,
+				"CHART":		0,
+				"AREA":			0,
+				"GRIP":			0,
+				"HILBAAAN":		0,
+				"RACON":		0,
+				"IS":			0,
+				"INOPERATIVE":	0,
+			}
+		)
 
 
 
@@ -1179,7 +1366,8 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_IA76(self):
 
 		analyzer = Navanalyzer("I")
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "IA76"), { "ICE": 1 })
+		bow = { "ICE": 1 }
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "IA76"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 117) # 1 + 4 + 16 + 32 + 64
@@ -1308,6 +1496,49 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
 			f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
 		)
+		self.assertEqual(
+
+			bow,
+			{
+				"ICE":	1,
+				"UTC":	0,
+				"JAN":	0,
+				"BALTIC":	0,
+				"INFORMATION":	0,
+				"VESSELS":	0,
+				"BOUND":	0,
+				"FOR":	0,
+				"PORTS":	0,
+				"SUBJECT":	0,
+				"TO":	0,
+				"TRAFFIC":	0,
+				"RESTRICTIONS":	0,
+				"SHALL":	0,
+				"CALL":	0,
+				"ICEINFO":	0,
+				"OR":	0,
+				"PHONE":	0,
+				"+46":	0,
+				"AS":	0,
+				"FOLLOWS":	0,
+				"PASSING":	0,
+				"LAT":	0,
+				"ARRIVAL":	0,
+				"WHEN":	0,
+				"THE":	0,
+				"SHIP":	0,
+				"IS":	0,
+				"WELL":	0,
+				"MOORED":	0,
+				"DEPARTURE":	0,
+				"REPORT":	0,
+				"ON":	0,
+				"VHF":	0,
+				"LATEST":	0,
+				"HOURS":	0,
+				"BEFORE":	0,
+			}
+		)
 
 
 
@@ -1315,7 +1546,8 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_VA28(self):
 
 		analyzer = Navanalyzer("V")
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "VA28"), { "ICE": 1 })
+		bow = { "ICE": 1 }
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "VA28"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 101) # 1 + 4 + 32 + 64
@@ -1383,6 +1615,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["unknown"][4]["WZ"],1)
 		self.assertEqual(result["analysis"]["unknown"][4]["GA73"],1)
 		self.assertEqual(result["analysis"]["unknown"][4]["VA10"],1)
+		self.assertEqual(result["analysis"]["unknown"][4]["."],1)
 
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
@@ -1406,6 +1639,35 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
 			f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
 		)
+		self.assertEqual(
+
+			bow,
+			{
+				".":			0,
+
+				"ICE":			1,
+				"UTC":			0,
+				"AUG":			0,
+				"GMDSS":		0,
+				"HUMBER":		0,
+				"COASTGUARD":	0,
+				"MF":			0,
+				"R/T":			0,
+				"AND":			0,
+				"DSC":			0,
+				"SERVICES":		0,
+				"FROM":			0,
+				"LANGHAM":		0,
+				"SITE":			0,
+				"OFF":			0,
+				"AIR":			0,
+				"CANCEL":		0,
+				"WZ":			0,
+				"GA73":			0,
+				"VA10":			0,
+			}
+
+		)
 
 
 
@@ -1413,7 +1675,8 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_MZ56(self):
 
 		analyzer = Navanalyzer("V")
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "MZ56"), { "HAND": 1 })
+		bow = { "HAND": 1 }
+		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "MZ56"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 121) # 1 + 8 + 16 + 32 + 64
@@ -1476,6 +1739,20 @@ class AnalyzerCase(unittest.TestCase):
 
 			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
 			"08/01/2019 1713"
+		)
+		self.assertEqual(
+
+			bow,
+			{
+				"HAND":		1,
+				"UTC":		0,
+				"AUG":		0,
+				"NAVAREA":	0,
+				"-":		0,
+				"NO":		0,
+				"MESSAGES":	0,
+				"ON":		0,
+			}
 		)
 
 

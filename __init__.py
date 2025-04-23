@@ -175,6 +175,7 @@ class Navanalyzer:
 				header, *body, eos = air_lines
 				state  ^= (eos == [ "NNNN" ]) <<3
 				scan	= word_scan(body)
+				pend	= set()
 
 
 				if	(SSN := self.is_valid_header(" ".join(header))) is not None:
@@ -219,13 +220,16 @@ class Navanalyzer:
 								case None:
 
 									analysis["unknown"][i][word] += 1
+									pend.add(word)
+									BoW[word] = 0
 									state |= 32
 
-								case 0:
+								case 0 if word not in pend:
 
 									analysis["pending"][i][word] += 1
 									state |= 32
 
+								case 0: analysis["unknown"][i][word] += 1
 								case _:
 
 									analysis["known"][i][word] += 1
