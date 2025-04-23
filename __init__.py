@@ -182,7 +182,7 @@ class Navanalyzer:
 					state  |= 4
 
 
-				for line,unmatch in scan[1]: analysis["punc"][unmatch][line] += 1
+				for i,unmatch in scan[1]: analysis["punc"][i][unmatch] += 1
 				for i in range(1,len(scan[0]) +1):
 
 
@@ -205,9 +205,9 @@ class Navanalyzer:
 					for word in line:
 
 
-						if		P_COORDINATE.fullmatch(word):		analysis["coords"][word][i]	+= 1
-						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][word][i]	+= 1
-						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][word][i]	+= 1
+						if		P_COORDINATE.fullmatch(word):		analysis["coords"][i][word]	+= 1
+						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][i][word]	+= 1
+						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][i][word]	+= 1
 						else:
 
 
@@ -217,12 +217,12 @@ class Navanalyzer:
 
 								case None | 0:
 
-									analysis["unknown"][word][i] += 1
+									analysis["unknown"][i][word] += 1
 									state |= 1 <<5
 
 								case _:
 
-									analysis["known"][word][i] += 1
+									analysis["known"][i][word] += 1
 									state |= 1 <<4
 				return	{
 
