@@ -583,6 +583,9 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertFalse(len(result["analysis"]["known"]))
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertFalse(len(result["analysis"]["pending"]))
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
@@ -716,14 +719,16 @@ class AnalyzerCase(unittest.TestCase):
 
 		self.assertEqual(result["analysis"]["unknown"][8]["PHONE"],1)
 
-		self.assertEqual(result["analysis"]["unknown"][9]["CANCEL"],1)
-
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"][4]["SOUND"],1)
 		self.assertEqual(result["analysis"]["known"][4]["SOUTH"],1)
 		self.assertEqual(result["analysis"]["known"][7]["CONTACT"],1)
 		self.assertEqual(result["analysis"]["known"][8]["CTF"],1)
+
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertEqual(result["analysis"]["pending"][9]["CANCEL"],1)
 
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
@@ -869,7 +874,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["unknown"][5]["M/V"],1)
 
 		self.assertEqual(result["analysis"]["unknown"][6]["REFUL"],1)
-		self.assertEqual(result["analysis"]["unknown"][6]["PIPELINE"],1)
 		self.assertEqual(result["analysis"]["unknown"][6]["MAINTENANCE"],1)
 		self.assertEqual(result["analysis"]["unknown"][6]["WORKS"],1)
 		self.assertEqual(result["analysis"]["unknown"][6]["BETWEEN"],1)
@@ -925,6 +929,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["known"][6]["UNDERWATER"],1)
 		self.assertEqual(result["analysis"]["known"][12]["CONTACT"],1)
 		self.assertEqual(result["analysis"]["known"][13]["FROM"],1)
+
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertEqual(result["analysis"]["pending"][6]["PIPELINE"],1)
 
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
@@ -1073,6 +1081,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["known"][6]["UNTIL"],1)
 		self.assertEqual(result["analysis"]["known"][6]["UTC"],1)
 
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertFalse(len(result["analysis"]["pending"]))
+
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
@@ -1142,6 +1154,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertFalse(len(result["analysis"]["known"]))
+
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertFalse(len(result["analysis"]["pending"]))
+
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
@@ -1273,6 +1290,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"][2]["ICE"],1)
 
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertFalse(len(result["analysis"]["pending"]))
+
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
@@ -1367,6 +1388,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertFalse(len(result["analysis"]["known"]))
 
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertFalse(len(result["analysis"]["pending"]))
+
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)
 		self.assertFalse(len(result["analysis"]["punc"]))
@@ -1434,6 +1459,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"][2]["HAND"],1)
+
+		self.assertIn("pending", result["analysis"])
+		self.assertIsInstance(result["analysis"]["pending"], dict)
+		self.assertFalse(len(result["analysis"]["pending"]))
 
 		self.assertIn("punc", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punc"], dict)

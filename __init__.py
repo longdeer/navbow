@@ -103,22 +103,22 @@ class Navanalyzer:
 			27	- sanitized message without header, CDT, with known word;
 			29	- message without CDT, with known word;
 			31	- sanitized message without CDT, with known word;
-			33	- message without header, EoS, CDT, with unknown word;
-			35	- sanitized message without header, EoS, CDT, with unknown word;
-			37	- message without EoS, CDT, with unknown word;
-			39	- sanitized message without EoS, CDT, with unknown word;
-			41	- message without header, CDT, with unknown word;
-			43	- sanitized message without header, CDT, with unknown word;
-			45	- message without CDT, with unknown word;
-			47	- sanitized message without CDT, with unknown word;
-			49	- message without header, EoS, CDT, with known and unkown words;
-			51	- sanitized message without header, EoS, CDT, with known and unkown words;
-			53	- message without EoS, CDT, with known and unkown words;
-			55	- sanitized message without EoS, CDT, with known and unkown words;
-			57	- message without header, CDT, with known and unkown words;
-			59	- sanitized message without header, CDT, with known and unkown words;
-			61	- message without CDT, with known and unkown words;
-			63	- sanitized message without CDT, with known and unkown words;
+			33	- message without header, EoS, CDT, with unknown or pending word;
+			35	- sanitized message without header, EoS, CDT, with unknown or pending word;
+			37	- message without EoS, CDT, with unknown or pending word;
+			39	- sanitized message without EoS, CDT, with unknown or pending word;
+			41	- message without header, CDT, with unknown or pending word;
+			43	- sanitized message without header, CDT, with unknown or pending word;
+			45	- message without CDT, with unknown or pending word;
+			47	- sanitized message without CDT, with unknown or pending word;
+			49	- message without header, EoS, CDT, with known and unknown or pending words;
+			51	- sanitized message without header, EoS, CDT, with known and unknown or pending words;
+			53	- message without EoS, CDT, with known and unknown or pending words;
+			55	- sanitized message without EoS, CDT, with known and unknown or pending words;
+			57	- message without header, CDT, with known and unknown or pending words;
+			59	- sanitized message without header, CDT, with known and unknown or pending words;
+			61	- message without CDT, with known and unknown or pending words;
+			63	- sanitized message without CDT, with known and unknown or pending words;
 
 			65	- impossible state cause CDT must content any words;
 			67	- impossible state cause CDT must content any words;
@@ -137,22 +137,22 @@ class Navanalyzer:
 			91	- sanitized message without header, with known word;
 			93	- message with known word;
 			95	- sanitized message with known word;
-			97	- message without header, EoS, with unkown word;
-			99	- sanitized message without header, EoS, with unkown word;
-			101	- message without EoS, with unkown word;
-			103	- sanitized message without EoS, with unkown word;
-			105	- message without header, with unkown word;
-			107	- sanitized message without header, with unkown word;
-			109	- message with unkown word;
-			111	- sanitized message with unkown word;
-			113	- message without header, EoS, with known and unkown words;
-			115	- sanitized message without header, EoS, with known and unkown words;
-			117	- message without EoS, with known and unkown words;
-			119	- sanitized message without EoS, with known and unkown words;
-			121	- message without header, with known and unkown words;
-			123	- sanitized message without header, with known and unkown words;
-			125	- message with known and unkown words;
-			127	- sanitized message with known and unkown words;
+			97	- message without header, EoS, with unknown or pending word;
+			99	- sanitized message without header, EoS, with unknown or pending word;
+			101	- message without EoS, with unknown or pending word;
+			103	- sanitized message without EoS, with unknown or pending word;
+			105	- message without header, with unknown or pending word;
+			107	- sanitized message without header, with unknown or pending word;
+			109	- message with unknown or pending word;
+			111	- sanitized message with unknown or pending word;
+			113	- message without header, EoS, with known and unknown or pending words;
+			115	- sanitized message without header, EoS, with known and unknown or pending words;
+			117	- message without EoS, with known and unknown or pending words;
+			119	- sanitized message without EoS, with known and unknown or pending words;
+			121	- message without header, with known and unknown or pending words;
+			123	- sanitized message without header, with known and unknown or pending words;
+			125	- message with known and unknown or pending words;
+			127	- sanitized message with known and unknown or pending words;
 		"""
 
 		if	isinstance(sanit := sanit_state(path), dict) and isinstance(state := sanit.get("sanit"), int):
@@ -167,6 +167,7 @@ class Navanalyzer:
 					"nums":		defaultdict(lambda : defaultdict(int)),
 					"known":	defaultdict(lambda : defaultdict(int)),
 					"unknown":	defaultdict(lambda : defaultdict(int)),
+					"pending":	defaultdict(lambda : defaultdict(int)),
 					"punc":		defaultdict(lambda : defaultdict(int)),
 				}
 
@@ -212,18 +213,23 @@ class Navanalyzer:
 
 
 							try:	BoW_state = BoW[word]
-							except:	BoW_state = 0
+							except:	BoW_state = None
 							match	BoW_state:
 
-								case None | 0:
+								case None:
 
 									analysis["unknown"][i][word] += 1
-									state |= 1 <<5
+									state |= 32
+
+								case 0:
+
+									analysis["pending"][i][word] += 1
+									state |= 32
 
 								case _:
 
 									analysis["known"][i][word] += 1
-									state |= 1 <<4
+									state |= 16
 				return	{
 
 					"analysis":	analysis,
