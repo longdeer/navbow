@@ -55,6 +55,17 @@ class AlphanumericalCase(unittest.TestCase):
 			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"N{i}.69-{i+1}.69-{i+3}.69"))
 			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"N{i},69-{i+1},69-{i+3},69"))
 			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"N{i},/69-{i+1}/69-{i+3}/69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i}"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i}-{i+1}"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i}.69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i},69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i}/69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i}.69-{i+1}.69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i},69-{i+1},69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i},/69-{i+1}/69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i}.69-{i+1}.69-{i+3}.69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i},69-{i+1},69-{i+3},69"))
+			self.assertTrue(P_ALPHANUMERICAL.fullmatch(f"NR{i},/69-{i+1}/69-{i+3}/69"))
 
 
 	def test_channel_numbers(self):

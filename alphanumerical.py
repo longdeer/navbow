@@ -16,7 +16,7 @@ P_ALPHANUMERICAL = re.compile(
 			)											# decimal or range
 			|
 			(
-				N\d+([\d\-\.,/]*\d+)*					# ordering number, possibly with formatting
+				NR?\d+([\d\-\.,/]*\d+)*					# ordering number, possibly with formatting
 			)
 			|
 			(
