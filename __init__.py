@@ -8,8 +8,8 @@ from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
 from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
 from NavtexBoWAnalyzer.numerical		import P_NUMERICAL
 from NavtexBoWAnalyzer.alphanumerical	import P_ALPHANUMERICAL
-from NavtexBoWAnalyzer.cdt				import G_MESSAGE_CDT
-from NavtexBoWAnalyzer.cdt				import MONTH_MAP
+from NavtexBoWAnalyzer.DTG				import G_MESSAGE_DTG
+from NavtexBoWAnalyzer.DTG				import MONTH_MAP
 from NavtexBoWAnalyzer.scanner			import sanit_state
 from NavtexBoWAnalyzer.scanner			import word_scan
 
@@ -23,20 +23,6 @@ from NavtexBoWAnalyzer.scanner			import word_scan
 class Navanalyzer:
 
 	"""
-		old:
-		Navtex messages analyzer solution
-
-		BoW			-	Bag of Words, the hash table of NAVTEX words, that are used in messages,
-						to check spelling against; it is assumed to be just a dict or a
-						pygwarts.irma.shelve.LibraryShelf instance
-		station		-	current station litera
-
-		CDT - Creation Date & Time
-		As CDT line is optional for NAVTEX message, current method will search through
-		all (message body) lines for CDT. If found, will be processed, otherwise corresponding
-		message (about CDT absence) will be produced.
-		If no year specified, it will be obtained by the moment it is invoked.
-
 		Iterates through every space separated string in NAVTEX message body (all lines of message
 		except first, which must be header and second, that must be EoS) and searches for the
 		bag of words ("BoW") mapping occurence. The entire process relies on the scheme, where
@@ -68,54 +54,54 @@ class Navanalyzer:
 			in case of non-utf8 symbols, or useful statistics otherwise. Will extend "state" integer
 			by more detailed inspection as following:
 				0	- broken bytes detected by "byte_scan", or file has no valid symbols;
-				1	- message without header, EoS, CDT and any words (only numerical, alphanumerical
+				1	- message without header, EoS, DTG and any words (only numerical, alphanumerical
 					and coordinates);
-				3	- sanitized message without header, EoS, CDT and any words (only numerical,
+				3	- sanitized message without header, EoS, DTG and any words (only numerical,
 					alphanumerical and coordinates);
-				5	- message without EoS, CDT and any words (only numerical, alphanumerical and
+				5	- message without EoS, DTG and any words (only numerical, alphanumerical and
 					coordinates);
-				7	- sanitized message without EoS, CDT and any words (only numerical, alphanumerical
+				7	- sanitized message without EoS, DTG and any words (only numerical, alphanumerical
 					and coordinates);
-				9	- message without header, CDT and any words (only numerical, alphanumerical and
+				9	- message without header, DTG and any words (only numerical, alphanumerical and
 					coordinates);
-				11	- sanitized message without header, CDT and any words (only numerical, alphanumerical
+				11	- sanitized message without header, DTG and any words (only numerical, alphanumerical
 					and coordinates);
-				13	- message without CDT and any words (only numerical, alphanumerical and coordinates);
-				15	- sanitized message without CDT and any words (only numerical, alphanumerical and
+				13	- message without DTG and any words (only numerical, alphanumerical and coordinates);
+				15	- sanitized message without DTG and any words (only numerical, alphanumerical and
 					coordinates);
-				17	- message without header, EoS, CDT, with known word;
-				19	- sanitized message without header, EoS, CDT, with known word;
-				21	- message without EoS, CDT, with known word;
-				23	- sanitized message without EoS, CDT, with known word;
-				25	- message without header, CDT, with known word;
-				27	- sanitized message without header, CDT, with known word;
-				29	- message without CDT, with known word;
-				31	- sanitized message without CDT, with known word;
-				33	- message without header, EoS, CDT, with unknown or pending word;
-				35	- sanitized message without header, EoS, CDT, with unknown or pending word;
-				37	- message without EoS, CDT, with unknown or pending word;
-				39	- sanitized message without EoS, CDT, with unknown or pending word;
-				41	- message without header, CDT, with unknown or pending word;
-				43	- sanitized message without header, CDT, with unknown or pending word;
-				45	- message without CDT, with unknown or pending word;
-				47	- sanitized message without CDT, with unknown or pending word;
-				49	- message without header, EoS, CDT, with known and unknown or pending words;
-				51	- sanitized message without header, EoS, CDT, with known and unknown or pending words;
-				53	- message without EoS, CDT, with known and unknown or pending words;
-				55	- sanitized message without EoS, CDT, with known and unknown or pending words;
-				57	- message without header, CDT, with known and unknown or pending words;
-				59	- sanitized message without header, CDT, with known and unknown or pending words;
-				61	- message without CDT, with known and unknown or pending words;
-				63	- sanitized message without CDT, with known and unknown or pending words;
+				17	- message without header, EoS, DTG, with known word;
+				19	- sanitized message without header, EoS, DTG, with known word;
+				21	- message without EoS, DTG, with known word;
+				23	- sanitized message without EoS, DTG, with known word;
+				25	- message without header, DTG, with known word;
+				27	- sanitized message without header, DTG, with known word;
+				29	- message without DTG, with known word;
+				31	- sanitized message without DTG, with known word;
+				33	- message without header, EoS, DTG, with unknown or pending word;
+				35	- sanitized message without header, EoS, DTG, with unknown or pending word;
+				37	- message without EoS, DTG, with unknown or pending word;
+				39	- sanitized message without EoS, DTG, with unknown or pending word;
+				41	- message without header, DTG, with unknown or pending word;
+				43	- sanitized message without header, DTG, with unknown or pending word;
+				45	- message without DTG, with unknown or pending word;
+				47	- sanitized message without DTG, with unknown or pending word;
+				49	- message without header, EoS, DTG, with known and unknown or pending words;
+				51	- sanitized message without header, EoS, DTG, with known and unknown or pending words;
+				53	- message without EoS, DTG, with known and unknown or pending words;
+				55	- sanitized message without EoS, DTG, with known and unknown or pending words;
+				57	- message without header, DTG, with known and unknown or pending words;
+				59	- sanitized message without header, DTG, with known and unknown or pending words;
+				61	- message without DTG, with known and unknown or pending words;
+				63	- sanitized message without DTG, with known and unknown or pending words;
 
-				65	- impossible state cause CDT must content any words;
-				67	- impossible state cause CDT must content any words;
-				69	- impossible state cause CDT must content any words;
-				71	- impossible state cause CDT must content any words;
-				73	- impossible state cause CDT must content any words;
-				75	- impossible state cause CDT must content any words;
-				77	- impossible state cause CDT must content any words;
-				79	- impossible state cause CDT must content any words;
+				65	- impossible state cause DTG must content any words;
+				67	- impossible state cause DTG must content any words;
+				69	- impossible state cause DTG must content any words;
+				71	- impossible state cause DTG must content any words;
+				73	- impossible state cause DTG must content any words;
+				75	- impossible state cause DTG must content any words;
+				77	- impossible state cause DTG must content any words;
+				79	- impossible state cause DTG must content any words;
 
 				81	- message without header, EOS, with known word;
 				83	- sanitized message without header, EOS, with known word;
@@ -190,11 +176,11 @@ class Navanalyzer:
 					line = scan[0][i]
 
 
-					# Despite the fact CDT line is optional for Navtex messages, it has common pattern,
+					# Despite the fact DTG is optional for Navtex messages, it has common pattern,
 					# so once such line is find it will be converted to "datetime" object and putted
-					# in result dictionary. It is important, that if message somehow has a few CDT
+					# in result dictionary. It is important, that if message somehow has a few DTG
 					# lines, result dictionary will have only the last one.
-					if	(match := G_MESSAGE_CDT.fullmatch(" ".join(line))):
+					if	(match := G_MESSAGE_DTG.fullmatch(" ".join(line))):
 						
 						d,m,H,M,Y = match.group("day", "month", "hour", "minute", "year")
 						Y = int(f"20{Y}") if Y else int(datetime.today().strftime("%Y"))

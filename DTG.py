@@ -22,7 +22,7 @@ MONTH_MAP = {
 	"NOV":	11,
 	"DEC":	12
 }
-G_MESSAGE_CDT = re.compile(
+G_MESSAGE_DTG = re.compile(
 
 	r"""
 		(?P<day>[0-2]\d|3[01])
