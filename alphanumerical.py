@@ -7,6 +7,14 @@ import re
 
 
 
+# Regular expression, that is a set of popular suggestions for concatenations of alphabetic and numerical
+# symbols, which can form:
+#	M/S or NM/S		- velocity designation;
+#	N or NR			- numbering designation;
+#	VHF or MF or CH	- channels numbers designation;
+#	KHZ or MHZ		- GMDSS frequencies designation.
+# The following tools are only suggestion for Navtex messages processing, which general purpose is
+# filtering out determined information and attract attention to controversial moments.
 P_ALPHANUMERICAL = re.compile(
 
 	r"""

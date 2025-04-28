@@ -7,6 +7,13 @@ import re
 
 
 
+# "NAVTEX NANUAL" does not explicitly restrict the use of geographic coordinates systems, but it is
+# implicitly suggested (according to messages archive at https://www.navtex.net/navtex-archive.html)
+# Degree-Minutes-Seconds system, so Navtex messages must include coordinates in following format:
+#	DD-MM[.DECIMAL][-SS[.DECIMAL]](NS)
+#	DDD-MM[.DECIMAL][-SS[.DECIMAL]](EW)
+# The following tools are only suggestion for Navtex messages processing, which general purpose is
+# filtering out determined information and attract attention to controversial moments.
 P_COORDINATE = re.compile(
 
 	r"""

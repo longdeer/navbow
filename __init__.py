@@ -23,6 +23,35 @@ from NavtexBoWAnalyzer.scanner			import word_scan
 class Navanalyzer:
 
 	"""
+		Element                          | Example
+		--------------------------------------------------------------
+		Phasing signal                   |
+		--------------------------------------------------------------
+		Start of message group           | ZCZC
+		--------------------------------------------------------------
+		One space                        |
+		--------------------------------------------------------------
+		NAVTEX message identity          | FA01
+		--------------------------------------------------------------
+		Carriage return + line feed      |
+		--------------------------------------------------------------
+		Message content                  | (Date Time Group – Optional
+		                                 | e.g. 040735 UTC OCT 21)
+		                                 | NAV I 114/21
+		                                 | ENGLISH CHANNEL. START
+		                                 | POINT SOUTHWARD.
+		                                 | CHART BA 442 (INT 1701).
+		                                 | UNEXPLODED ORDNANCE
+		                                 | LOCATED
+		                                 | 49-51.97N 003-39.54W AND
+		                                 | 49-55.24N 003-40.79W.
+		--------------------------------------------------------------
+		End of message instruction       | NNNN
+		--------------------------------------------------------------
+		Carriage return + two line feeds |
+		--------------------------------------------------------------
+		Phasing signal                   |
+
 		Iterates through every space separated string in NAVTEX message body (all lines of message
 		except first, which must be header and second, that must be EoS) and searches for the
 		bag of words ("BoW") mapping occurence. The entire process relies on the scheme, where
