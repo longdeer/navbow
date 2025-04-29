@@ -15,7 +15,7 @@ import re
 #	"/" - for some sort of ordering notation;
 #	":" - for special numbering notation.
 # The following tools are only suggestion for Navtex messages processing, which general purpose is
-# filtering out determined information and attract attention to controversial moments.
+# filtering out determined information and attract attention to probably controversial moments.
 P_NUMERICAL = re.compile(
 
 	r"""

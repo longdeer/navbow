@@ -14,7 +14,7 @@ import re
 #	VHF or MF or CH	- channels numbers designation;
 #	KHZ or MHZ		- GMDSS frequencies designation.
 # The following tools are only suggestion for Navtex messages processing, which general purpose is
-# filtering out determined information and attract attention to controversial moments.
+# filtering out determined information and attract attention to probably controversial moments.
 P_ALPHANUMERICAL = re.compile(
 
 	r"""

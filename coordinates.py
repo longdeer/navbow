@@ -13,7 +13,7 @@ import re
 #	DD-MM[.DECIMAL][-SS[.DECIMAL]](NS)
 #	DDD-MM[.DECIMAL][-SS[.DECIMAL]](EW)
 # The following tools are only suggestion for Navtex messages processing, which general purpose is
-# filtering out determined information and attract attention to controversial moments.
+# filtering out determined information and attract attention to probably controversial moments.
 P_COORDINATE = re.compile(
 
 	r"""

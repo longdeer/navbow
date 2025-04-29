@@ -3,6 +3,7 @@ from typing								import Dict
 from typing								import Tuple
 from datetime							import datetime
 from collections						import defaultdict
+from pathlib							import Path
 from NavtexBoWAnalyzer.header			import B1
 from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
 from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
@@ -23,6 +24,19 @@ from NavtexBoWAnalyzer.scanner			import word_scan
 class Navanalyzer:
 
 	"""
+		Navtex messages analyzer.
+		Implements the tecnique, that reads text file, splits by whitespaces it's content to chunks,
+		and compares chunks against Bag of Word - special container with state determined words.
+		Not all chunks will form a "word", so analyzer will first try to filter out following chunks:
+			- coordinates;
+			- numbers;
+			- alphabetic numbers.
+		This filtering will rely on regular expression matching, so any totally unmatched chunk will be
+		considered a "word" candidate. Such candidates will be then compared with Bag of Word content.
+		This is suggestion for Navtex messages processing, which general purpose is filtering out
+		determined information and attract attention to probably controversial moments.
+		Messages processing will comply "NAVTEX MANUAL" by IMO, which determines following structure:
+
 		Element                          | Example
 		--------------------------------------------------------------
 		Phasing signal                   |
@@ -52,16 +66,7 @@ class Navanalyzer:
 		--------------------------------------------------------------
 		Phasing signal                   |
 
-		Iterates through every space separated string in NAVTEX message body (all lines of message
-		except first, which must be header and second, that must be EoS) and searches for the
-		bag of words ("BoW") mapping occurence. The entire process relies on the scheme, where
-		every word in the "BoW" might be considered as "known" or "pend". While the key in "BoW"
-		is the word itself, the value either 0 for "pend" and 0< for "known". If the word not
-		in "BoW" it considered "unknown" with corresponding actions, like adding to the "body_issues"
-		and also added BoW as "pend". All "unknown" words goes to "NEW_TEXT_WORDS" set this
-		collection might be used to maintain "BoW".
-
-
+		
 		scanned good symbols:
 		'()+,-./0123456789:=ABCDEFGHIJKLMNOPQRSTUVWXYZ
 	"""
@@ -75,7 +80,7 @@ class Navanalyzer:
 
 		self.station = station.upper()
 
-	def with_mapping(self, path :str, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] | None :
+	def with_mapping(self, path :str | Path, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] | None :
 
 		"""
 			Analysis implementation that uses dictionary like mapping as "Bag of Words". Relies on
