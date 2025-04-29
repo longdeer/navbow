@@ -592,11 +592,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertFalse(len(result["analysis"]["punct"]))
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "J","A","94" ))
-		self.assertIn("cdt", result["analysis"])
-		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertIn("DTG", result["analysis"])
+		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
 		self.assertEqual(
 
-			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
 		)
 		self.assertEqual(
@@ -750,7 +750,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "O","L","66" ))
 
-		self.assertNotIn("cdt", result["analysis"])
+		self.assertNotIn("DTG", result["analysis"])
 		self.assertEqual(
 
 			bow,
@@ -1008,11 +1008,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "Q","A","42" ))
 
-		self.assertIn("cdt", result["analysis"])
-		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertIn("DTG", result["analysis"])
+		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
 		self.assertEqual(
 
-			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			"06/09/2019 2240"
 		)
 		self.assertEqual(
@@ -1210,7 +1210,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "S","E","94" ))
 
-		self.assertNotIn("cdt", result["analysis"])
+		self.assertNotIn("DTG", result["analysis"])
 		self.assertEqual(
 
 			bow,
@@ -1332,11 +1332,11 @@ class AnalyzerCase(unittest.TestCase):
 
 		self.assertNotIn("header", result["analysis"])
 
-		self.assertIn("cdt", result["analysis"])
-		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertIn("DTG", result["analysis"])
+		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
 		self.assertEqual(
 
-			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			"03/11/2019 0905"
 		)
 		self.assertEqual(
@@ -1487,11 +1487,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "I","A","76" ))
 
-		self.assertIn("cdt", result["analysis"])
-		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertIn("DTG", result["analysis"])
+		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
 		self.assertEqual(
 
-			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
 		)
 		self.assertEqual(
@@ -1629,11 +1629,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "V","A","28" ))
 
-		self.assertIn("cdt", result["analysis"])
-		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertIn("DTG", result["analysis"])
+		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
 		self.assertEqual(
 
-			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
 		)
 		self.assertEqual(
@@ -1728,11 +1728,11 @@ class AnalyzerCase(unittest.TestCase):
 
 		self.assertNotIn("header", result["analysis"])
 
-		self.assertIn("cdt", result["analysis"])
-		self.assertIsInstance(result["analysis"]["cdt"], datetime.datetime)
+		self.assertIn("DTG", result["analysis"])
+		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
 		self.assertEqual(
 
-			result["analysis"]["cdt"].strftime("%m/%d/%Y %H%M"),
+			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			"08/01/2019 1713"
 		)
 		self.assertEqual(

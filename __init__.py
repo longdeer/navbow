@@ -66,9 +66,7 @@ class Navanalyzer:
 		--------------------------------------------------------------
 		Phasing signal                   |
 
-		
-		scanned good symbols:
-		'()+,-./0123456789:=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+		Also will maintains message "state" which will reflect details.
 	"""
 
 	def __init__(self, station :str):
@@ -83,10 +81,10 @@ class Navanalyzer:
 	def with_mapping(self, path :str | Path, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] | None :
 
 		"""
-			Analysis implementation that uses dictionary like mapping as "Bag of Words". Relies on
-			preliminary "sanit_state" exploration, which must provide "state" and either "message"
-			in case of non-utf8 symbols, or useful statistics otherwise. Will extend "state" integer
-			by more detailed inspection as following:
+			Analysis implementation that uses dictionary like mapping as "Bag of Words". Maintains a
+			dictionary of message details. Relies on preliminary "sanit_state" exploration, which must
+			provide "state" and either "message" in case of non-utf8 symbols, or useful statistics
+			otherwise. Will extend "state" integer by more detailed inspection as following:
 				0	- broken bytes detected by "byte_scan", or file has no valid symbols;
 				1	- message without header, EoS, DTG and any words (only numerical, alphanumerical
 					and coordinates);
@@ -165,6 +163,7 @@ class Navanalyzer:
 			will not content any valid symbols. In this case, "sanit_state" will return full dictionary,
 			but "with_mapping" return value due zero "state" will try to return dictionary with
 			"message" key, which is not present in "sanit_state" return value, so it will be None.
+			All unknown words will be mapped in "BoW" with 0, so "BoW" will be eventually altered.
 			Return value is a dictionary, which might be of two types:
 				state, message - for the "corrupted" files;
 				state, analysis, raw, air - all other cases.
@@ -173,8 +172,8 @@ class Navanalyzer:
 		if	isinstance(sanit := sanit_state(path), dict) and isinstance(state := sanit.get("sanit"), int):
 			if	state:
 
-				raw_lines	= sanit["raw_lines"]
-				air_lines	= sanit["air_lines"]
+				air_lines	:List[List[str]]	= sanit["air_lines"]
+				raw_lines	:List[str]			= sanit["raw_lines"]
 				analysis	= {
 
 					"coords":	defaultdict(lambda : defaultdict(int)),
@@ -210,21 +209,23 @@ class Navanalyzer:
 					line = scan[0][i]
 
 
-					# Despite the fact DTG is optional for Navtex messages, it has common pattern,
-					# so once such line is find it will be converted to "datetime" object and putted
-					# in result dictionary. It is important, that if message somehow has a few DTG
-					# lines, result dictionary will have only the last one.
+					# Despite the fact DTG is optional for Navtex messages, it has common pattern, so once
+					# such line is find it will be converted to "datetime" object and putted in result
+					# dictionary. It is important, that if message somehow has a few DTG lines, result
+					# dictionary will have only the last one. Also invalid DTG will be skipped.
 					if	(match := G_MESSAGE_DTG.fullmatch(" ".join(line))):
 						
 						d,m,H,M,Y = match.group("day", "month", "hour", "minute", "year")
+
 						Y = int(f"20{Y}") if Y else int(datetime.today().strftime("%Y"))
 						m = MONTH_MAP[m]
 						d = int(d)
 						H = int(H)
 						M = int(M)
 
-						analysis["cdt"] = datetime(Y,m,d,H,M)
-						state |= 64
+						try:	analysis["DTG"] = datetime(Y,m,d,H,M)
+						except:	pass
+						else:	state |= 64
 
 
 					for word in line:
