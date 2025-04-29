@@ -55,7 +55,7 @@ git clone https://github.com/longdeer/NavtexBoWAnalyzer.git
 
 Usage
 -----
-``
+```
 from NavtexBoWAnalyzer import Navanalyzer
 bow = dict()
 navana = Navanalyzer("A")						# Passing station literal
@@ -73,4 +73,4 @@ else:
 	print(analysis["analysis"].get("header"))			# Detected Station Subject Number (optional)
 	print(analysis["analysis"].get("DTG"))				# Detected Date Time Group (optional)
 	print("\n".join(analysis["raw"]))				# Original file content
-``
+```
