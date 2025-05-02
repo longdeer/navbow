@@ -496,6 +496,20 @@ class AnalyzerCase(unittest.TestCase):
 					state
 				)
 
+		for state in list(range(65,80,2)):
+			with self.subTest(state=state):
+
+				self.assertEqual(
+
+					analyzer.with_mapping(
+
+						os.path.join(self.wd, "states", str(state)),
+						None
+
+					).get("state"),
+					state
+				)
+
 		for state in list(range(81,96,2)):
 			with self.subTest(state=state):
 
@@ -1749,6 +1763,78 @@ class AnalyzerCase(unittest.TestCase):
 				"ON":		0,
 			}
 		)
+
+
+
+
+
+
+
+
+	def test_with_mapping_invalid_BoW(self):
+
+		analyzer = Navanalyzer("V")
+
+		for invalid in (
+
+			420, 69., True, False, None, ..., print, unittest, Navanalyzer,
+			[{ "HAND": 1 }],( "HAND",1 ),{ "HAND",1 }
+		):
+			result = analyzer.with_mapping(os.path.join(self.wd, "msg", "MZ56"), invalid)
+			self.assertIsInstance(result, dict)
+			self.assertEqual(len(result), 4)
+			self.assertEqual(result.get("state"), 73) # 1 + 8 + 64
+			self.assertIsInstance(result.get("raw"), list)
+			self.assertIsInstance(result.get("air"), list)
+			self.assertEqual(
+
+				result.get("air"),
+				[
+					[ "ZCZC", "MZ56" ],
+					[ "011713", "UTC", "AUG", "19" ],
+					[ "NAVAREA", "1", "-", "NO", "MESSAGES", "ON", "HAND" ],
+					[ "NNNN" ],
+				]
+			)
+
+			self.assertIsInstance(result.get("analysis"), dict)
+
+			self.assertIn("coords", result["analysis"])
+			self.assertIsInstance(result["analysis"]["coords"], dict)
+			self.assertFalse(len(result["analysis"]["coords"]))
+
+			self.assertIn("alnums", result["analysis"])
+			self.assertFalse(len(result["analysis"]["alnums"]))
+
+			self.assertIn("nums", result["analysis"])
+			self.assertIsInstance(result["analysis"]["nums"], dict)
+			self.assertEqual(result["analysis"]["nums"][1]["011713"],1)
+			self.assertEqual(result["analysis"]["nums"][1]["19"],1)
+			self.assertEqual(result["analysis"]["nums"][2]["1"],1)
+
+			self.assertIn("unknown", result["analysis"])
+			self.assertFalse(len(result["analysis"]["unknown"]))
+
+			self.assertIn("known", result["analysis"])
+			self.assertFalse(len(result["analysis"]["known"]))
+
+			self.assertIn("pending", result["analysis"])
+			self.assertIsInstance(result["analysis"]["pending"], dict)
+			self.assertFalse(len(result["analysis"]["pending"]))
+
+			self.assertIn("punct", result["analysis"])
+			self.assertIsInstance(result["analysis"]["punct"], dict)
+			self.assertFalse(len(result["analysis"]["punct"]))
+
+			self.assertNotIn("header", result["analysis"])
+
+			self.assertIn("DTG", result["analysis"])
+			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertEqual(
+
+				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				"08/01/2019 1713"
+			)
 
 
 

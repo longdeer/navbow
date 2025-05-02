@@ -85,6 +85,7 @@ class Navanalyzer:
 			dictionary of message details. Relies on preliminary "sanit_state" exploration, which must
 			provide "state" and either "message" in case of non-utf8 symbols, or useful statistics
 			otherwise. Will extend "state" integer by more detailed inspection as following:
+
 				0	- broken bytes detected by "byte_scan", or file has no valid symbols;
 				1	- message without header, EoS, DTG and any words (only numerical, alphanumerical
 					and coordinates);
@@ -125,16 +126,14 @@ class Navanalyzer:
 				59	- sanitized message without header, DTG, with known and unknown or pending words;
 				61	- message without DTG, with known and unknown or pending words;
 				63	- sanitized message without DTG, with known and unknown or pending words;
-
-				65	- impossible state cause DTG must content any words;
-				67	- impossible state cause DTG must content any words;
-				69	- impossible state cause DTG must content any words;
-				71	- impossible state cause DTG must content any words;
-				73	- impossible state cause DTG must content any words;
-				75	- impossible state cause DTG must content any words;
-				77	- impossible state cause DTG must content any words;
-				79	- impossible state cause DTG must content any words;
-
+				65	- message without header, EOS, with invalid "BoW" provided;
+				67	- sanitized message without header, EOS, with invalid "BoW" provided;
+				69	- message without EOS, with invalid "BoW" provided;
+				71	- sanitized message without EOS, with invalid "BoW" provided;
+				73	- message without header, with invalid "BoW" provided;
+				75	- sanitized message without header, with invalid "BoW" provided;
+				77	- message with invalid "BoW" provided;
+				79	- sanitized message with invalid "BoW" provided;
 				81	- message without header, EOS, with known word;
 				83	- sanitized message without header, EOS, with known word;
 				85	- message without EOS, with known word;
@@ -159,12 +158,15 @@ class Navanalyzer:
 				123	- sanitized message without header, with known and unknown or pending words;
 				125	- message with known and unknown or pending words;
 				127	- sanitized message with known and unknown or pending words;
+
 			"sanit_state" might obtain False "broken" state from "byte_scan", but the message
 			will not content any valid symbols. In this case, "sanit_state" will return full dictionary,
-			but "with_mapping" return value due zero "state" will try to return dictionary with
-			"message" key, which is not present in "sanit_state" return value, so it will be None.
-			All unknown words will be mapped in "BoW" with 0, so "BoW" will be eventually altered.
-			Return value is a dictionary, which might be of two types:
+			but "with_mapping" due zero "state" will try to return dictionary with "message" key, which
+			is not present in "sanit_state" return value, so it will be None. All unknown words will be
+			mapped in "BoW" with 0, so "BoW" will be eventually altered. "BoW" will be checked to be a
+			Mapping type, but very easy. If "BoW" is not a mapping, "analysis" will have empty "unknown"
+			and "known" dictionaries, and "state" will reflect it in 65-71 range. Return value is a
+			dictionary, which might be of two types:
 				state, message - for the "corrupted" files;
 				state, analysis, raw, air - all other cases.
 		"""
@@ -231,12 +233,15 @@ class Navanalyzer:
 					for word in line:
 
 
-						if		P_COORDINATE.fullmatch(word):		analysis["coords"][i][word]	+= 1
-						elif	P_ALPHANUMERICAL.fullmatch(word):	analysis["alnums"][i][word]	+= 1
-						elif	P_NUMERICAL.fullmatch(word):		analysis["nums"][i][word]	+= 1
-						else:
+						if		P_COORDINATE.fullmatch(word): analysis["coords"][i][word]		+= 1
+						elif	P_ALPHANUMERICAL.fullmatch(word): analysis["alnums"][i][word]	+= 1
+						elif	P_NUMERICAL.fullmatch(word): analysis["nums"][i][word]			+= 1
+						elif(
 
-
+							hasattr(BoW, "__getitem__") and
+							hasattr(BoW, "__setitem__") and
+							hasattr(BoW, "keys")
+						):
 							# At this point any value that mapped with "word" in "BoW" will be considered
 							# as a flag whether this "word" is known/unknown/pending. If value is None,
 							# which might be obtained directly from "BoW" if it is able to handle
