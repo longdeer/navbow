@@ -83,16 +83,17 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 
 
 
-def byte_scan(path :str | Path) -> Tuple[bool,str] :
+def byte_scan(path :str | Path, carriage :bool =False) -> Tuple[bool,str] :
 
 	"""
-		Reads "path" file in byte mode and recreates whole message. If any not utf-8 symbol will be
+		Reads "path" file in byte mode and recreates whole text. If any not utf-8 symbol will be
 		encountered, it will be substituted with "*" and "broken" flag will be set to True.
-		Returns the tuple of "broken" flag and recreated message string. Doesn't handle any
+		Optional flag "carriage" allows treating carriage return symbol "\\r" as new line.
+		Returns the tuple of "broken" flag and recreated text string. Doesn't handle any
 		possible Exceptions, but ensures "path" is accessible file.
 	"""
 
-	message	= str()
+	text	= str()
 	broken	= False
 
 	if	isinstance(path, str | Path) and ospath.isfile(path) and osaccess(path, R_OK):
@@ -104,14 +105,14 @@ def byte_scan(path :str | Path) -> Tuple[bool,str] :
 
 					match (symbol := B.decode()):
 
-						case "\r":	message += "\n"
-						case _:		message += symbol
+						case "\r":	text += "\n" if carriage else ""
+						case _:		text += symbol
 
-				except:	message,broken = message + "*",True
+				except:	text,broken = text + "*",True
 
 
-		return	broken,	message
-	return		True,	message
+		return	broken,	text
+	return		True,	text
 
 
 
@@ -128,6 +129,7 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 			- air_lines, fully sanitized proper strings of lines split;
 			- chunks, set of strings (every word);
 			- symbols, all non-whitespace symbols in the message.
+		Flag "carriage" by default set to True for "byte_scan" to account for any symbols encountered.
 		Also maintains a "sanit" state integer that is:
 			- zero at start;
 			- has first bit set if any proper line "proper" encountered;
@@ -137,7 +139,7 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 		zero "sanit" and "message" string from "byte_scan" if one encountered not utf-8 symbol.
 	"""
 
-	F,message	= byte_scan(path)
+	F,message	= byte_scan(path, carriage=True)
 	sanit		= 0
 
 	if	not F:
