@@ -34,11 +34,13 @@ that allows filtering out determined information and attract attention to probab
 in messages.
 It was tested on messages of 10 years archive from ``https://www.navtex.net/navtex-archive.html``.
 Besides words classification, Navanalyzer provides additional things discovery:
-<li>invalid headers - easy detection;</li>
-<li>incorrect dates, outdated messages - might be derived from scan;</li>
-<li>not utf-8 symbols - handled by built-in scanner;</li>
-<li>unmatched punctuation - will be shown in "analysis";</li>
-<li>message structure - difference between original message and built chunks;</li>
+<ul>
+	<li>invalid headers - easy detection;</li>
+	<li>incorrect dates, outdated messages - might be derived from scan;</li>
+	<li>not utf-8 symbols - handled by built-in scanner;</li>
+	<li>unmatched punctuation - will be shown in "analysis";</li>
+	<li>message structure - difference between original message and built chunks;</li>
+</ul>
 
 From the archive tests the set of valid symbols for Navtex message was obtained:
 ``'()+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ``
