@@ -250,7 +250,7 @@ class Navanalyzer:
 							# with 0 in "BoW" and also added to "pend" set, so all other occurrences
 							# of "word" will be also treated as unknown. If "word" value is 0 and
 							# it is not in "pend", it is considered pending. Any other values will
-							# seam "word" is known.
+							# seem "word" is known.
 							try:	BoW_state = BoW[word]
 							except:	BoW_state = None
 							match	BoW_state:
