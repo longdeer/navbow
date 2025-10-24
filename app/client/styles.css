@@ -2,10 +2,33 @@ main {
 	display: flex;
 }
 header {
-	text-align: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	/*align-content: center;*/
+	justify-content: center;
+	/*text-align: center;*/
 	padding-top: 15px;
 	padding-bottom: 15px;
-	font: 5em bold;
+	font-size: 100px;
+}
+#clock-size-increment {
+	margin-right: 2em;
+	font-size: .7em;
+	border: none;
+	background-color: white;
+}
+#clock-size-increment:hover {
+	color: red;
+}
+#clock-size-decrement {
+	margin-left: 2em;
+	font-size: .7em;
+	border: none;
+	background-color: white;
+}
+#clock-size-decrement:hover {
+	color: red;
 }
 #viewer {
 	border: 2px solid blue;
