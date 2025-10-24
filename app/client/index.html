@@ -15,7 +15,11 @@
 			<button id="clock-size-decrement">-</button>
 		</header>
 		<main>
-			<div id="viewer"></div>
+			<div id="viewer">
+				{% for view in history.get("views",[]) %}
+					<pre class="viewer-message">{{ view }}</pre>
+				{% end %}
+			</div>
 			<div id="controller"></div>
 		</main>
 	</body>

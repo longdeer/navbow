@@ -16,6 +16,7 @@ from dotenv					import load_dotenv
 
 
 load_dotenv()
+history = dict()
 view_sockets = dict()
 control_sockets = dict()
 irma = LibraryContrib(init_name="navbow", init_level=10, force_handover=True)
@@ -31,15 +32,16 @@ async def main():
 
 	app = Application(
 		[
-			( r"/", IndexHandler,{ "loggy": irma }),
+			( r"/", IndexHandler,{ "history": history, "loggy": irma }),
 			( r"/viewer-ws-cast", NavbowWebSocketHandler,{ "clients": view_sockets, "loggy": irma }),
 			( r"/controller-ws-cast", NavbowWebSocketHandler,{ "clients": control_sockets, "loggy": irma }),
 			(
 				r"/ws-cast-receiver",
 				ViewerReceiverHandler,
 				{
-					"viewers":		view_sockets,
 					"controllers":	control_sockets,
+					"viewers":		view_sockets,
+					"history":		history,
 					"loggy":		irma
 				}
 			)

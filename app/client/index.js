@@ -24,10 +24,9 @@ function initController() {
 
 		messageBlock = document.createElement("pre");
 		messageBlock.className = "viewer-message";
-		messageBlock.innerText = event.data;
+		messageBlock.innerText = `${event.data}`;
 
-		viewer.appendChild(messageBlock);
-		viewer.scrollTo(0, viewer.scrollHeight)
+		viewer.insertBefore(messageBlock, viewer.getElementsByClassName("viewer-message")[0])
 	});
 
 	const controllerWS = new WebSocket(`ws://${location.host}/controller-ws-cast`);
@@ -38,7 +37,6 @@ function initController() {
 		messageBlock.innerText = event.data;
 
 		controller.appendChild(messageBlock);
-		controller.scrollTo(0, controller.scrollHeight)
 	})
 }
 function clockWork(element) {

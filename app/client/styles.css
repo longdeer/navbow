@@ -26,10 +26,10 @@ header {
 main {
 	display: flex;
 	flex-direction: row;
-	align-items: stretch;
 	padding: 0;
 	margin: 0;
 	height: 100%;
+	overflow: hidden;
 }
 #clock-size-increment {
 	margin-right: 2em;
@@ -50,9 +50,22 @@ main {
 	color: red;
 }
 #viewer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	width: 50%;
 	overflow: auto;
 	background-color: #246da5;
+	scrollbar-color: black white;
+}
+.viewer-message {
+	white-space: pre-wrap;
+	line-break: anywhere;
+	background-color: white;
+	padding: 15px;
+	margin: 15px;
+	width: auto;
+	border-radius: 25px;
 }
 #controller {
 	width: 50%;
