@@ -1,0 +1,19 @@
+main {
+	display: flex;
+}
+header {
+	text-align: center;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	font: 5em bold;
+}
+#viewer {
+	border: 2px solid blue;
+	width: 50%;
+	height: 100%;
+}
+#controller {
+	border: 2px solid green;
+	width: 50%;
+	height: 100%;
+}
