@@ -51,7 +51,7 @@ function clockWork(element) {
 
 	element.innerText = `${H}:${M}:${S}`;
 
-	setTimeout(ticking, 1000 -U)
+	setTimeout(clockWork, 1000 -U, element)
 }
 
 
