@@ -22,7 +22,7 @@
 			</div>
 			<div id="controller">
 				{% for control in history.get("controls",[]) %}
-					<div class="controller-message">{{ control }}<button class="remove-button">X</button><button class="accept-button">V</button>
+					<div class="controller-message">{{ control }}<button class="remove-button" onclick="removeWord(event);">-</button><button class="accept-button" onclick="acceptWord(event);">+</button>
 					</div>
 				{% end %}
 			</div>

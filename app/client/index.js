@@ -50,10 +50,11 @@ function initController() {
 			removeButton.className = "remove-button";
 			acceptButton.className = "accept-button";
 
-			removeButton.innerText = "X";
-			acceptButton.innerText = "V";
+			removeButton.innerText = "-";
+			acceptButton.innerText = "+";
 
-			// controlBlock.innerText = word;
+			removeButton.addEventListener("click", removeWord);
+			acceptButton.addEventListener("click", acceptWord);
 
 			controlBlock.appendChild(document.createTextNode(word));
 			controlBlock.appendChild(removeButton);
@@ -74,6 +75,42 @@ function clockWork(element) {
 	element.innerText = `${H}:${M}:${S}`;
 
 	setTimeout(clockWork, 1000 -U, element)
+}
+function removeWord(event) {
+
+	event.preventDefault();
+	fetch(
+		"/controller-word-remove",
+		{
+			method:		"PUT",
+			headers:	{ "Content-Type": "application/json" },
+			body:		JSON.stringify({ word: event.target.parentNode.innerText.slice(0,-2) })
+		}
+	)
+	.then(response => {
+
+		if(response.status !== 200) response.json().then(({ reason }) => alert(reason));
+		else event.target.parentNode.parentNode.removeChild(event.target.parentNode)
+	})
+	.catch(E => alert(E))
+}
+function acceptWord(event) {
+
+	event.preventDefault();
+	fetch(
+		"/controller-word-accept",
+		{
+			method:		"PUT",
+			headers:	{ "Content-Type": "application/json" },
+			body:		JSON.stringify({ word: event.target.parentNode.innerText.slice(0,-2) })
+		}
+	)
+	.then(response => {
+
+		if(response.status !== 200) response.json().then(({ reason }) => alert(reason));
+		else event.target.parentNode.parentNode.removeChild(event.target.parentNode)
+	})
+	.catch(E => alert(E))
 }
 
 

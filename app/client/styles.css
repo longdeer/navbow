@@ -82,21 +82,25 @@ main {
 	background-color: white;
 	width: auto;
 	border-radius: 25px;
-	border: 5px solid black;
 }
 .remove-button {
 	margin-left: 15px;
 	margin-right: 5px;
-	padding: 15px;
+	padding-left: 18px;
+	padding-right: 18px;
+	padding-top: 15px;
+	padding-bottom: 15px;
 	background-color: white;
 	width: auto;
 	border-radius: 25px;
+	font-size: 1.2em;
 }
 .accept-button {
 	padding: 15px;
 	background-color: white;
 	width: auto;
 	border-radius: 25px;
+	font-size: 1.3em;
 }
 .remove-button:hover {
 	background-color: red;
