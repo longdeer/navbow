@@ -1,5 +1,6 @@
 from uuid				import uuid1
 from json				import loads
+from json				import dumps
 from typing				import Dict
 from typing				import List
 from datetime			import datetime
@@ -61,7 +62,11 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 		for handler in self.viewers.values(): handler.write_message(view)
 		if	control:
-			for handler in self.controllers.values(): handler.write_message(control)
+
+			state = set(self.history.get("controls",list()))
+			self.history["controls"] = state | set(control)
+
+			for handler in self.controllers.values(): handler.write_message(dumps(sorted(control)))
 
 
 

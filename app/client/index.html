@@ -6,7 +6,7 @@
 		<link rel="stylesheet" href="static/styles.css">
 		<link rel="icon" type="image/ico" href="static/favicon.ico">
 		<script type="text/javascript" src="static/index.js"></script>
-		<title>navbow controll</title>
+		<title>navbow controler</title>
 	</head>
 	<body onload="initController();">
 		<header>
@@ -20,7 +20,12 @@
 					<pre class="viewer-message">{{ view }}</pre>
 				{% end %}
 			</div>
-			<div id="controller"></div>
+			<div id="controller">
+				{% for control in history.get("controls",[]) %}
+					<div class="controller-message">{{ control }}<button class="remove-button">X</button><button class="accept-button">V</button>
+					</div>
+				{% end %}
+			</div>
 		</main>
 	</body>
 </html>

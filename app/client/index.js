@@ -32,11 +32,35 @@ function initController() {
 	const controllerWS = new WebSocket(`ws://${location.host}/controller-ws-cast`);
 	controllerWS.addEventListener("message",event => {
 
-		messageBlock = document.createElement("pre");
-		messageBlock.className = "controller-message";
-		messageBlock.innerText = event.data;
+		const words = JSON.parse(event.data);
 
-		controller.appendChild(messageBlock);
+		if(!Array.isArray(words) || words.some(word => typeof(word) !== "string")) {
+
+			console.error("Controller socket received invalid words");
+			return
+		}
+
+		words.forEach(word => {
+
+			const controlBlock = document.createElement("div");
+			const removeButton = document.createElement("button");
+			const acceptButton = document.createElement("button");
+
+			controlBlock.className = "controller-message";
+			removeButton.className = "remove-button";
+			acceptButton.className = "accept-button";
+
+			removeButton.innerText = "X";
+			acceptButton.innerText = "V";
+
+			// controlBlock.innerText = word;
+
+			controlBlock.appendChild(document.createTextNode(word));
+			controlBlock.appendChild(removeButton);
+			controlBlock.appendChild(acceptButton);
+
+			controller.appendChild(controlBlock)
+		})
 	})
 }
 function clockWork(element) {
