@@ -1,7 +1,10 @@
 from os						import getenv
+from json					import loads
 from asyncio				import Event
 from asyncio				import run
 from handlers				import IndexHandler
+from handlers				import WordRemoveHandler
+from handlers				import WordAcceptHandler
 from handlers				import NavbowWebSocketHandler
 from handlers				import ViewerReceiverHandler
 from pygwarts.irma.contrib	import LibraryContrib
@@ -19,6 +22,7 @@ load_dotenv()
 history = dict()
 view_sockets = dict()
 control_sockets = dict()
+hosts = loads(getenv("ACCESS_LIST"))
 irma = LibraryContrib(init_name="navbow", init_level=10, force_handover=True)
 
 
@@ -32,15 +36,58 @@ async def main():
 
 	app = Application(
 		[
-			( r"/", IndexHandler,{ "history": history, "loggy": irma }),
-			( r"/viewer-ws-cast", NavbowWebSocketHandler,{ "clients": view_sockets, "loggy": irma }),
-			( r"/controller-ws-cast", NavbowWebSocketHandler,{ "clients": control_sockets, "loggy": irma }),
+			(
+				r"/",
+				IndexHandler,
+				{
+					"history":	history,
+					"hosts":	set(hosts.get("view",[])),
+					"loggy":	irma
+				}
+			),
+			(
+				r"/viewer-ws-cast",
+				NavbowWebSocketHandler,
+				{
+					"clients":	view_sockets,
+					"hosts":	set(hosts.get("view",[])),
+					"loggy":	irma
+				}
+			),
+			(
+				r"/controller-ws-cast",
+				NavbowWebSocketHandler,
+				{
+					"clients":	control_sockets,
+					"hosts":	set(hosts.get("view",[])),
+					"loggy":	irma
+				}
+			),
+			(
+				r"/controller-word-remove",
+				WordRemoveHandler,
+				{
+					"history":	history,
+					"hosts":	set(hosts.get("control",[])),
+					"loggy":	irma
+				}
+			),
+			(
+				r"/controller-word-accept",
+				WordAcceptHandler,
+				{
+					"history":	history,
+					"hosts":	set(hosts.get("control",[])),
+					"loggy":	irma
+				}
+			),
 			(
 				r"/ws-cast-receiver",
 				ViewerReceiverHandler,
 				{
 					"controllers":	control_sockets,
 					"viewers":		view_sockets,
+					"hosts":		set(hosts.get("receive",[])),
 					"history":		history,
 					"loggy":		irma
 				}
