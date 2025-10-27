@@ -31,24 +31,6 @@ main {
 	height: 100%;
 	overflow: hidden;
 }
-#clock-size-increment {
-	margin-right: 2em;
-	font-size: .7em;
-	border: none;
-	background-color: white;
-}
-#clock-size-decrement {
-	margin-left: 2em;
-	font-size: .7em;
-	border: none;
-	background-color: white;
-}
-#clock-size-increment:hover {
-	color: red;
-}
-#clock-size-decrement:hover {
-	color: red;
-}
 #viewer {
 	display: flex;
 	flex-direction: column;

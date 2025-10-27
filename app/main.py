@@ -23,7 +23,13 @@ history = dict()
 view_sockets = dict()
 control_sockets = dict()
 hosts = loads(getenv("ACCESS_LIST"))
-irma = LibraryContrib(init_name="navbow", init_level=10, force_handover=True)
+irma = LibraryContrib(
+
+	handler=getenv("LOGGY_FILE"),
+	init_name=getenv("APP_NAME"),
+	init_level=getenv("LOGGY_LEVEL"),
+	force_handover=getenv("LOGGY_HANDOVER")
+)
 
 
 

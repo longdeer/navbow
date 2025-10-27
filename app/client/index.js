@@ -9,12 +9,7 @@
 
 function initController() {
 
-	const clock = document.getElementById("clock");
-	document.getElementById("clock-size-increment")
-	.addEventListener("click",event => clock.style.fontSize = Math.min(parseInt(getComputedStyle(clock)["font-size"].substring(0,3)) +1,250) + "px");
-	document.getElementById("clock-size-decrement")
-	.addEventListener("click",event => clock.style.fontSize = Math.max(parseInt(getComputedStyle(clock)["font-size"].substring(0,3)) -1,100) + "px");
-	clockWork(clock);
+	clockWork(document.getElementById("clock"));
 
 	const viewer = document.getElementById("viewer");
 	const controller = document.getElementById("controller");
@@ -64,6 +59,10 @@ function initController() {
 		})
 	})
 }
+
+
+
+
 function clockWork(element) {
 
 	const current = new Date();
@@ -76,6 +75,10 @@ function clockWork(element) {
 
 	setTimeout(clockWork, 1000 -U, element)
 }
+
+
+
+
 function removeWord(event) {
 
 	event.preventDefault();
