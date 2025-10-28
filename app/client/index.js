@@ -6,15 +6,34 @@
 
 
 
-
 function initController() {
 
 	clockWork(document.getElementById("clock"));
 
+	const controllerState = new Set();
 	const viewer = document.getElementById("viewer");
 	const controller = document.getElementById("controller");
-
 	const viewerWS = new WebSocket(`ws://${location.host}/viewer-ws-cast`);
+	const controllerWS = new WebSocket(`ws://${location.host}/controller-ws-cast`);
+
+	Array.prototype.forEach.call(
+
+		controller.getElementsByClassName("controller-message"),
+		div => {
+
+			// slicing out -+ buttons from current "word"
+			const word = div.innerText.slice(0,-2);
+			controllerState.add(word);
+
+			div
+				.getElementsByClassName("remove-button")[0]
+				.addEventListener("click",event => removeWord(event, controllerState, word));
+			div
+				.getElementsByClassName("accept-button")[0]
+				.addEventListener("click",event => acceptWord(event, controllerState, word))
+		}
+	);
+
 	viewerWS.addEventListener("message",event => {
 
 		messageBlock = document.createElement("pre");
@@ -24,7 +43,6 @@ function initController() {
 		viewer.insertBefore(messageBlock, viewer.getElementsByClassName("viewer-message")[0])
 	});
 
-	const controllerWS = new WebSocket(`ws://${location.host}/controller-ws-cast`);
 	controllerWS.addEventListener("message",event => {
 
 		const words = JSON.parse(event.data);
@@ -37,25 +55,29 @@ function initController() {
 
 		words.forEach(word => {
 
-			const controlBlock = document.createElement("div");
-			const removeButton = document.createElement("button");
-			const acceptButton = document.createElement("button");
+			if(!controllerState.has(word)) {
 
-			controlBlock.className = "controller-message";
-			removeButton.className = "remove-button";
-			acceptButton.className = "accept-button";
+				const controlBlock = document.createElement("div");
+				const removeButton = document.createElement("button");
+				const acceptButton = document.createElement("button");
 
-			removeButton.innerText = "-";
-			acceptButton.innerText = "+";
+				controlBlock.className = "controller-message";
+				removeButton.className = "remove-button";
+				acceptButton.className = "accept-button";
 
-			removeButton.addEventListener("click", removeWord);
-			acceptButton.addEventListener("click", acceptWord);
+				removeButton.innerText = "-";
+				acceptButton.innerText = "+";
 
-			controlBlock.appendChild(document.createTextNode(word));
-			controlBlock.appendChild(removeButton);
-			controlBlock.appendChild(acceptButton);
+				removeButton.addEventListener("click",event => removeWord(event, controllerState, word));
+				acceptButton.addEventListener("click",event => acceptWord(event, controllerState, word));
 
-			controller.appendChild(controlBlock)
+				controlBlock.appendChild(document.createTextNode(word));
+				controlBlock.appendChild(removeButton);
+				controlBlock.appendChild(acceptButton);
+
+				controller.appendChild(controlBlock);
+				controllerState.add(word)
+			}
 		})
 	})
 }
@@ -79,39 +101,53 @@ function clockWork(element) {
 
 
 
-function removeWord(event) {
+function removeWord(event, state /* Set */, word /* String */) {
 
 	event.preventDefault();
 	fetch(
+
 		"/controller-word-remove",
 		{
 			method:		"PUT",
 			headers:	{ "Content-Type": "application/json" },
-			body:		JSON.stringify({ word: event.target.parentNode.innerText.slice(0,-2) })
+			body:		JSON.stringify({ word })
 		}
 	)
 	.then(response => {
 
 		if(response.status !== 200) response.json().then(({ reason }) => alert(reason));
-		else event.target.parentNode.parentNode.removeChild(event.target.parentNode)
+		else {
+
+			event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+			state.delete(word) // only remove "word" from "state" in case of success query
+		}
 	})
 	.catch(E => alert(E))
 }
-function acceptWord(event) {
+
+
+
+
+function acceptWord(event, state /* Set */, word /* String */) {
 
 	event.preventDefault();
 	fetch(
+
 		"/controller-word-accept",
 		{
 			method:		"PUT",
 			headers:	{ "Content-Type": "application/json" },
-			body:		JSON.stringify({ word: event.target.parentNode.innerText.slice(0,-2) })
+			body:		JSON.stringify({ word })
 		}
 	)
 	.then(response => {
 
 		if(response.status !== 200) response.json().then(({ reason }) => alert(reason));
-		else event.target.parentNode.parentNode.removeChild(event.target.parentNode)
+		else {
+
+			event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+			state.delete(word) // only remove "word" from "state" in case of success query
+		}
 	})
 	.catch(E => alert(E))
 }
