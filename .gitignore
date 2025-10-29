@@ -218,3 +218,6 @@ __marimo__/
 # navbow locals
 *-scan
 randomscan*
+
+# loggy files
+*.loggy

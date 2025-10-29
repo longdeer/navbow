@@ -1,12 +1,11 @@
 from os						import getenv
 from json					import loads
 from asyncio				import Event
-from asyncio				import run
-from handlers				import IndexHandler
-from handlers				import WordRemoveHandler
-from handlers				import WordAcceptHandler
-from handlers				import NavbowWebSocketHandler
-from handlers				import ViewerReceiverHandler
+from .handlers				import IndexHandler
+from .handlers				import WordRemoveHandler
+from .handlers				import WordAcceptHandler
+from .handlers				import NavbowWebSocketHandler
+from .handlers				import ViewerReceiverHandler
 from pygwarts.irma.contrib	import LibraryContrib
 from tornado.web			import Application
 from dotenv					import load_dotenv
@@ -38,7 +37,7 @@ irma = LibraryContrib(
 
 
 
-async def main():
+async def app():
 
 	app = Application(
 		[
@@ -109,15 +108,6 @@ async def main():
 	)
 	app.listen(getenv("LISTEN_PORT"), getenv("LISTEN_ADDRESS"))
 	await Event().wait()
-
-
-
-
-
-
-
-
-if	__name__ == "__main__" : run(main())
 
 
 
