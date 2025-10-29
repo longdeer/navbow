@@ -13,8 +13,8 @@ function initController() {
 	const controllerState = new Set();
 	const viewer = document.getElementById("viewer");
 	const controller = document.getElementById("controller");
-	const viewerWS = new WebSocket(`ws://${location.host}/viewer-ws-cast`);
-	const controllerWS = new WebSocket(`ws://${location.host}/controller-ws-cast`);
+	const ws = new WebSocket(`ws://${location.host}/controller-ws-cast`);
+
 
 	Array.prototype.forEach.call(
 
@@ -34,51 +34,53 @@ function initController() {
 		}
 	);
 
-	viewerWS.addEventListener("message",event => {
 
-		messageBlock = document.createElement("pre");
-		messageBlock.className = "viewer-message";
-		messageBlock.innerText = `${event.data}`;
+	ws.addEventListener("message",event => {
 
-		viewer.insertBefore(messageBlock, viewer.getElementsByClassName("viewer-message")[0])
-	});
+		const { view,control } = JSON.parse(event.data);
 
-	controllerWS.addEventListener("message",event => {
+		if(typeof(view) !== "string") {
 
-		const words = JSON.parse(event.data);
-
-		if(!Array.isArray(words) || words.some(word => typeof(word) !== "string")) {
-
-			console.error("Controller socket received invalid words");
+			console.error("Controller socket received invalid \"view\"");
 			return
 		}
 
-		words.forEach(word => {
 
-			if(!controllerState.has(word)) {
+		const messageBlock = document.createElement("pre");
+		messageBlock.className = "viewer-message";
+		messageBlock.innerText = view;
 
-				const controlBlock = document.createElement("div");
-				const removeButton = document.createElement("button");
-				const acceptButton = document.createElement("button");
+		viewer.insertBefore(messageBlock, viewer.getElementsByClassName("viewer-message")[0]);
 
-				controlBlock.className = "controller-message";
-				removeButton.className = "remove-button";
-				acceptButton.className = "accept-button";
 
-				removeButton.innerText = "-";
-				acceptButton.innerText = "+";
+		if(Array.isArray(control) && control.every(word => typeof(word) === "string")) {
 
-				removeButton.addEventListener("click",event => removeWord(event, controllerState, word));
-				acceptButton.addEventListener("click",event => acceptWord(event, controllerState, word));
+			control.forEach(word => {
+				if(!controllerState.has(word)) {
 
-				controlBlock.appendChild(document.createTextNode(word));
-				controlBlock.appendChild(removeButton);
-				controlBlock.appendChild(acceptButton);
+					const controlBlock = document.createElement("div");
+					const removeButton = document.createElement("button");
+					const acceptButton = document.createElement("button");
 
-				controller.appendChild(controlBlock);
-				controllerState.add(word)
-			}
-		})
+					controlBlock.className = "controller-message";
+					removeButton.className = "remove-button";
+					acceptButton.className = "accept-button";
+
+					removeButton.innerText = "-";
+					acceptButton.innerText = "+";
+
+					removeButton.addEventListener("click",event => removeWord(event, controllerState, word));
+					acceptButton.addEventListener("click",event => acceptWord(event, controllerState, word));
+
+					controlBlock.appendChild(document.createTextNode(word));
+					controlBlock.appendChild(removeButton);
+					controlBlock.appendChild(acceptButton);
+
+					controller.appendChild(controlBlock);
+					controllerState.add(word)
+				}
+			})
+		}	else console.error("Controller socket received invalid \"words\"")
 	})
 }
 
@@ -114,8 +116,12 @@ function removeWord(event, state /* Set */, word /* String */) {
 		}
 	)
 	.then(response => {
+		if(response.status !== 200)
 
-		if(response.status !== 200) response.json().then(({ reason }) => alert(reason));
+			response.json()
+			.then(({ reason }) => alert(reason))
+			.catch(() => alert(`Uncaught response status: ${response.status}`))
+
 		else {
 
 			event.target.parentNode.parentNode.removeChild(event.target.parentNode);
@@ -141,8 +147,12 @@ function acceptWord(event, state /* Set */, word /* String */) {
 		}
 	)
 	.then(response => {
+		if(response.status !== 200)
 
-		if(response.status !== 200) response.json().then(({ reason }) => alert(reason));
+			response.json()
+			.then(({ reason }) => alert(reason))
+			.catch(() => alert(`Uncaught response status: ${response.status}`))
+
 		else {
 
 			event.target.parentNode.parentNode.removeChild(event.target.parentNode);

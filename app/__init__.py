@@ -19,7 +19,6 @@ from dotenv					import load_dotenv
 
 load_dotenv()
 history = dict()
-view_sockets = dict()
 control_sockets = dict()
 hosts = loads(getenv("ACCESS_LIST"))
 irma = LibraryContrib(
@@ -45,17 +44,8 @@ async def app():
 				r"/",
 				IndexHandler,
 				{
+					"hosts":	set(hosts.get("view",[])),
 					"history":	history,
-					"hosts":	set(hosts.get("view",[])),
-					"loggy":	irma
-				}
-			),
-			(
-				r"/viewer-ws-cast",
-				NavbowWebSocketHandler,
-				{
-					"clients":	view_sockets,
-					"hosts":	set(hosts.get("view",[])),
 					"loggy":	irma
 				}
 			),
@@ -72,8 +62,8 @@ async def app():
 				r"/controller-word-remove",
 				WordRemoveHandler,
 				{
-					"history":	history,
 					"hosts":	set(hosts.get("control",[])),
+					"history":	history,
 					"loggy":	irma
 				}
 			),
@@ -81,8 +71,8 @@ async def app():
 				r"/controller-word-accept",
 				WordAcceptHandler,
 				{
-					"history":	history,
 					"hosts":	set(hosts.get("control",[])),
+					"history":	history,
 					"loggy":	irma
 				}
 			),
@@ -90,11 +80,10 @@ async def app():
 				r"/ws-cast-receiver",
 				ViewerReceiverHandler,
 				{
-					"controllers":	control_sockets,
-					"viewers":		view_sockets,
-					"hosts":		set(hosts.get("receive",[])),
-					"history":		history,
-					"loggy":		irma
+					"clients":	control_sockets,
+					"hosts":	set(hosts.get("receive",[])),
+					"history":	history,
+					"loggy":	irma
 				}
 			)
 		],

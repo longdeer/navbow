@@ -4,7 +4,9 @@ from json				import dumps
 from typing				import Dict
 from typing				import List
 from typing				import Set
+from asyncio			import Future
 from datetime			import datetime
+from functools			import partial
 from tornado.web		import RequestHandler
 from tornado.websocket	import WebSocketHandler
 
@@ -25,18 +27,18 @@ class NavbowRequestHandler(RequestHandler):
 		return attr
 
 
-	async def restrict(self, operation :str, address :str):
+	async def deny(self, code :int, operation :str, address :str):
 
-		self.set_status(403)
+		self.set_status(code)
 		self.set_header("Content-type", "application/json")
-		self.finish({ "reason": "Operation not not permitted for your address" })
+		self.finish({ "reason": f"Your {operation} request denied by the server" })
 		self.loggy.info(f"{operation} denied for {address}")
 
 
 
 
 class MainHandler(NavbowRequestHandler):
-	def initialize(self, history :Dict[str,List[str]], hosts :Set[str], loggy):
+	def initialize(self, hosts :Set[str], history :Dict[str,List[str]], loggy):
 
 		self.history = history
 		self.hosts = hosts
@@ -59,14 +61,17 @@ class WordRemoveHandler(MainHandler):
 
 		src = self.request.remote_ip
 
-		if src not in self.hosts : await self.restrict("word removing", src)
+		if src not in self.hosts : await self.deny(403, "word removing", src)
 		else:
 
 			word = loads(self.request.body).get("word")
 
 			# DB magic goes here
-			self.history["controls"].remove(word)
-			self.loggy.info(f"{src} removed {word}")
+
+			try:	self.history["control"].remove(word)
+			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
+			except	Exception as E : self.loggy.error(f"Unexpected {E.__class__.__name__}: {E}")
+			else:	self.loggy.info(f"{src} removed {word}")
 
 
 
@@ -76,58 +81,87 @@ class WordAcceptHandler(MainHandler):
 
 		src = self.request.remote_ip
 
-		if src not in self.hosts : await self.restrict("word accepting", src)
+		if src not in self.hosts : await self.deny(403, "word accepting", src)
 		else:
 
 			word = loads(self.request.body).get("word")
 
 			# DB magic goes here
-			self.history["controls"].remove(word)
-			self.loggy.info(f"{src} accepted {word}")
+
+			try:	self.history["control"].remove(word)
+			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
+			except	Exception as E : self.loggy.error(f"Unexpected {E.__class__.__name__}: {E}")
+			else:	self.loggy.info(f"{src} accepted {word}")
 
 
 
 
 class ViewerReceiverHandler(NavbowRequestHandler):
 	def initialize(	self,
-					controllers	:Dict[str,RequestHandler],
-					viewers		:Dict[str,RequestHandler],
-					history		:Dict[str,List[str]],
-					hosts		:Set[str],
+					clients	:Dict[str,RequestHandler],
+					history	:Dict[str,List[str]],
+					hosts	:Set[str],
 					loggy
 				):
 
-		self.controllers = controllers
-		self.viewers = viewers
+		self.clients = clients
 		self.history = history
 		self.hosts = hosts
 		self.loggy = loggy
+
 
 	async def post(self):
 
 		src = self.request.remote_ip
 
-		if src not in self.hosts : await self.restrict("data transfer", src)
+		if src not in self.hosts : await self.deny(403, "data transfer", src)
 		else:
 
+			# Received json must content a message string as "view" key and
+			# optionaly a list of unknown words as strings "control".
 			data = loads(self.request.body)
-			control = data.get("control")
 			view = data.get("view")
+			control = data.get("control",list())
 
-			self.loggy.info(f"received {len(view)} symbols from {src}")
 
+			if	not isinstance(view,str):
+
+				await self.deny(422, "data transfer", src)
+				return
+
+
+			self.loggy.info(f"received {len(view)} view symbols from {src}")
 			full_date = datetime.today().astimezone().strftime("%A %B %m %Y %H:%M:%S %Z (GMT%z)")
 			view = f"---------- {full_date} ----------\n\n{view}"
 			self.history.setdefault("views", list()).insert(0,view)
+			wsm = { "view": view }
 
-			for handler in self.viewers.values(): handler.write_message(view)
-			if	control:
 
-				current = sorted(control)
-				state = set(self.history.get("controls",list()))
-				self.history["controls"] = sorted(state | set(current))
+			if	isinstance(control,list) and all( isinstance(word,str) for word in control ):
 
-				for handler in self.controllers.values(): handler.write_message(dumps(current))
+				current = set(control)
+				self.history["control"] = sorted(set(self.history.get("control",list())) | current)
+				wsm["control"] = sorted(current)
+
+
+			for client_uuid, socket_handler in self.clients.items():
+
+				try:	socket_handler.write_message(wsm).add_done_callback(partial(self.Future_status, src, client_uuid))
+				except	Exception as E : self.loggy.error(f"{src} ({client_uuid}) send failed due to {E.__class__.__name__}: {E}")
+
+
+	def Future_status(self, addr :str, client_uuid :str, future :Future):
+
+		"""
+			Takes Future object returned by "write_message" method of "WebSocketHandler" object
+			and consider it's status. As this method designed to be added as a Future callback,
+			the "future" is assumed to be done. Any result value will be considered success,
+			cause in any other cases corresponding Excepetion must be raised, according to
+			https://docs.python.org/3.12/library/asyncio-future.html#asyncio.Future.result
+		"""
+
+		future.result()
+		self.loggy.info(f"sent to {addr} ({client_uuid})")
 
 
 
