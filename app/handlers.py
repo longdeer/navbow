@@ -7,6 +7,8 @@ from typing				import Set
 from asyncio			import Future
 from datetime			import datetime
 from functools			import partial
+from db					import db_delete
+from db					import db_accept
 from tornado.web		import RequestHandler
 from tornado.websocket	import WebSocketHandler
 
@@ -33,6 +35,13 @@ class NavbowRequestHandler(RequestHandler):
 		self.set_header("Content-type", "application/json")
 		self.finish({ "reason": f"Your {operation} request denied by the server" })
 		self.loggy.info(f"{operation} denied for {address}")
+
+
+	async def deny_reason(self, code :int, operation :str, reason :str):
+
+		self.set_status(code)
+		self.set_header("Content-type", "application/json")
+		self.finish({ "reason": f"Your {operation} denied: {reason}" })
 
 
 
@@ -62,11 +71,11 @@ class WordRemoveHandler(MainHandler):
 		src = self.request.remote_ip
 
 		if src not in self.hosts : await self.deny(403, "word removing", src)
+		elif(reason := db_delete(loads(self.request.body).get("word"), self.loggy)):
+
+			await self.deny_reason(304, "word removing", reason)
+
 		else:
-
-			word = loads(self.request.body).get("word")
-
-			# DB magic goes here
 
 			try:	self.history["control"].remove(word)
 			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
@@ -82,11 +91,10 @@ class WordAcceptHandler(MainHandler):
 		src = self.request.remote_ip
 
 		if src not in self.hosts : await self.deny(403, "word accepting", src)
+		elif(reason := db_accept(loads(self.request.body).get("word"), self.loggy)):
+
+			await self.deny_reason(304, "word accepting", reason)
 		else:
-
-			word = loads(self.request.body).get("word")
-
-			# DB magic goes here
 
 			try:	self.history["control"].remove(word)
 			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
