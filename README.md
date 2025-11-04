@@ -32,7 +32,7 @@ Features
 Navtex messages must be constructed according to "NAVTEX MANUAL" by IMO. This is a handy tool,
 that allows filtering out determined information and attract attention to probably controversial moments
 in messages.
-It was tested on messages of 10 years archive from ``https://www.navtex.net/navtex-archive.html``.
+It was tested on messages of 10+ years archive from `https://www.navtex.net/navtex-archive.html`.
 Besides words classification, Navanalyzer provides additional things discovery:
 <ul>
 	<li>invalid headers - easy detection;</li>
@@ -43,17 +43,28 @@ Besides words classification, Navanalyzer provides additional things discovery:
 </ul>
 
 From the archive tests the set of valid symbols for Navtex message was obtained:
-``'()+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ``
+`'()+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ`
 
 Requirements
 ------------
-``python`` >=3.10
+`python` >=3.10
 
 Installation
 -------------
-``
+Clone project repository in a folder included in `PYTHONPATH`:
+```
 git clone https://github.com/longdeer/NavtexBoWAnalyzer.git
-``
+```
+Now the `analyzer` module is ready to use! Run test scripts to ensure it and precompile:
+```
+python3 analyzer/tests/unit_main.py
+```
+You can import analyzer in your scripts to work with Navtex files now. The management application can be used by installing it (e.g. in virtual environment) and running in server mode. This will require executing following commands in clonned project directory (the directory where `git clone was issued`):
+```
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python3 app/app.py
+```
 
 Usage
 -----

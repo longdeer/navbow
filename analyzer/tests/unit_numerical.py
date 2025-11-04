@@ -1,8 +1,5 @@
-import	sys
-import	pathlib
-if(root := str(pathlib.Path(__file__).resolve().parent.parent)) not in sys.path : sys.path.insert(0,root)
 import	unittest
-from	analyzer.numerical import P_NUMERICAL
+from	navbow.analyzer.numerical import P_NUMERICAL
 
 
 

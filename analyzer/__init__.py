@@ -1,18 +1,18 @@
-from typing								import List
-from typing								import Dict
-from typing								import Tuple
-from datetime							import datetime
-from collections						import defaultdict
-from pathlib							import Path
-from NavtexBoWAnalyzer.header			import B1
-from NavtexBoWAnalyzer.header			import G_NAVTEX_MESSAGE_HEADER
-from NavtexBoWAnalyzer.coordinates		import P_COORDINATE
-from NavtexBoWAnalyzer.numerical		import P_NUMERICAL
-from NavtexBoWAnalyzer.alphanumerical	import P_ALPHANUMERICAL
-from NavtexBoWAnalyzer.DTG				import G_MESSAGE_DTG
-from NavtexBoWAnalyzer.DTG				import MONTH_MAP
-from NavtexBoWAnalyzer.scanner			import sanit_state
-from NavtexBoWAnalyzer.scanner			import word_scan
+from typing						import List
+from typing						import Dict
+from typing						import Tuple
+from datetime					import datetime
+from collections				import defaultdict
+from pathlib					import Path
+from navbow.analyzer.header			import B1
+from navbow.analyzer.header			import G_NAVTEX_MESSAGE_HEADER
+from navbow.analyzer.coordinates		import P_COORDINATE
+from navbow.analyzer.numerical			import P_NUMERICAL
+from navbow.analyzer.alphanumerical	import P_ALPHANUMERICAL
+from navbow.analyzer.DTG				import G_MESSAGE_DTG
+from navbow.analyzer.DTG				import MONTH_MAP
+from navbow.analyzer.scanner			import sanit_state
+from navbow.analyzer.scanner			import word_scan
 
 
 

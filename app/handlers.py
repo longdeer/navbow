@@ -1,16 +1,17 @@
-from uuid				import uuid1
-from json				import loads
-from json				import dumps
-from typing				import Dict
-from typing				import List
-from typing				import Set
-from asyncio			import Future
-from datetime			import datetime
-from functools			import partial
-from db					import db_delete
-from db					import db_accept
-from tornado.web		import RequestHandler
-from tornado.websocket	import WebSocketHandler
+from uuid						import uuid1
+from json						import loads
+from json						import dumps
+from typing						import Dict
+from typing						import List
+from typing						import Set
+from asyncio					import Future
+from datetime					import datetime
+from functools					import partial
+from db							import db_delete
+from db							import db_accept
+from pygwarts.magical.spells	import patronus
+from tornado.web				import RequestHandler
+from tornado.websocket			import WebSocketHandler
 
 
 
@@ -79,7 +80,7 @@ class WordRemoveHandler(MainHandler):
 
 			try:	self.history["control"].remove(word)
 			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
-			except	Exception as E : self.loggy.error(f"Unexpected {E.__class__.__name__}: {E}")
+			except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
 			else:	self.loggy.info(f"{src} removed {word}")
 
 
@@ -98,7 +99,7 @@ class WordAcceptHandler(MainHandler):
 
 			try:	self.history["control"].remove(word)
 			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
-			except	Exception as E : self.loggy.error(f"Unexpected {E.__class__.__name__}: {E}")
+			except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
 			else:	self.loggy.info(f"{src} accepted {word}")
 
 
@@ -155,7 +156,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 			for client_uuid, socket_handler in self.clients.items():
 
 				try:	socket_handler.write_message(wsm).add_done_callback(partial(self.Future_status, src, client_uuid))
-				except	Exception as E : self.loggy.error(f"{src} ({client_uuid}) send failed due to {E.__class__.__name__}: {E}")
+				except	Exception as E : self.loggy.error(f"{src} ({client_uuid}) send failed due to {patronus(E)}")
 
 
 	def Future_status(self, addr :str, client_uuid :str, future :Future):

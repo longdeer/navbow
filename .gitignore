@@ -217,6 +217,7 @@ __marimo__/
 *.sublime-workspace
 
 # navbow locals
+dbe.py
 *-scan
 randomscan*
 
