@@ -2,16 +2,6 @@ from os							import getenv
 from sqlite3					import connect
 from contextlib					import closing
 from pygwarts.magical.spells	import patronus
-from dotenv						import load_dotenv
-
-
-
-
-
-
-
-
-load_dotenv()
 
 
 
@@ -35,11 +25,19 @@ def db_delete(word :str, loggy) -> str | None :
 
 	try:
 
-		connection = connect(getenv("DB_PATH"))
+		db = getenv("DB_PATH")
+		connection = connect(db)
+		loggy.debug(f"Established connection to db: \"{db}\"")
+
 
 		with closing(connection):
 
-			current = connection.execute("SELECT word,state FROM navbow WHERE word=%s"%word).fetchall()
+
+			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
+			loggy.debug(f"Constructed query: {query}")
+			current = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
+
 
 			if	not current:
 
@@ -55,8 +53,16 @@ def db_delete(word :str, loggy) -> str | None :
 				return reason
 
 
-			op = connection.execute("DELETE FROM navbow WHERE word=%s"%word).fetchall()
-			still = connection.execute("SELECT word,state FROM navbow WHERE word=%s"%word).fetchall()
+			query = "DELETE FROM navbow WHERE word='%s'"%word
+			loggy.debug(f"Constructed query: {query}")
+			op = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
+
+
+			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
+			loggy.debug(f"Constructed query: {query}")
+			still = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
 
 
 			if	still:
@@ -67,6 +73,7 @@ def db_delete(word :str, loggy) -> str | None :
 
 
 			loggy.info("\"%s\" deleted from db%s"%(word," but output is abnormal" if op else ""))
+		loggy.debug(f"Closed connection to db: \"{db}\"")
 
 
 	except	Exception as E:
@@ -97,11 +104,19 @@ def db_accept(word :str, loggy) -> str | None :
 
 	try:
 
-		connection = connect(getenv("DB_PATH"))
+		db = getenv("DB_PATH")
+		connection = connect(db)
+		loggy.debug(f"Established connection to db: \"{db}\"")
+
 
 		with closing(connection):
 
-			current = connection.execute("SELECT word,state FROM navbow WHERE word=%s"%word).fetchall()
+
+			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
+			loggy.debug(f"Constructed query: {query}")
+			current = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
+
 
 			if	not current:
 
@@ -124,8 +139,16 @@ def db_accept(word :str, loggy) -> str | None :
 				return reason
 
 
-			op = connection.execute("UPDATE navbow SET state=1 WHERE word=%s"%word).fetchall()
-			still = connection.execute("SELECT word,state FROM navbow WHERE word=%s AND state=0"%word).fetchall()
+			query = "UPDATE navbow SET state=1 WHERE word='%s'"%word
+			loggy.debug(f"Constructed query: {query}")
+			op = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
+
+
+			query = "SELECT word,state FROM navbow WHERE word='%s' AND state=0"%word
+			loggy.debug(f"Constructed query: {query}")
+			still = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
 
 
 			if	still:
@@ -136,6 +159,7 @@ def db_accept(word :str, loggy) -> str | None :
 
 
 			loggy.info("\"%s\" updated to known%s"%(word," but output is abnormal" if op else ""))
+		loggy.debug(f"Closed connection to db: \"{db}\"")
 
 
 	except	Exception as E:

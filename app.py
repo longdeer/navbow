@@ -26,8 +26,6 @@ from dotenv						import load_dotenv
 
 
 
-
-
 load_dotenv()
 history = dict()
 control_sockets = dict()
