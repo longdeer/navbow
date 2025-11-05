@@ -69,7 +69,11 @@ def db_delete(word :str, loggy) -> str | None :
 			loggy.info("\"%s\" deleted from db%s"%(word," but output is abnormal" if op else ""))
 
 
-	except	Exception as E : self.loggy.warning(f"\"{word}\" delete failed due to {patronus(E)}")
+	except	Exception as E:
+
+		reason = f"\"{word}\" delete failed due to {patronus(E)}"
+		loggy.warning(reason)
+		return reason
 
 
 
@@ -134,7 +138,11 @@ def db_accept(word :str, loggy) -> str | None :
 			loggy.info("\"%s\" updated to known%s"%(word," but output is abnormal" if op else ""))
 
 
-	except	Exception as E : self.loggy.warning(f"\"{word}\" update failed due to {patronus(E)}")
+	except	Exception as E:
+
+		reason = f"\"{word}\" update failed due to {patronus(E)}"
+		loggy.warning(reason)
+		return reason
 
 
 

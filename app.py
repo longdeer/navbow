@@ -1,17 +1,44 @@
+from os							import getenv
 from uuid						import uuid1
 from json						import loads
 from json						import dumps
 from typing						import Dict
 from typing						import List
 from typing						import Set
+from asyncio					import run
+from asyncio					import Event
 from asyncio					import Future
 from datetime					import datetime
 from functools					import partial
 from db							import db_delete
 from db							import db_accept
+from pygwarts.irma.contrib		import LibraryContrib
 from pygwarts.magical.spells	import patronus
+from tornado.web				import Application
 from tornado.web				import RequestHandler
 from tornado.websocket			import WebSocketHandler
+from dotenv						import load_dotenv
+
+
+
+
+
+
+
+
+
+
+load_dotenv()
+history = dict()
+control_sockets = dict()
+hosts = loads(getenv("ACCESS_LIST"))
+irma = LibraryContrib(
+
+	handler=getenv("LOGGY_FILE"),
+	init_name=getenv("APP_NAME"),
+	init_level=getenv("LOGGY_LEVEL"),
+	force_handover=getenv("LOGGY_HANDOVER")
+)
 
 
 
@@ -72,16 +99,17 @@ class WordRemoveHandler(MainHandler):
 		src = self.request.remote_ip
 
 		if src not in self.hosts : await self.deny(403, "word removing", src)
-		elif(reason := db_delete(loads(self.request.body).get("word"), self.loggy)):
-
-			await self.deny_reason(304, "word removing", reason)
-
 		else:
 
-			try:	self.history["control"].remove(word)
-			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
-			except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
-			else:	self.loggy.info(f"{src} removed {word}")
+			word = loads(self.request.body).get("word")
+
+			if(reason := db_delete(word, self.loggy)): await self.deny_reason(400, "word removing", reason)
+			else:
+
+				try:	self.history["control"].remove(word)
+				except	ValueError : self.loggy.warning(f"{word} not found in controller history")
+				except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
+				else:	self.loggy.info(f"{src} removed {word}")
 
 
 
@@ -92,15 +120,17 @@ class WordAcceptHandler(MainHandler):
 		src = self.request.remote_ip
 
 		if src not in self.hosts : await self.deny(403, "word accepting", src)
-		elif(reason := db_accept(loads(self.request.body).get("word"), self.loggy)):
-
-			await self.deny_reason(304, "word accepting", reason)
 		else:
 
-			try:	self.history["control"].remove(word)
-			except	ValueError : self.loggy.warning(f"{word} not found in controller history")
-			except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
-			else:	self.loggy.info(f"{src} accepted {word}")
+			word = loads(self.request.body).get("word")
+
+			if(reason := db_accept(word, self.loggy)): await self.deny_reason(400, "word accepting", reason)
+			else:
+
+				try:	self.history["control"].remove(word)
+				except	ValueError : self.loggy.warning(f"{word} not found in controller history")
+				except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
+				else:	self.loggy.info(f"{src} accepted {word}")
 
 
 
@@ -216,6 +246,84 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 			del self.clients[self.current_connection_uuid]
 			self.loggy.info(f"closed connection ({self.current_connection_uuid})")
+
+
+
+
+
+
+
+
+async def app():
+
+	app = Application(
+		[
+			(
+				r"/",
+				IndexHandler,
+				{
+					"hosts":	set(hosts.get("view",[])),
+					"history":	history,
+					"loggy":	irma
+				}
+			),
+			(
+				r"/controller-ws-cast",
+				NavbowWebSocketHandler,
+				{
+					"clients":	control_sockets,
+					"hosts":	set(hosts.get("view",[])),
+					"loggy":	irma
+				}
+			),
+			(
+				r"/controller-word-remove",
+				WordRemoveHandler,
+				{
+					"hosts":	set(hosts.get("control",[])),
+					"history":	history,
+					"loggy":	irma
+				}
+			),
+			(
+				r"/controller-word-accept",
+				WordAcceptHandler,
+				{
+					"hosts":	set(hosts.get("control",[])),
+					"history":	history,
+					"loggy":	irma
+				}
+			),
+			(
+				r"/ws-cast-receiver",
+				ViewerReceiverHandler,
+				{
+					"clients":	control_sockets,
+					"hosts":	set(hosts.get("receive",[])),
+					"history":	history,
+					"loggy":	irma
+				}
+			)
+		],
+		template_path=getenv("APP_TEMPLATES_FOLDER"),
+		static_path=getenv("APP_STATIC_FOLDER"),
+		# dev settings ################
+		compiled_template_cache=False,#
+		static_hash_cache=False,#######
+		autoreload=True################
+		# dev settings ################
+	)
+	app.listen(getenv("LISTEN_PORT"), getenv("LISTEN_ADDRESS"))
+	await Event().wait()
+
+
+
+
+
+
+
+
+if	__name__ == "__main__" : run(app())
 
 
 
