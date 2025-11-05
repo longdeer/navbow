@@ -30,6 +30,37 @@ main {
 	margin: 0;
 	height: 100%;
 	overflow: hidden;
+	justify-content: center;
+	background-color: #246da5;
+}
+#words-table-container {
+	display: flex;
+	background-color: #246da5;
+	width: auto;
+	justify-content: center;
+	overflow: auto;
+}
+#words-table {
+	background-color: white;
+	font-size: 1.3em;
+}
+.words-table-cell {
+	border: 2px solid black;
+	padding: 10px;
+}
+.del-button {
+	text-align: center;
+}
+.state-button {
+	text-align: center;
+}
+.del-button:hover {
+	background-color: grey;
+	cursor: pointer;
+}
+.state-button:hover {
+	background-color: grey;
+	cursor: pointer;
 }
 #viewer {
 	display: flex;

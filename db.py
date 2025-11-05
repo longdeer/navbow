@@ -1,3 +1,5 @@
+from typing						import List
+from typing						import Tuple
 from os							import getenv
 from sqlite3					import connect
 from contextlib					import closing
@@ -10,7 +12,54 @@ from pygwarts.magical.spells	import patronus
 
 
 
-def db_delete(word :str, loggy) -> str | None :
+def db_fetch(loggy) -> List[Tuple[str,int]] | str :
+
+	"""
+		Fetches all rows from db and returns it as list of tuples.
+		Any Exception caught will be returned as "reason" string instead of rows.
+	"""
+
+	try:
+
+		db = getenv("DB_PATH")
+		connection = connect(db)
+		loggy.debug(f"Established connection to db: \"{db}\"")
+
+
+		with closing(connection):
+
+
+			query = "SELECT word,state FROM navbow"
+			loggy.debug(f"Constructed query: {query}")
+			current = connection.execute(query).fetchall()
+			loggy.debug("Query result no exception")
+
+
+			if	not current:
+
+				reason = f"No rows found in database"
+				loggy.warning(reason)
+				return reason
+
+
+			loggy.info(f"Fetched {len(current)} rows from database")
+			return current
+
+
+	except	Exception as E:
+
+		reason = f"\"{word}\" delete failed due to {patronus(E)}"
+		loggy.warning(reason)
+		return reason
+
+
+
+
+
+
+
+
+def db_delete(word :str, loggy) -> None | str :
 
 	"""
 		Will try to delete word from db
@@ -89,7 +138,7 @@ def db_delete(word :str, loggy) -> str | None :
 
 
 
-def db_accept(word :str, loggy) -> str | None :
+def db_accept(word :str, loggy) -> None | str :
 
 	"""
 		Will try to accept word (convert from unknown or 0 to known or 1)

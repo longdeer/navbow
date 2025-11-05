@@ -10,6 +10,7 @@ from asyncio					import Event
 from asyncio					import Future
 from datetime					import datetime
 from functools					import partial
+from db							import db_fetch
 from db							import db_delete
 from db							import db_accept
 from pygwarts.irma.contrib		import LibraryContrib
@@ -83,10 +84,28 @@ class MainHandler(NavbowRequestHandler):
 
 
 class IndexHandler(MainHandler):
-	async def get(self):
+	def get(self):
 
 		if self.request.remote_ip not in self.hosts: return self.render("restricted.html")
 		return self.render("index.html", history=self.history)
+
+
+
+
+class WordsHandler(NavbowRequestHandler):
+	def initialize(self, hosts :Set[str], loggy):
+
+		self.hosts = hosts
+		self.loggy = loggy
+
+
+	def get(self):
+
+		if self.request.remote_ip not in self.hosts: return self.render("restricted.html")
+		if isinstance(words_and_states := db_fetch(self.loggy),list): return self.render("words.html", content=words_and_states)
+
+		self.loggy.warning("Database content was not fetched by route handler")
+		return self.render("words.html", content=[])
 
 
 
@@ -262,6 +281,14 @@ async def app():
 				{
 					"hosts":	set(hosts.get("view",[])),
 					"history":	history,
+					"loggy":	irma
+				}
+			),
+			(
+				r"/words",
+				WordsHandler,
+				{
+					"hosts":	set(hosts.get("view",[])),
 					"loggy":	irma
 				}
 			),

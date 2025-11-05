@@ -87,6 +87,14 @@ function initController() {
 
 
 
+function initManager() {
+
+	clockWork(document.getElementById("clock"));
+}
+
+
+
+
 function clockWork(element) {
 
 	const current = new Date();

@@ -1,18 +1,18 @@
-from typing						import List
-from typing						import Dict
-from typing						import Tuple
-from datetime					import datetime
-from collections				import defaultdict
-from pathlib					import Path
+from typing							import List
+from typing							import Dict
+from typing							import Tuple
+from datetime						import datetime
+from collections					import defaultdict
+from pathlib						import Path
 from navbow.analyzer.header			import B1
 from navbow.analyzer.header			import G_NAVTEX_MESSAGE_HEADER
-from navbow.analyzer.coordinates		import P_COORDINATE
-from navbow.analyzer.numerical			import P_NUMERICAL
+from navbow.analyzer.coordinates	import P_COORDINATE
+from navbow.analyzer.numerical		import P_NUMERICAL
 from navbow.analyzer.alphanumerical	import P_ALPHANUMERICAL
-from navbow.analyzer.DTG				import G_MESSAGE_DTG
-from navbow.analyzer.DTG				import MONTH_MAP
-from navbow.analyzer.scanner			import sanit_state
-from navbow.analyzer.scanner			import word_scan
+from navbow.analyzer.DTG			import G_MESSAGE_DTG
+from navbow.analyzer.DTG			import MONTH_MAP
+from navbow.analyzer.scanner		import sanit_state
+from navbow.analyzer.scanner		import word_scan
 
 
 
@@ -66,7 +66,7 @@ class Navanalyzer:
 		--------------------------------------------------------------
 		Phasing signal                   |
 
-		Also will maintains message "state" which will reflect details.
+		Also will maintain message "state" which will reflect details.
 	"""
 
 	def __init__(self, station :str):
