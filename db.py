@@ -59,16 +59,16 @@ def db_fetch(loggy) -> List[Tuple[str,int]] | str :
 
 
 
-def db_delete(word :str, loggy) -> None | str :
+def db_remove(word :str, loggy) -> None | str :
 
 	"""
-		Will try to delete word from db
+		Will try to remove word from db
 		returns None in case of success, str as problem description otherwise
 	"""
 
 	if	not isinstance(word,str):
 
-		reason = f"Invalid word type {type(word)} to delete from db"
+		reason = f"Invalid word type {type(word)} to remove from db"
 		loggy.warning(reason)
 		return reason
 
@@ -85,19 +85,19 @@ def db_delete(word :str, loggy) -> None | str :
 			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
+			loggy.debug(f"Query result: {current}")
 
 
 			if	not current:
 
-				reason = f"\"{word}\" cannot be deleted cause it is not in db"
+				reason = f"\"{word}\" cannot be removed cause it is not in db"
 				loggy.warning(reason)
 				return reason
 
 
 			if	1 <len(current):
 
-				reason = f"\"{word}\" will not be deleted cause it has multiple states in db"
+				reason = f"\"{word}\" will not be removed cause it has multiple states in db"
 				loggy.warning(reason)
 				return reason
 
@@ -105,29 +105,32 @@ def db_delete(word :str, loggy) -> None | str :
 			query = "DELETE FROM navbow WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			op = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
+			loggy.debug(f"Query result: {op}")
 
 
 			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			still = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
+			loggy.debug(f"Query result: {still}")
 
 
 			if	still:
 
-				reason = "%s\"%s\" not deleted"%("delete output is abnormal, " if op else "",word)
+				reason = "%s\"%s\" not removed"%("remove output is abnormal, " if op else "",word)
 				loggy.warning(reason)
 				return reason
 
 
-			loggy.info("\"%s\" deleted from db%s"%(word," but output is abnormal" if op else ""))
+			connection.commit()
+			loggy.info("\"%s\" removed from db%s"%(word," but output is abnormal" if op else ""))
+
+
 		loggy.debug(f"Closed connection to db: \"{db}\"")
 
 
 	except	Exception as E:
 
-		reason = f"\"{word}\" delete failed due to {patronus(E)}"
+		reason = f"\"{word}\" remove failed due to {patronus(E)}"
 		loggy.warning(reason)
 		return reason
 
@@ -164,7 +167,7 @@ def db_accept(word :str, loggy) -> None | str :
 			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
+			loggy.debug(f"Query result: {current}")
 
 
 			if	not current:
@@ -191,13 +194,13 @@ def db_accept(word :str, loggy) -> None | str :
 			query = "UPDATE navbow SET state=1 WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			op = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
+			loggy.debug(f"Query result: {op}")
 
 
 			query = "SELECT word,state FROM navbow WHERE word='%s' AND state=0"%word
 			loggy.debug(f"Constructed query: {query}")
 			still = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
+			loggy.debug(f"Query result: {still}")
 
 
 			if	still:
@@ -207,7 +210,10 @@ def db_accept(word :str, loggy) -> None | str :
 				return reason
 
 
+			connection.commit()
 			loggy.info("\"%s\" updated to known%s"%(word," but output is abnormal" if op else ""))
+
+
 		loggy.debug(f"Closed connection to db: \"{db}\"")
 
 

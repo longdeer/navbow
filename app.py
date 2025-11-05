@@ -11,7 +11,7 @@ from asyncio					import Future
 from datetime					import datetime
 from functools					import partial
 from db							import db_fetch
-from db							import db_delete
+from db							import db_remove
 from db							import db_accept
 from pygwarts.irma.contrib		import LibraryContrib
 from pygwarts.magical.spells	import patronus
@@ -120,7 +120,7 @@ class WordRemoveHandler(MainHandler):
 
 			word = loads(self.request.body).get("word")
 
-			if(reason := db_delete(word, self.loggy)): await self.deny_reason(400, "word removing", reason)
+			if(reason := db_remove(word, self.loggy)): await self.deny_reason(400, "word removing", reason)
 			else:
 
 				try:	self.history["control"].remove(word)

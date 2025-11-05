@@ -39,6 +39,7 @@ main {
 	width: auto;
 	justify-content: center;
 	overflow: auto;
+	scrollbar-color: black white;
 }
 #words-table {
 	background-color: white;
