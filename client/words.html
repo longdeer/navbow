@@ -15,10 +15,9 @@
 		<main>
 			<div id="words-table-container">
 				<table id="words-table">
-					{% for word,state in content %}
+					{% for word in content %}
 						<tr>
 							<td class="words-table-cell del-button">X</td>
-							<td class="words-table-cell state-button">{{ state }}</td>
 							<td class="words-table-cell">{{ word }}</td>
 						</tr>
 					{% end %}

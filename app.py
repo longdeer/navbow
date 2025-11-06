@@ -102,7 +102,7 @@ class WordsHandler(NavbowRequestHandler):
 	def get(self):
 
 		if self.request.remote_ip not in self.hosts: return self.render("restricted.html")
-		if isinstance(words_and_states := db_fetch(self.loggy),list): return self.render("words.html", content=words_and_states)
+		if isinstance(words := db_fetch(self.loggy),list): return self.render("words.html", content=words)
 
 		self.loggy.warning("Database content was not fetched by route handler")
 		return self.render("words.html", content=[])

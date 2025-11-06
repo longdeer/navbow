@@ -1,7 +1,8 @@
+from os							import getenv
 from typing						import List
 from typing						import Tuple
-from os							import getenv
 from sqlite3					import connect
+from operator					import itemgetter
 from contextlib					import closing
 from pygwarts.magical.spells	import patronus
 
@@ -12,7 +13,7 @@ from pygwarts.magical.spells	import patronus
 
 
 
-def db_fetch(loggy) -> List[Tuple[str,int]] | str :
+def db_fetch(loggy) -> List[str] | str :
 
 	"""
 		Fetches all rows from db and returns it as list of tuples.
@@ -29,7 +30,7 @@ def db_fetch(loggy) -> List[Tuple[str,int]] | str :
 		with closing(connection):
 
 
-			query = "SELECT word,state FROM navbow"
+			query = "SELECT word FROM navbow"
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
 			loggy.debug("Query result no exception")
@@ -42,8 +43,8 @@ def db_fetch(loggy) -> List[Tuple[str,int]] | str :
 				return reason
 
 
-			loggy.info(f"Fetched {len(current)} rows from database")
-			return current
+			loggy.info(f"Fetched {len(current)} words from database")
+			return sorted(set(map(itemgetter(0),current)))
 
 
 	except	Exception as E:
