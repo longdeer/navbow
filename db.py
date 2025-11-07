@@ -30,7 +30,7 @@ def db_fetch(loggy) -> List[str] | str :
 		with closing(connection):
 
 
-			query = "SELECT word FROM navbow"
+			query = "SELECT word,added,source FROM navbow"
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
 			loggy.debug("Query result no exception")
@@ -43,13 +43,13 @@ def db_fetch(loggy) -> List[str] | str :
 				return reason
 
 
-			loggy.info(f"Fetched {len(current)} words from database")
-			return sorted(set(map(itemgetter(0),current)))
+			loggy.info(f"Fetched {len(current)} rows from database")
+			return sorted(current,key=itemgetter(1,0))
 
 
 	except	Exception as E:
 
-		reason = f"\"{word}\" delete failed due to {patronus(E)}"
+		reason = f"Fetching db failed due to {patronus(E)}"
 		loggy.warning(reason)
 		return reason
 

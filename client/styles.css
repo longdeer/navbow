@@ -40,6 +40,7 @@ main {
 	justify-content: center;
 	overflow: auto;
 	scrollbar-color: black white;
+	overflow-x: hidden;
 }
 #words-table {
 	background-color: white;

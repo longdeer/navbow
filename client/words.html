@@ -15,10 +15,12 @@
 		<main>
 			<div id="words-table-container">
 				<table id="words-table">
-					{% for word in content %}
+					{% for word,added,source in content %}
 						<tr>
 							<td class="words-table-cell del-button">X</td>
 							<td class="words-table-cell">{{ word }}</td>
+							<td class="words-table-cell">{{ added }}</td>
+							<td class="words-table-cell">{{ source }}</td>
 						</tr>
 					{% end %}
 				</table>
