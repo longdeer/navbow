@@ -90,6 +90,18 @@ function initController() {
 function initManager() {
 
 	clockWork(document.getElementById("clock"));
+
+	const table = document.getElementById("words-table");
+
+	Array.prototype.forEach.call(
+
+		document.getElementsByClassName("del-button"),
+		button => button.addEventListener("click",event => {
+
+			const word = event.target.parentNode.cells[1].innerText;
+			if(confirm(`Delete "${word}"?`)) removeWord(event, word)
+		})
+	)
 }
 
 
@@ -111,14 +123,14 @@ function clockWork(element) {
 
 
 
-function removeWord(event, state /* Set */, word /* String */) {
+function removeWord(event /* Event */, word /* String */) {
 
 	event.preventDefault();
 	fetch(
 
 		"/controller-word-remove",
 		{
-			method:		"PUT",
+			method:		"DELETE",
 			headers:	{ "Content-Type": "application/json" },
 			body:		JSON.stringify({ word })
 		}
@@ -130,11 +142,8 @@ function removeWord(event, state /* Set */, word /* String */) {
 			.then(({ reason }) => alert(reason))
 			.catch(() => alert(`Uncaught response status: ${response.status}`))
 
-		else {
-
-			event.target.parentNode.parentNode.removeChild(event.target.parentNode);
-			state.delete(word) // only remove "word" from "state" in case of success query
-		}
+		// only remove "word" from "state" in case of success query
+		else event.target.parentNode.parentNode.removeChild(event.target.parentNode);
 	})
 	.catch(E => alert(E))
 }

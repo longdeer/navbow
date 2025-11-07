@@ -111,22 +111,24 @@ class WordsHandler(NavbowRequestHandler):
 
 
 class WordRemoveHandler(MainHandler):
-	async def put(self):
+	async def delete(self):
 
 		src = self.request.remote_ip
 
-		if src not in self.hosts : await self.deny(403, "word removing", src)
-		else:
+		if	src not in self.hosts:
 
-			word = loads(self.request.body).get("word")
+			await self.deny(403, "word removing", src)
+			return
 
-			if(reason := db_remove(word, self.loggy)): await self.deny_reason(400, "word removing", reason)
-			else:
 
-				try:	self.history["control"].remove(word)
-				except	ValueError : self.loggy.warning(f"{word} not found in controller history")
-				except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
-				else:	self.loggy.info(f"{src} removed {word}")
+		word = loads(self.request.body).get("word")
+		self.loggy.debug(f"Received word to delete: {word}")
+
+
+		if	(reason := db_remove(word, self.loggy)):
+
+			await self.deny_reason(400, "word removing", reason)
+			return
 
 
 

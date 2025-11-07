@@ -83,7 +83,7 @@ def db_remove(word :str, loggy) -> None | str :
 		with closing(connection):
 
 
-			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
+			query = "SELECT word FROM navbow WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {current}")
@@ -109,7 +109,7 @@ def db_remove(word :str, loggy) -> None | str :
 			loggy.debug(f"Query result: {op}")
 
 
-			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
+			query = "SELECT word FROM navbow WHERE word='%s'"%word
 			loggy.debug(f"Constructed query: {query}")
 			still = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {still}")
