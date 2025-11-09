@@ -38,7 +38,7 @@ irma = LibraryContrib(
 
 
 
-async def app():
+async def app(outer_addr :str =None, outer_port :int =None):
 
 	app = Application(
 		[
@@ -100,7 +100,7 @@ async def app():
 		template_path=getenv("APP_TEMPLATES_FOLDER"),
 		static_path=getenv("APP_STATIC_FOLDER"),
 	)
-	app.listen(getenv("LISTEN_PORT"), getenv("LISTEN_ADDRESS"))
+	app.listen(outer_port or getenv("LISTEN_PORT"), outer_addr or getenv("LISTEN_ADDRESS"))
 	await Event().wait()
 
 
