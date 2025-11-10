@@ -60,7 +60,14 @@ class MainHandler(NavbowRequestHandler):
 class IndexHandler(MainHandler):
 	def get(self):
 
-		if self.request.remote_ip not in self.hosts: return self.render("restricted.html")
+		src = self.request.remote_ip
+
+		if	src not in self.hosts:
+
+			self.loggy.info(f"index.html access denied for {src}")
+			return self.render("restricted.html")
+
+		self.loggy.debug(f"index.html access granted for {src}")
 		return self.render("index.html", history=self.history)
 
 
@@ -75,7 +82,14 @@ class WordsHandler(NavbowRequestHandler):
 
 	def get(self):
 
-		if self.request.remote_ip not in self.hosts: return self.render("restricted.html")
+		src = self.request.remote_ip
+
+		if	src not in self.hosts:
+
+			self.loggy.info(f"words.html access denied for {src}")
+			return self.render("restricted.html")
+
+		self.loggy.debug(f"words.html access granted for {src}")
 		if isinstance(words := db_fetch(self.loggy),list): return self.render("words.html", content=words)
 
 		self.loggy.warning("Database content was not fetched by route handler")
@@ -124,6 +138,10 @@ class WordAcceptHandler(MainHandler):
 				except	ValueError : self.loggy.warning(f"{word} not found in controller history")
 				except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
 				else:	self.loggy.info(f"{src} accepted {word}")
+
+
+
+
 
 
 
