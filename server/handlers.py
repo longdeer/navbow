@@ -167,37 +167,43 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 		if src not in self.hosts : await self.deny(403, "data transfer", src)
 		else:
 
-			# Received json must content a message string as "view" key and
-			# optionaly a list of unknown words as strings "control".
-			data = loads(self.request.body)
-			view = data.get("view")
-			control = data.get("control",list())
+			# Received json must content a messages mapping of
+			# file names with it's corresponding text content.
+			#
+			# Non UTF-8 symbols transfer must raise no Exceptions in "JSON.loads"
+			# parsing time, when it is obvious Exception when it will be read from file
+			# without special encoding set. So for the transfer the further word scan
+			# must account for such problem symbols.
+			#
+			# It is assumed that endpoint will receive either "data" json with "messages"
+			# or uploaded binary "files" (not both).
+			if	(raw := self.request.files):
+
+				try:
+
+					files = { part[0]["filename"]: part[0]["body"] for part in raw.values() }
+					print("\n\n\ndoing raw files")
+					print(files)
+
+				except Exception as E:
+
+					reason = f"Fiels receive from {src} failed due to {patronus(E)}"
+					await self.deny_reason(417, "files receive", reason)
+					self.loggy.warning(reason)
 
 
-			if	not isinstance(view,str):
+			elif(messages := loads(self.request.body).get("messages")):
 
-				await self.deny(422, "data transfer", src)
-				return
+				try:
 
+					print("\n\n\ndoing json text")
+					print(messages)
 
-			self.loggy.info(f"received {len(view)} view symbols from {src}")
-			full_date = datetime.today().astimezone().strftime("%A %B %m %Y %H:%M:%S %Z (GMT%z)")
-			view = f"---------- {full_date} ----------\n\n{view}"
-			self.history.setdefault("views", list()).insert(0,view)
-			wsm = { "view": view }
+				except Exception as E:
 
-
-			if	isinstance(control,list) and all( isinstance(word,str) for word in control ):
-
-				current = set(control)
-				self.history["control"] = sorted(set(self.history.get("control",list())) | current)
-				wsm["control"] = sorted(current)
-
-
-			for client_uuid, socket_handler in self.clients.items():
-
-				try:	socket_handler.write_message(wsm).add_done_callback(partial(self.Future_status, src, client_uuid))
-				except	Exception as E : self.loggy.error(f"{src} ({client_uuid}) send failed due to {patronus(E)}")
+					reason = f"Messages receive from {src} failed due to {patronus(E)}"
+					await self.deny_reason(417, "messages receive", reason)
+					self.loggy.warning(reason)
 
 
 	def Future_status(self, addr :str, client_uuid :str, future :Future):
