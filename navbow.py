@@ -48,13 +48,25 @@ if	__name__ == "__main__":
 			"run tests for analyzer | server | client modules"
 		)
 	)
+	current_args.add_argument(
+
+		"-p", "--pipe",
+		const="environment",
+		metavar="address:port",
+		nargs="?",
+		help=(
+			"when --analyze files issued with this flag, provided address:port will be used "
+			"to send results to; if address:port omitted, it will be tried from .env file; "
+			"using this flag with --server or --test will make no effect"
+		)
+	)
 	current_call = current_args.parse_args()
 	analyzer = current_call.analyzer
 	server = current_call.server
 	test = current_call.test
 
 
-	match 0 ^bool(server) ^bool(analyzer) *2 ^(test is not None) *4:
+	match 0 ^bool(server) ^bool(analyzer) <<1 ^(test is not None) <<2:
 		case 1:
 
 			if server == "environment" : run(app())
@@ -68,11 +80,28 @@ if	__name__ == "__main__":
 
 					current_args.print_help()
 					print("\n\n\nFailed to parse address and port for server!")
+				else:
+					run(app(addr, port))
 
-				else:	run(app(addr, port))
 
+		case 2:
 
-		case 2: print("running analyzer")
+			match current_call.pipe:
+				case None:			print("running analyzer")
+				case "environment":	print("running analyzer and piping to .env server")
+				case _:
+
+					try:
+
+						addr,port = current_call.pipe.split(":")
+						port = int(port)
+
+					except:
+
+						print("\n\n\nFailed to parse address and port for pipe, analyzer didn't worked!")
+					else:
+						print(f"running analyzer and piping to {addr}:{port}")
+
 		case 4: print("running tests")
 		case _:
 
