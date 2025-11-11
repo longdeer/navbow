@@ -1,6 +1,5 @@
-from asyncio	import run
+from sys		import argv
 from argparse	import ArgumentParser
-from server.app	import app
 
 
 
@@ -69,6 +68,9 @@ if	__name__ == "__main__":
 	match 0 ^bool(server) ^bool(analyzer) <<1 ^(test is not None) <<2:
 		case 1:
 
+			from asyncio	import run
+			from server.app	import app
+
 			if server == "environment" : run(app())
 			else:
 				try:
@@ -102,7 +104,22 @@ if	__name__ == "__main__":
 					else:
 						print(f"running analyzer and piping to {addr}:{port}")
 
-		case 4: print("running tests")
+		case 4:
+
+			if	"analyzer" in test:
+
+				from tests.unit_scanner			import *
+				from tests.unit_header			import *
+				from tests.unit_DTG				import *
+				from tests.unit_numerical		import *
+				from tests.unit_alphanumerical	import *
+				from tests.unit_coordinates		import *
+				from tests.unit_analyzer		import *
+
+			import unittest
+			unittest.main(verbosity=2, argv=[ argv[0] ])
+
+
 		case _:
 
 			current_args.print_help()

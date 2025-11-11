@@ -1,8 +1,14 @@
-import	sys
-import	pathlib
-if(root := str(pathlib.Path(__file__).resolve().parent.parent)) not in sys.path : sys.path.insert(0,root)
+import os
+import sys
+
+tests_root = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(tests_root)
+analyzer_root = os.path.join(project_root,"analyzer")
+if project_root not in sys.path : sys.path.insert(0,project_root)
+if analyzer_root not in sys.path : sys.path.insert(0,analyzer_root)
+
 import	unittest
-from	analyzer.numerical import P_NUMERICAL
+from	numerical import P_NUMERICAL
 
 
 

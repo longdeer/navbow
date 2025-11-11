@@ -1,9 +1,16 @@
-import	os
+import os
+import sys
+
+tests_root = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(tests_root)
+analyzer_root = os.path.join(project_root,"analyzer")
+if project_root not in sys.path : sys.path.insert(0,project_root)
+if analyzer_root not in sys.path : sys.path.insert(0,analyzer_root)
+
 import	unittest
-import	NavtexBoWAnalyzer
-from	NavtexBoWAnalyzer.scanner import word_scan
-from	NavtexBoWAnalyzer.scanner import byte_scan
-from	NavtexBoWAnalyzer.scanner import sanit_state
+from	scanner import word_scan
+from	scanner import byte_scan
+from	scanner import sanit_state
 
 
 
@@ -14,7 +21,6 @@ from	NavtexBoWAnalyzer.scanner import sanit_state
 
 class SannerCase(unittest.TestCase):
 
-	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
 	maxDiff = None
 	# Broken:
 	# WZ29			+
@@ -298,14 +304,14 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_invalid(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "msg", "WZ29"))
+		broken,message = byte_scan(os.path.join(tests_root, "msg", "WZ29"))
 		self.assertTrue(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
 
 	def test_byte_scan_valid(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "msg", "KA60"))
+		broken,message = byte_scan(os.path.join(tests_root, "msg", "KA60"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -324,14 +330,14 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_empty(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "msg", "empty"))
+		broken,message = byte_scan(os.path.join(tests_root, "msg", "empty"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertFalse(len(message))
 
 	def test_byte_scan_spaces(self):
 
-		broken,message = byte_scan(os.path.join(self.wd, "msg", "spaces"))
+		broken,message = byte_scan(os.path.join(tests_root, "msg", "spaces"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -345,7 +351,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_sanit_invalid(self):
 
-		scan = sanit_state(os.path.join(self.wd, "msg", "WZ29"))
+		scan = sanit_state(os.path.join(tests_root, "msg", "WZ29"))
 		self.assertIsInstance(scan, dict)
 		self.assertEqual(len(scan),2)
 		self.assertEqual(scan.get("sanit"),0)
@@ -357,7 +363,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "msg", "empty")),
+			sanit_state(os.path.join(tests_root, "msg", "empty")),
 			{
 				"raw_lines":	[ "" ],
 				"air_lines":	[],
@@ -372,7 +378,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "msg", "spaces")),
+			sanit_state(os.path.join(tests_root, "msg", "spaces")),
 			{
 				"raw_lines":	[ "","\t","     "," \t \t","","" ],
 				"air_lines":	[],
@@ -387,7 +393,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "msg", "JA94")),
+			sanit_state(os.path.join(tests_root, "msg", "JA94")),
 			{
 				"raw_lines": [
 
@@ -428,7 +434,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "msg", "BA33")),
+			sanit_state(os.path.join(tests_root, "msg", "BA33")),
 			{
 				"raw_lines": [
 
@@ -487,7 +493,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "msg", "NA22")),
+			sanit_state(os.path.join(tests_root, "msg", "NA22")),
 			{
 				"raw_lines": [
 
@@ -544,7 +550,7 @@ class SannerCase(unittest.TestCase):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(self.wd, "msg", "IA76")),
+			sanit_state(os.path.join(tests_root, "msg", "IA76")),
 			{
 				"raw_lines": [
 

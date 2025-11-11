@@ -1,10 +1,17 @@
-import	os
+import os
+import sys
+
+tests_root = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(tests_root)
+analyzer_root = os.path.join(project_root,"analyzer")
+if project_root not in sys.path : sys.path.insert(0,project_root)
+if analyzer_root not in sys.path : sys.path.insert(0,analyzer_root)
+
 import	unittest
 import	datetime
-import	NavtexBoWAnalyzer
-from	NavtexBoWAnalyzer		 import Navanalyzer
-from	NavtexBoWAnalyzer.header import B1
-from	NavtexBoWAnalyzer.header import B2
+from	analyzer	import Navanalyzer
+from	header		import B1
+from	header		import B2
 
 
 
@@ -33,7 +40,6 @@ class AnalyzerCase(unittest.TestCase):
 	# KA60
 	# RA28
 	# SE94			+
-	wd = os.path.join(NavtexBoWAnalyzer.__path__[0], "tests")
 	maxDiff = None
 
 
@@ -489,7 +495,7 @@ class AnalyzerCase(unittest.TestCase):
 
 					analyzer.with_mapping(
 
-						os.path.join(self.wd, "states", str(state)),
+						os.path.join(tests_root, "states", str(state)),
 						{ "NAV": 1 }
 
 					).get("state"),
@@ -503,7 +509,7 @@ class AnalyzerCase(unittest.TestCase):
 
 					analyzer.with_mapping(
 
-						os.path.join(self.wd, "states", str(state)),
+						os.path.join(tests_root, "states", str(state)),
 						None
 
 					).get("state"),
@@ -517,7 +523,7 @@ class AnalyzerCase(unittest.TestCase):
 
 					analyzer.with_mapping(
 
-						os.path.join(self.wd, "states", str(state)),
+						os.path.join(tests_root, "states", str(state)),
 						{ "NAV": 1, "UTC": 1, "DEC": 1 }
 
 					).get("state"),
@@ -531,7 +537,7 @@ class AnalyzerCase(unittest.TestCase):
 
 					analyzer.with_mapping(
 
-						os.path.join(self.wd, "states", str(state)),
+						os.path.join(tests_root, "states", str(state)),
 						{ "NAV": 1 }
 
 					).get("state"),
@@ -548,7 +554,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_WZ29(self):
 
 		analyzer = Navanalyzer("W")
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "WZ29"), dict())
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "WZ29"), dict())
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 2)
 		self.assertEqual(result.get("state"), 0)
@@ -560,7 +566,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = Navanalyzer("J")
 		bow = dict()
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "JA94"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "JA94"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
@@ -640,7 +646,7 @@ class AnalyzerCase(unittest.TestCase):
 			"CONTACT":	1,
 			"CANCEL":	0,
 		}
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "OL66"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "OL66"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 63) # 1 + 2 + 4 + 8 + 16 + 32
@@ -840,7 +846,7 @@ class AnalyzerCase(unittest.TestCase):
 			"PIPELINE":		0,
 			"CANCEL":		0,
 		}
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "QA42"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "QA42"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 125) # 1 + 4 + 8 + 16 + 32 + 64
@@ -1109,7 +1115,7 @@ class AnalyzerCase(unittest.TestCase):
 			"PIPELINE":		0,
 			"CANCEL":		0,
 		}
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "SE94"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "SE94"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 61) # 1 + 4 + 8 + 16 + 32
@@ -1281,7 +1287,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = Navanalyzer("M")
 		bow = dict()
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "NA22"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "NA22"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 107) # 1 + 2 + 8 + 32 + 64
@@ -1379,7 +1385,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = Navanalyzer("I")
 		bow = { "ICE": 1 }
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "IA76"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "IA76"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 117) # 1 + 4 + 16 + 32 + 64
@@ -1559,7 +1565,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = Navanalyzer("V")
 		bow = { "ICE": 1 }
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "VA28"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "VA28"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 101) # 1 + 4 + 32 + 64
@@ -1685,7 +1691,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = Navanalyzer("V")
 		bow = { "HAND": 1 }
-		result = analyzer.with_mapping(os.path.join(self.wd, "msg", "MZ56"), bow)
+		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "MZ56"), bow)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 121) # 1 + 8 + 16 + 32 + 64
@@ -1780,7 +1786,7 @@ class AnalyzerCase(unittest.TestCase):
 			420, 69., True, False, None, ..., print, unittest, Navanalyzer,
 			[{ "HAND": 1 }],( "HAND",1 ),{ "HAND",1 }
 		):
-			result = analyzer.with_mapping(os.path.join(self.wd, "msg", "MZ56"), invalid)
+			result = analyzer.with_mapping(os.path.join(tests_root, "msg", "MZ56"), invalid)
 			self.assertIsInstance(result, dict)
 			self.assertEqual(len(result), 4)
 			self.assertEqual(result.get("state"), 73) # 1 + 8 + 64
