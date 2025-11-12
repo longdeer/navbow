@@ -10,7 +10,6 @@ from server.handlers		import ViewerReceiverHandler
 from server.handlers		import IndexHandler
 from pygwarts.irma.contrib	import LibraryContrib
 from tornado.web			import Application
-from dotenv					import load_dotenv
 
 
 
@@ -19,7 +18,6 @@ from dotenv					import load_dotenv
 
 
 
-load_dotenv()
 history = dict()
 control_sockets = dict()
 hosts = loads(getenv("ACCESS_LIST"))

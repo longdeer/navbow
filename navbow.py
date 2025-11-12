@@ -1,5 +1,6 @@
 from sys		import argv
 from argparse	import ArgumentParser
+from dotenv		import load_dotenv
 
 
 
@@ -44,7 +45,8 @@ if	__name__ == "__main__":
 		metavar="module",
 		nargs="*",
 		help=(
-			"run tests for analyzer | server | client modules"
+			"run tests for analyzer | server | client modules by supplying corresponding words arguments, "
+			"or by omitting arguments to run all tests; any other arguments will be ignored"
 		)
 	)
 	current_args.add_argument(
@@ -60,22 +62,23 @@ if	__name__ == "__main__":
 		)
 	)
 	current_call = current_args.parse_args()
-	analyzer = current_call.analyzer
-	server = current_call.server
-	test = current_call.test
+	analyzer_state = current_call.analyzer
+	server_state = current_call.server
+	test_state = current_call.test
+	load_dotenv()
 
 
-	match 0 ^bool(server) ^bool(analyzer) <<1 ^(test is not None) <<2:
+	match 0 ^bool(server_state) ^bool(analyzer_state) <<1 ^(test_state is not None) <<2:
 		case 1:
 
 			from asyncio	import run
-			from server.app	import app
+			from server		import app
 
-			if server == "environment" : run(app())
+			if server_state == "environment" : run(app())
 			else:
 				try:
 
-					addr,port = server.split(":")
+					addr,port = server_state.split(":")
 					port = int(port)
 
 				except:
@@ -88,7 +91,9 @@ if	__name__ == "__main__":
 
 		case 2:
 
+			from analyzer import Navanalyzer
 			match current_call.pipe:
+
 				case None:			print("running analyzer")
 				case "environment":	print("running analyzer and piping to .env server")
 				case _:
@@ -106,15 +111,16 @@ if	__name__ == "__main__":
 
 		case 4:
 
-			if	"analyzer" in test:
+			for test_module in test_state or [ "analyzer", "server", "client" ]:
+				if	test_module == "analyzer":
 
-				from tests.unit_scanner			import *
-				from tests.unit_header			import *
-				from tests.unit_DTG				import *
-				from tests.unit_numerical		import *
-				from tests.unit_alphanumerical	import *
-				from tests.unit_coordinates		import *
-				from tests.unit_analyzer		import *
+					from tests.unit_scanner			import *
+					from tests.unit_header			import *
+					from tests.unit_DTG				import *
+					from tests.unit_numerical		import *
+					from tests.unit_alphanumerical	import *
+					from tests.unit_coordinates		import *
+					from tests.unit_analyzer		import *
 
 			import unittest
 			unittest.main(verbosity=2, argv=[ argv[0] ])
