@@ -3,6 +3,7 @@ from os				import path		as ospath
 from os				import R_OK
 from pathlib		import Path
 from collections	import defaultdict
+from functools		import partial
 from typing			import Set
 from typing			import List
 from typing			import Dict
@@ -83,27 +84,42 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 
 
 
-def byte_scan(path :str | Path, carriage :bool =False) -> Tuple[bool,str] :
+def byte_scan(target :str | Path | bytes, carriage :bool =False) -> Tuple[bool,str] :
 
 	"""
-		Reads "path" file in byte mode and recreates whole text. If any not utf-8 symbol will be
-		encountered, it will be substituted with "*" and "broken" flag will be set to True.
-		Optional flag "carriage" allows treating carriage return symbol "\\r" as new line.
-		Returns the tuple of "broken" flag and recreated text string. Doesn't handle any
-		possible Exceptions, but ensures "path" is accessible file.
+		Reads "target" file path in byte mode or as already bytes object or a text string and
+		recreates whole text. If any not ASCII symbol will be encountered, it will be substituted
+		with "*" and "broken" flag will be set to True. Optional flag "carriage" allows treating
+		carriage return symbol "\\r" as new line. Returns the tuple of "broken" flag and
+		recreated text string. Doesn't handle any possible Exceptions, but ensures "target"
+		is either accessible file or a bytes object.
 	"""
 
 	text	= str()
 	broken	= False
 
-	if	isinstance(path, str | Path) and ospath.isfile(path) and osaccess(path, R_OK):
+	match target:
+		case str() | Path() if ospath.isfile(target) and osaccess(target, R_OK):
 
-		with open(path, "rb") as file:
-			while(B := file.read(1)):
+			with open(target, "rb") as file:
+				while(B := file.read(1)):
+
+					try:
+
+						match (symbol := B.decode("ascii")):
+
+							case "\r":	text += "\n" if carriage else ""
+							case _:		text += symbol
+
+					except:	text,broken = text + "*",True
+
+
+		case str():
+			for B in map(partial(bytes, encoding="utf-8"), target):
 
 				try:
 
-					match (symbol := B.decode()):
+					match (symbol := B.decode("ascii")):
 
 						case "\r":	text += "\n" if carriage else ""
 						case _:		text += symbol
@@ -111,8 +127,19 @@ def byte_scan(path :str | Path, carriage :bool =False) -> Tuple[bool,str] :
 				except:	text,broken = text + "*",True
 
 
-		return	broken,	text
-	return		True,	text
+		case bytes():
+			for B in map(lambda i : target[i:i+1],range(len(target))):
+
+				try:
+
+					match (symbol := B.decode("ascii")):
+
+						case "\r":	text += "\n" if carriage else ""
+						case _:		text += symbol
+
+				except:	text,broken = text + "*",True
+		case _: return True,text
+	return broken,text
 
 
 
@@ -136,7 +163,7 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 			- has second bit set if any proper line "proper" and corresponding "raw" line
 			inequality encountered.
 		Returns the dictionary of mentioned key-value pairs in case of False value , or a dictionary with
-		zero "sanit" and "message" string from "byte_scan" if one encountered not utf-8 symbol.
+		zero "sanit" and "message" string from "byte_scan" if one encountered not ASCII symbol.
 	"""
 
 	F,message	= byte_scan(path, carriage=True)

@@ -302,19 +302,126 @@ class SannerCase(unittest.TestCase):
 
 
 
-	def test_byte_scan_invalid(self):
+	def test_byte_scan_invalid_file(self):
 
 		broken,message = byte_scan(os.path.join(tests_root, "msg", "WZ29"))
 		self.assertTrue(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
+		self.assertTrue("*" in message)
 
-	def test_byte_scan_valid(self):
+	def test_byte_scan_valid_file(self):
 
 		broken,message = byte_scan(os.path.join(tests_root, "msg", "KA60"))
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_empty_file(self):
+
+		broken,message = byte_scan(os.path.join(tests_root, "msg", "empty"))
+		self.assertFalse(broken)
+		self.assertIsInstance(message,str)
+		self.assertFalse(len(message))
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_spaces_file(self):
+
+		broken,message = byte_scan(os.path.join(tests_root, "msg", "spaces"))
+		self.assertFalse(broken)
+		self.assertIsInstance(message,str)
+		self.assertTrue(len(message))
+		self.assertFalse("*" in message)
+
+
+
+
+	def test_byte_scan_invalid_string(self):
+
+		with open(os.path.join(tests_root, "msg", "WZ29")) as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertTrue(broken)
+			self.assertIsInstance(message,str)
+			self.assertTrue(len(message))
+			self.assertTrue("*" in message)
+
+	def test_byte_scan_valid_string(self):
+
+		with open(os.path.join(tests_root, "msg", "KA60")) as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertFalse(broken)
+			self.assertIsInstance(message,str)
+			self.assertTrue(len(message))
+			self.assertFalse("*" in message)
+
+	def test_byte_scan_empty_string(self):
+
+		with open(os.path.join(tests_root, "msg", "empty")) as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertFalse(broken)
+			self.assertIsInstance(message,str)
+			self.assertFalse(len(message))
+			self.assertFalse("*" in message)
+
+	def test_byte_scan_spaces_string(self):
+
+		with open(os.path.join(tests_root, "msg", "spaces")) as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertFalse(broken)
+			self.assertIsInstance(message,str)
+			self.assertTrue(len(message))
+			self.assertFalse("*" in message)
+
+
+
+
+	def test_byte_scan_invalid_bytes(self):
+
+		with open(os.path.join(tests_root, "msg", "WZ29"), "rb") as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertTrue(broken)
+			self.assertIsInstance(message,str)
+			self.assertTrue(len(message))
+			self.assertTrue("*" in message)
+
+	def test_byte_scan_valid_bytes(self):
+
+		with open(os.path.join(tests_root, "msg", "KA60"), "rb") as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertFalse(broken)
+			self.assertIsInstance(message,str)
+			self.assertTrue(len(message))
+			self.assertFalse("*" in message)
+
+	def test_byte_scan_empty_bytes(self):
+
+		with open(os.path.join(tests_root, "msg", "empty"), "rb") as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertFalse(broken)
+			self.assertIsInstance(message,str)
+			self.assertFalse(len(message))
+			self.assertFalse("*" in message)
+
+	def test_byte_scan_spaces_bytes(self):
+
+		with open(os.path.join(tests_root, "msg", "spaces"), "rb") as F:
+
+			broken,message = byte_scan(F.read())
+			self.assertFalse(broken)
+			self.assertIsInstance(message,str)
+			self.assertTrue(len(message))
+			self.assertFalse("*" in message)
+
+
+
 
 	def test_byte_scan_others(self):
 
@@ -327,20 +434,6 @@ class SannerCase(unittest.TestCase):
 			self.assertTrue(broken)
 			self.assertIsInstance(message,str)
 			self.assertFalse(len(message))
-
-	def test_byte_scan_empty(self):
-
-		broken,message = byte_scan(os.path.join(tests_root, "msg", "empty"))
-		self.assertFalse(broken)
-		self.assertIsInstance(message,str)
-		self.assertFalse(len(message))
-
-	def test_byte_scan_spaces(self):
-
-		broken,message = byte_scan(os.path.join(tests_root, "msg", "spaces"))
-		self.assertFalse(broken)
-		self.assertIsInstance(message,str)
-		self.assertTrue(len(message))
 
 
 
