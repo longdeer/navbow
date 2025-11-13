@@ -1,10 +1,52 @@
 from os							import getenv
+from typing						import Set
 from typing						import List
 from typing						import Tuple
+from collections.abc			import Sequence
 from sqlite3					import connect
 from operator					import itemgetter
 from contextlib					import closing
 from pygwarts.magical.spells	import patronus
+
+
+
+
+
+
+
+
+def db_analysis_check(pendings :Sequence[str], loggy=None) -> Set[str] | str :
+
+	"""
+		Fetches words filtered by "pendings" set. Always returns a set, either with
+		strings that correspond to words matched in db or empty.
+	"""
+
+	try:
+
+		db = getenv("DB_PATH")
+		table = getenv("TABLE_NAME")
+		connection = connect(db)
+		if loggy : loggy.debug(f"Established connection to db: \"{db}\"")
+
+
+		with closing(connection):
+
+
+			query = "SELECT word FROM %s WHERE word IN ('%s')"%(table,"','".join(pendings))
+			if loggy : loggy.debug(f"Constructed query: {query}")
+			current = connection.execute(query).fetchall()
+			if loggy : loggy.debug("Query result no exception")
+
+
+			if loggy : loggy.info(f"Fetched {len(current)} matches from database")
+			return set(map(itemgetter(0),current))
+
+
+	except	Exception as E:
+
+		if loggy : loggy.warning(f"Fetching db failed due to {patronus(E)}")
+		return set()
 
 
 
@@ -23,6 +65,7 @@ def db_fetch(loggy) -> List[str] | str :
 	try:
 
 		db = getenv("DB_PATH")
+		table = getenv("TABLE_NAME")
 		connection = connect(db)
 		loggy.debug(f"Established connection to db: \"{db}\"")
 
@@ -30,7 +73,7 @@ def db_fetch(loggy) -> List[str] | str :
 		with closing(connection):
 
 
-			query = "SELECT word,added,source FROM navbow"
+			query = "SELECT word,added,source FROM %s"%table
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
 			loggy.debug("Query result no exception")
@@ -77,13 +120,14 @@ def db_remove(word :str, loggy) -> None | str :
 
 		db = getenv("DB_PATH")
 		connection = connect(db)
+		table = getenv("TABLE_NAME")
 		loggy.debug(f"Established connection to db: \"{db}\"")
 
 
 		with closing(connection):
 
 
-			query = "SELECT word FROM navbow WHERE word='%s'"%word
+			query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {current}")
@@ -103,13 +147,13 @@ def db_remove(word :str, loggy) -> None | str :
 				return reason
 
 
-			query = "DELETE FROM navbow WHERE word='%s'"%word
+			query = "DELETE FROM %s WHERE word='%s'"%(table,word)
 			loggy.debug(f"Constructed query: {query}")
 			op = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {op}")
 
 
-			query = "SELECT word FROM navbow WHERE word='%s'"%word
+			query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
 			loggy.debug(f"Constructed query: {query}")
 			still = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {still}")
@@ -159,13 +203,14 @@ def db_accept(word :str, loggy) -> None | str :
 
 		db = getenv("DB_PATH")
 		connection = connect(db)
+		table = getenv("TABLE_NAME")
 		loggy.debug(f"Established connection to db: \"{db}\"")
 
 
 		with closing(connection):
 
 
-			query = "SELECT word,state FROM navbow WHERE word='%s'"%word
+			query = "SELECT word,state FROM %s WHERE word='%s'"%(table,word)
 			loggy.debug(f"Constructed query: {query}")
 			current = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {current}")
@@ -192,13 +237,13 @@ def db_accept(word :str, loggy) -> None | str :
 				return reason
 
 
-			query = "UPDATE navbow SET state=1 WHERE word='%s'"%word
+			query = "UPDATE %s SET state=1 WHERE word='%s'"%(table,word)
 			loggy.debug(f"Constructed query: {query}")
 			op = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {op}")
 
 
-			query = "SELECT word,state FROM navbow WHERE word='%s' AND state=0"%word
+			query = "SELECT word,state FROM %s WHERE word='%s' AND state=0"%(table,word)
 			loggy.debug(f"Constructed query: {query}")
 			still = connection.execute(query).fetchall()
 			loggy.debug(f"Query result: {still}")
