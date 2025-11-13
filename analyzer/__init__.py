@@ -1,18 +1,19 @@
-from typing			import List
-from typing			import Dict
-from typing			import Tuple
-from datetime		import datetime
-from collections	import defaultdict
-from pathlib		import Path
-from header			import B1
-from header			import G_NAVTEX_MESSAGE_HEADER
-from coordinates	import P_COORDINATE
-from numerical		import P_NUMERICAL
-from alphanumerical	import P_ALPHANUMERICAL
-from DTG			import G_MESSAGE_DTG
-from DTG			import MONTH_MAP
-from scanner		import sanit_state
-from scanner		import word_scan
+from typing						import List
+from typing						import Dict
+from typing						import Tuple
+from datetime					import datetime
+from collections				import defaultdict
+from pathlib					import Path
+from analyzer.header			import B1
+from analyzer.header			import G_NAVTEX_MESSAGE_HEADER
+from analyzer.coordinates		import P_COORDINATE
+from analyzer.numerical			import P_NUMERICAL
+from analyzer.alphanumerical	import P_ALPHANUMERICAL
+from analyzer.DTG				import G_MESSAGE_DTG
+from analyzer.DTG				import MONTH_MAP
+from analyzer.scanner			import sanit_state
+from analyzer.scanner			import word_scan
+from server.db					import db_analysis_check
 
 
 
@@ -21,7 +22,7 @@ from scanner		import word_scan
 
 
 
-class Navanalyzer:
+class NavtexAnalyzer:
 
 	"""
 		Navtex messages analyzer.
@@ -78,7 +79,7 @@ class Navanalyzer:
 
 		self.station = station.upper()
 
-	def with_mapping(self, path :str | Path, BoW :Dict[str,int]) -> Dict[str,int|List|Dict] | None :
+	def __call__(self, target :str | Path | bytes) -> Dict[str,int|List|Dict] | None :
 
 		"""
 			Analysis implementation that uses dictionary like mapping as "Bag of Words". Maintains a
@@ -126,14 +127,6 @@ class Navanalyzer:
 				59	- sanitized message without header, DTG, with known and unknown or pending words;
 				61	- message without DTG, with known and unknown or pending words;
 				63	- sanitized message without DTG, with known and unknown or pending words;
-				65	- message without header, EOS, with invalid "BoW" provided;
-				67	- sanitized message without header, EOS, with invalid "BoW" provided;
-				69	- message without EOS, with invalid "BoW" provided;
-				71	- sanitized message without EOS, with invalid "BoW" provided;
-				73	- message without header, with invalid "BoW" provided;
-				75	- sanitized message without header, with invalid "BoW" provided;
-				77	- message with invalid "BoW" provided;
-				79	- sanitized message with invalid "BoW" provided;
 				81	- message without header, EOS, with known word;
 				83	- sanitized message without header, EOS, with known word;
 				85	- message without EOS, with known word;
@@ -161,7 +154,7 @@ class Navanalyzer:
 
 			"sanit_state" might obtain False "broken" state from "byte_scan", but the message
 			will not content any valid symbols. In this case, "sanit_state" will return full dictionary,
-			but "with_mapping" due zero "state" will try to return dictionary with "message" key, which
+			but invocation due to zero "state" will try to return dictionary with "message" key, which
 			is not present in "sanit_state" return value, so it will be None. All unknown words will be
 			mapped in "BoW" with 0, so "BoW" will be eventually altered. "BoW" will be checked to be a
 			Mapping type, but very easy. If "BoW" is not a mapping, "analysis" will have empty "unknown"
@@ -171,7 +164,7 @@ class Navanalyzer:
 				state, analysis, raw, air - all other cases.
 		"""
 
-		if	isinstance(sanit := sanit_state(path), dict) and isinstance(state := sanit.get("sanit"), int):
+		if	isinstance(sanit := sanit_state(target), dict) and isinstance(state := sanit.get("sanit"), int):
 			if	state:
 
 				air_lines	:List[List[str]]	= sanit["air_lines"]
@@ -183,7 +176,6 @@ class Navanalyzer:
 					"nums":		defaultdict(lambda : defaultdict(int)),
 					"known":	defaultdict(lambda : defaultdict(int)),
 					"unknown":	defaultdict(lambda : defaultdict(int)),
-					"pending":	defaultdict(lambda : defaultdict(int)),
 					"punct":	defaultdict(lambda : defaultdict(int)),
 				}
 
@@ -191,14 +183,14 @@ class Navanalyzer:
 				header, *body, eos = air_lines
 				state  ^= (eos == [ "NNNN" ]) <<3
 				scan	= word_scan(body)
-				pend	= set()
+				pend	= defaultdict(list)
 
 
 				# SSN states for Station Subject Number - this is the information which any valid Navtex
 				# message header must start with. Technically Navtex receiver will discard the whole
 				# message if header is invalid. In following operation if only header is valid, SSN will
 				# be extracted and putted in result dictionary with corresponding "state" shift.
-				if	(SSN := self.is_valid_header(" ".join(header))) is not None:
+				if	(SSN := self.validate_header(" ".join(header))) is not None:
 
 					analysis["header"] = SSN
 					state  |= 4
@@ -236,42 +228,27 @@ class Navanalyzer:
 						if		P_COORDINATE.fullmatch(word): analysis["coords"][i][word]		+= 1
 						elif	P_ALPHANUMERICAL.fullmatch(word): analysis["alnums"][i][word]	+= 1
 						elif	P_NUMERICAL.fullmatch(word): analysis["nums"][i][word]			+= 1
-						elif(
+						else:	pend[word].append(i)
 
-							hasattr(BoW, "__getitem__") and
-							hasattr(BoW, "__setitem__") and
-							hasattr(BoW, "keys")
-						):
-							# At this point any value that mapped with "word" in "BoW" will be considered
-							# as a flag whether this "word" is known/unknown/pending. If value is None,
-							# which might be obtained directly from "BoW" if it is able to handle
-							# nonexistent keys, or set after KeyError Exception caught, the "word"
-							# considered as unknown. After an unknown "word" discovered, it is mapped
-							# with 0 in "BoW" and also added to "pend" set, so all other occurrences
-							# of "word" will be also treated as unknown. If "word" value is 0 and
-							# it is not in "pend", it is considered pending. Any other values will
-							# seem "word" is known.
-							try:	BoW_state = BoW[word]
-							except:	BoW_state = None
-							match	BoW_state:
 
-								case None:
+				pending_words = set(pend.keys())
+				known = db_analysis_check(pending_words)
+				unknown = pending_words - known
 
-									analysis["unknown"][i][word] += 1
-									pend.add(word)
-									BoW[word] = 0
-									state |= 32
 
-								case 0 if word not in pend:
+				for word in known:
+					for i in pend[word]:
 
-									analysis["pending"][i][word] += 1
-									state |= 32
+						analysis["known"][i][word] += 1
+						state |= 16
 
-								case 0: analysis["unknown"][i][word] += 1
-								case _:
+				for word in unknown:
+					for i in pend[word]:
 
-									analysis["known"][i][word] += 1
-									state |= 16
+						analysis["unknown"][i][word] += 1
+						state |= 32
+
+
 				return	{
 
 					"analysis":	analysis,
@@ -288,7 +265,7 @@ class Navanalyzer:
 
 
 
-	def is_valid_header(self, header :str) -> Tuple[str,str,str] | None :
+	def validate_header(self, header :str) -> Tuple[str,str,str] | None :
 
 		"""
 			Helper method that will try to extract a B1 from the "header" string and return True

@@ -9,7 +9,9 @@ if analyzer_root not in sys.path : sys.path.insert(0,analyzer_root)
 
 import	unittest
 import	datetime
-from	analyzer	import Navanalyzer
+from	sqlite3		import connect
+from	contextlib	import closing
+from	analyzer	import NavtexAnalyzer
 from	header		import B1
 from	header		import B2
 
@@ -42,13 +44,24 @@ class AnalyzerCase(unittest.TestCase):
 	# SE94			+
 	maxDiff = None
 
+	@classmethod
+	def tearDownClass(cls): cls.connection.close()
+
+	@classmethod
+	def setUpClass(cls):
+
+		cls.db_path = os.path.join(tests_root, "test.sqlite3")
+		cls.connection = connect(cls.db_path)
+		os.environ["DB_PATH"] = cls.db_path
+		os.environ["TABLE_NAME"] = "navbow_test"
+
 
 	def test_valid_station_init(self):
 
 		for station in B1:
 
-			self.assertIsInstance(Navanalyzer(station), Navanalyzer)
-			self.assertIsInstance(Navanalyzer(station.lower()), Navanalyzer)
+			self.assertIsInstance(NavtexAnalyzer(station), NavtexAnalyzer)
+			self.assertIsInstance(NavtexAnalyzer(station.lower()), NavtexAnalyzer)
 
 
 	def test_invalid_station_init(self):
@@ -59,14 +72,14 @@ class AnalyzerCase(unittest.TestCase):
 
 				AssertionError,
 				"Invalid station literal",
-				Navanalyzer,
+				NavtexAnalyzer,
 				invalid
 			)
 			self.assertRaisesRegex(
 
 				AssertionError,
 				"Invalid station literal",
-				Navanalyzer,
+				NavtexAnalyzer,
 				invalid.lower()
 			)
 
@@ -79,7 +92,7 @@ class AnalyzerCase(unittest.TestCase):
 
 				AssertionError,
 				"Invalid station literal",
-				Navanalyzer,
+				NavtexAnalyzer,
 				B1[i:i+2]
 			)
 
@@ -88,14 +101,14 @@ class AnalyzerCase(unittest.TestCase):
 
 		for invalid in (
 
-			420, 69., True, False, None, ..., print, unittest, Navanalyzer,
+			420, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
 			[ "A" ],( "B", ),{ "C" },{ "station": "D" }
 		):
 			self.assertRaisesRegex(
 
 				AssertionError,
 				"Invalid station literal",
-				Navanalyzer,
+				NavtexAnalyzer,
 				invalid
 			)
 
@@ -108,7 +121,7 @@ class AnalyzerCase(unittest.TestCase):
 
 	def test_A_valid_header(self):
 
-		analyzer = Navanalyzer("A")
+		analyzer = NavtexAnalyzer("A")
 
 		for subject in B2:
 			for i in range(100):
@@ -116,14 +129,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC A{subject}{number}"),
+					analyzer.validate_header(f"ZCZC A{subject}{number}"),
 					( "A", subject, number )
 				)
 
 
 	def test_B_valid_header(self):
 
-		analyzer = Navanalyzer("B")
+		analyzer = NavtexAnalyzer("B")
 
 		for subject in B2:
 			for i in range(100):
@@ -131,14 +144,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC B{subject}{number}"),
+					analyzer.validate_header(f"ZCZC B{subject}{number}"),
 					( "B", subject, number )
 				)
 
 
 	def test_C_valid_header(self):
 
-		analyzer = Navanalyzer("C")
+		analyzer = NavtexAnalyzer("C")
 
 		for subject in B2:
 			for i in range(100):
@@ -146,14 +159,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC C{subject}{number}"),
+					analyzer.validate_header(f"ZCZC C{subject}{number}"),
 					( "C", subject, number )
 				)
 
 
 	def test_D_valid_header(self):
 
-		analyzer = Navanalyzer("D")
+		analyzer = NavtexAnalyzer("D")
 
 		for subject in B2:
 			for i in range(100):
@@ -161,14 +174,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC D{subject}{number}"),
+					analyzer.validate_header(f"ZCZC D{subject}{number}"),
 					( "D", subject, number )
 				)
 
 
 	def test_E_valid_header(self):
 
-		analyzer = Navanalyzer("E")
+		analyzer = NavtexAnalyzer("E")
 
 		for subject in B2:
 			for i in range(100):
@@ -176,14 +189,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC E{subject}{number}"),
+					analyzer.validate_header(f"ZCZC E{subject}{number}"),
 					( "E", subject, number )
 				)
 
 
 	def test_F_valid_header(self):
 
-		analyzer = Navanalyzer("F")
+		analyzer = NavtexAnalyzer("F")
 
 		for subject in B2:
 			for i in range(100):
@@ -191,14 +204,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC F{subject}{number}"),
+					analyzer.validate_header(f"ZCZC F{subject}{number}"),
 					( "F", subject, number )
 				)
 
 
 	def test_G_valid_header(self):
 
-		analyzer = Navanalyzer("G")
+		analyzer = NavtexAnalyzer("G")
 
 		for subject in B2:
 			for i in range(100):
@@ -206,14 +219,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC G{subject}{number}"),
+					analyzer.validate_header(f"ZCZC G{subject}{number}"),
 					( "G", subject, number )
 				)
 
 
 	def test_H_valid_header(self):
 
-		analyzer = Navanalyzer("H")
+		analyzer = NavtexAnalyzer("H")
 
 		for subject in B2:
 			for i in range(100):
@@ -221,14 +234,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC H{subject}{number}"),
+					analyzer.validate_header(f"ZCZC H{subject}{number}"),
 					( "H", subject, number )
 				)
 
 
 	def test_I_valid_header(self):
 
-		analyzer = Navanalyzer("I")
+		analyzer = NavtexAnalyzer("I")
 
 		for subject in B2:
 			for i in range(100):
@@ -236,14 +249,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC I{subject}{number}"),
+					analyzer.validate_header(f"ZCZC I{subject}{number}"),
 					( "I", subject, number )
 				)
 
 
 	def test_J_valid_header(self):
 
-		analyzer = Navanalyzer("J")
+		analyzer = NavtexAnalyzer("J")
 
 		for subject in B2:
 			for i in range(100):
@@ -251,14 +264,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC J{subject}{number}"),
+					analyzer.validate_header(f"ZCZC J{subject}{number}"),
 					( "J", subject, number )
 				)
 
 
 	def test_K_valid_header(self):
 
-		analyzer = Navanalyzer("K")
+		analyzer = NavtexAnalyzer("K")
 
 		for subject in B2:
 			for i in range(100):
@@ -266,14 +279,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC K{subject}{number}"),
+					analyzer.validate_header(f"ZCZC K{subject}{number}"),
 					( "K", subject, number )
 				)
 
 
 	def test_L_valid_header(self):
 
-		analyzer = Navanalyzer("L")
+		analyzer = NavtexAnalyzer("L")
 
 		for subject in B2:
 			for i in range(100):
@@ -281,14 +294,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC L{subject}{number}"),
+					analyzer.validate_header(f"ZCZC L{subject}{number}"),
 					( "L", subject, number )
 				)
 
 
 	def test_M_valid_header(self):
 
-		analyzer = Navanalyzer("M")
+		analyzer = NavtexAnalyzer("M")
 
 		for subject in B2:
 			for i in range(100):
@@ -296,14 +309,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC M{subject}{number}"),
+					analyzer.validate_header(f"ZCZC M{subject}{number}"),
 					( "M", subject, number )
 				)
 
 
 	def test_N_valid_header(self):
 
-		analyzer = Navanalyzer("N")
+		analyzer = NavtexAnalyzer("N")
 
 		for subject in B2:
 			for i in range(100):
@@ -311,14 +324,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC N{subject}{number}"),
+					analyzer.validate_header(f"ZCZC N{subject}{number}"),
 					( "N", subject, number )
 				)
 
 
 	def test_O_valid_header(self):
 
-		analyzer = Navanalyzer("O")
+		analyzer = NavtexAnalyzer("O")
 
 		for subject in B2:
 			for i in range(100):
@@ -326,14 +339,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC O{subject}{number}"),
+					analyzer.validate_header(f"ZCZC O{subject}{number}"),
 					( "O", subject, number )
 				)
 
 
 	def test_P_valid_header(self):
 
-		analyzer = Navanalyzer("P")
+		analyzer = NavtexAnalyzer("P")
 
 		for subject in B2:
 			for i in range(100):
@@ -341,14 +354,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC P{subject}{number}"),
+					analyzer.validate_header(f"ZCZC P{subject}{number}"),
 					( "P", subject, number )
 				)
 
 
 	def test_Q_valid_header(self):
 
-		analyzer = Navanalyzer("Q")
+		analyzer = NavtexAnalyzer("Q")
 
 		for subject in B2:
 			for i in range(100):
@@ -356,14 +369,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC Q{subject}{number}"),
+					analyzer.validate_header(f"ZCZC Q{subject}{number}"),
 					( "Q", subject, number )
 				)
 
 
 	def test_R_valid_header(self):
 
-		analyzer = Navanalyzer("R")
+		analyzer = NavtexAnalyzer("R")
 
 		for subject in B2:
 			for i in range(100):
@@ -371,14 +384,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC R{subject}{number}"),
+					analyzer.validate_header(f"ZCZC R{subject}{number}"),
 					( "R", subject, number )
 				)
 
 
 	def test_S_valid_header(self):
 
-		analyzer = Navanalyzer("S")
+		analyzer = NavtexAnalyzer("S")
 
 		for subject in B2:
 			for i in range(100):
@@ -386,14 +399,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC S{subject}{number}"),
+					analyzer.validate_header(f"ZCZC S{subject}{number}"),
 					( "S", subject, number )
 				)
 
 
 	def test_T_valid_header(self):
 
-		analyzer = Navanalyzer("T")
+		analyzer = NavtexAnalyzer("T")
 
 		for subject in B2:
 			for i in range(100):
@@ -401,14 +414,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC T{subject}{number}"),
+					analyzer.validate_header(f"ZCZC T{subject}{number}"),
 					( "T", subject, number )
 				)
 
 
 	def test_U_valid_header(self):
 
-		analyzer = Navanalyzer("U")
+		analyzer = NavtexAnalyzer("U")
 
 		for subject in B2:
 			for i in range(100):
@@ -416,14 +429,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC U{subject}{number}"),
+					analyzer.validate_header(f"ZCZC U{subject}{number}"),
 					( "U", subject, number )
 				)
 
 
 	def test_V_valid_header(self):
 
-		analyzer = Navanalyzer("V")
+		analyzer = NavtexAnalyzer("V")
 
 		for subject in B2:
 			for i in range(100):
@@ -431,14 +444,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC V{subject}{number}"),
+					analyzer.validate_header(f"ZCZC V{subject}{number}"),
 					( "V", subject, number )
 				)
 
 
 	def test_W_valid_header(self):
 
-		analyzer = Navanalyzer("W")
+		analyzer = NavtexAnalyzer("W")
 
 		for subject in B2:
 			for i in range(100):
@@ -446,14 +459,14 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC W{subject}{number}"),
+					analyzer.validate_header(f"ZCZC W{subject}{number}"),
 					( "W", subject, number )
 				)
 
 
 	def test_X_valid_header(self):
 
-		analyzer = Navanalyzer("X")
+		analyzer = NavtexAnalyzer("X")
 
 		for subject in B2:
 			for i in range(100):
@@ -461,21 +474,21 @@ class AnalyzerCase(unittest.TestCase):
 				number = str(i).zfill(2)
 				self.assertEqual(
 
-					analyzer.is_valid_header(f"ZCZC X{subject}{number}"),
+					analyzer.validate_header(f"ZCZC X{subject}{number}"),
 					( "X", subject, number )
 				)
 
 
 	def test_invalid_header(self):
 
-		analyzer = Navanalyzer("A")
+		analyzer = NavtexAnalyzer("A")
 
 		for invalid in (
 
-			"ZCZC", int(), float(), bool(), None, ..., print, unittest, Navanalyzer,
+			"ZCZC", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
 			[ "ZCZC AB00" ],( "ZCZC AB00", ),{ "ZCZC AB00" },{ "header": "ZCZC AB00" }
 		):
-			self.assertFalse(analyzer.is_valid_header(invalid))
+			self.assertFalse(analyzer.validate_header(invalid))
 
 
 
@@ -486,61 +499,41 @@ class AnalyzerCase(unittest.TestCase):
 
 	def test_states(self):
 
-		analyzer = Navanalyzer("B")
+		with self.connection:
 
-		for state in [ 0 ] + list(range(1,65,2)):
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+
+		analyzer = NavtexAnalyzer("B")
+
+		for state in list(range(97,112,2)):
 			with self.subTest(state=state):
 
 				self.assertEqual(
 
-					analyzer.with_mapping(
-
-						os.path.join(tests_root, "states", str(state)),
-						{ "NAV": 1 }
-
-					).get("state"),
+					analyzer(os.path.join(tests_root, "states", str(state))).get("state"),
 					state
 				)
 
-		for state in list(range(65,80,2)):
+
+		with self.connection : self.connection.execute("INSERT INTO navbow_test VALUES ('NAV')")
+		for state in [ 0 ] + list(range(1,65,2)) + list(range(97,128,2)):
 			with self.subTest(state=state):
 
 				self.assertEqual(
 
-					analyzer.with_mapping(
-
-						os.path.join(tests_root, "states", str(state)),
-						None
-
-					).get("state"),
+					analyzer(os.path.join(tests_root, "states", str(state))).get("state"),
 					state
 				)
 
+
+		with self.connection : self.connection.execute("INSERT INTO navbow_test VALUES ('UTC'),('DEC')")
 		for state in list(range(81,96,2)):
 			with self.subTest(state=state):
 
 				self.assertEqual(
 
-					analyzer.with_mapping(
-
-						os.path.join(tests_root, "states", str(state)),
-						{ "NAV": 1, "UTC": 1, "DEC": 1 }
-
-					).get("state"),
-					state
-				)
-
-		for state in list(range(97,128,2)):
-			with self.subTest(state=state):
-
-				self.assertEqual(
-
-					analyzer.with_mapping(
-
-						os.path.join(tests_root, "states", str(state)),
-						{ "NAV": 1 }
-
-					).get("state"),
+					analyzer(os.path.join(tests_root, "states", str(state))).get("state"),
 					state
 				)
 
@@ -553,8 +546,8 @@ class AnalyzerCase(unittest.TestCase):
 
 	def test_analysis_WZ29(self):
 
-		analyzer = Navanalyzer("W")
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "WZ29"), dict())
+		analyzer = NavtexAnalyzer("W")
+		result = analyzer(os.path.join(tests_root, "msg", "WZ29"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 2)
 		self.assertEqual(result.get("state"), 0)
@@ -564,9 +557,13 @@ class AnalyzerCase(unittest.TestCase):
 
 	def test_analysis_JA94(self):
 
-		analyzer = Navanalyzer("J")
-		bow = dict()
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "JA94"), bow)
+		with self.connection:
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+
+		analyzer = NavtexAnalyzer("J")
+		result = analyzer(os.path.join(tests_root, "msg", "JA94"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
@@ -604,9 +601,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("known", result["analysis"])
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertFalse(len(result["analysis"]["known"]))
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertFalse(len(result["analysis"]["pending"]))
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -619,34 +613,26 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
 		)
-		self.assertEqual(
-
-			bow,
-			{
-				"UTC":		0,
-				"FEB":		0,
-				"CANCEL":	0,
-				"GERMAN":	0,
-				"NAV":		0,
-				"WARN":		0,
-			}
-		)
 
 
 
 
 	def test_analysis_OL66(self):
 
-		analyzer = Navanalyzer("O")
-		bow = {
+		with self.connection:
 
-			"CTF":		1,
-			"SOUND":	1,
-			"SOUTH":	1,
-			"CONTACT":	1,
-			"CANCEL":	0,
-		}
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "OL66"), bow)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+			self.connection.execute("""INSERT INTO navbow_test VALUES
+				("CTF"),
+				("SOUND"),
+				("SOUTH"),
+				("CONTACT"),
+				("CANCEL")
+			""")
+
+		analyzer = NavtexAnalyzer("O")
+		result = analyzer(os.path.join(tests_root, "msg", "OL66"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 63) # 1 + 2 + 4 + 8 + 16 + 32
@@ -759,10 +745,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["known"][7]["CONTACT"],1)
 		self.assertEqual(result["analysis"]["known"][8]["CTF"],1)
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertEqual(result["analysis"]["pending"][9]["CANCEL"],1)
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -771,82 +753,32 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "O","L","66" ))
 
 		self.assertNotIn("DTG", result["analysis"])
-		self.assertEqual(
-
-			bow,
-			{
-				"CTF":			1,
-				"SOUND":		1,
-				"SOUTH":		1,
-				"CONTACT":		1,
-				"CANCEL":		0,
-				"OL66":			0,
-				"FOSNNI":		0,
-				"SUBFACTS":		0,
-				"GUNFACTS":		0,
-				"WARNING":		0,
-				"ALL":			0,
-				"TIMES":		0,
-				"UTC":			0,
-				"DIVED":		0,
-				"SUBMARINE":	0,
-				"OPERATIONS":	0,
-				"INNER":		0,
-				"-":			0,
-				"INSIDE":		0,
-				"OF":			0,
-				"SKYE":			0,
-				"RUBHA":		0,
-				"REIDH":		0,
-				"NORTH":		0,
-				"MALLAIG":		0,
-				"BETWEEN":		0,
-				"SEP":			0,
-				"LIVE":			0,
-				"GUNNERY":		0,
-				"FIRINGS":		0,
-				"PROGRESS":		0,
-				"NIL":			0,
-				"FULL":			0,
-				"DETAILS":		0,
-				"IN":			0,
-				"HM":			0,
-				"COASTGUARD":	0,
-				"RESCUE":		0,
-				"CENTRES":		0,
-				"VHF":			0,
-				"AND":			0,
-				"MF":			0,
-				"BROADCASTS":	0,
-				"OR":			0,
-				"PHONE":		0,
-				"OL65":			0,
-			}
-		)
 
 
 
 
 	def test_analysis_QA42(self):
 
-		analyzer = Navanalyzer("Q")
-		bow = {
+		with self.connection:
 
-			"CTF":			1,
-			"SOUND":		1,
-			"SOUTH":		1,
-			"CONTACT":		1,
-			"UNTIL":		1,
-			"FURTHER":		1,
-			"FROM":			1,
-			"UTC":			1,
-			"CONDUCTING":	1,
-			"UNDERWATER":	1,
-			"GAS":			1,
-			"PIPELINE":		0,
-			"CANCEL":		0,
-		}
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "QA42"), bow)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+			self.connection.execute("""INSERT INTO navbow_test VALUES
+				("CTF"),
+				("SOUND"),
+				("SOUTH"),
+				("CONTACT"),
+				("UNTIL"),
+				("FURTHER"),
+				("FROM"),
+				("UTC"),
+				("CONDUCTING"),
+				("UNDERWATER"),
+				("GAS")
+			""")
+
+		analyzer = NavtexAnalyzer("Q")
+		result = analyzer(os.path.join(tests_root, "msg", "QA42"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 125) # 1 + 4 + 8 + 16 + 32 + 64
@@ -1013,10 +945,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["known"][12]["CONTACT"],1)
 		self.assertEqual(result["analysis"]["known"][13]["FROM"],1)
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertEqual(result["analysis"]["pending"][6]["PIPELINE"],1)
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertEqual(result["analysis"]["punct"][7][")"],1)
@@ -1035,87 +963,32 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			"06/09/2019 2240"
 		)
-		self.assertEqual(
-
-			bow,
-			{
-				"CTF":			1,
-				"SOUND":		1,
-				"SOUTH":		1,
-				"CONTACT":		1,
-				"UNTIL":		1,
-				"FURTHER":		1,
-				"FROM":			1,
-				"UTC":			1,
-				"CONDUCTING":	1,
-				"UNDERWATER":	1,
-				"GAS":			1,
-				"PIPELINE":		0,
-				"CANCEL":		0,
-				"JUN":	0,
-				"SPLIT":	0,
-				"RADIO":	0,
-				"NAV":	0,
-				"WNG":	0,
-				"NR":	0,
-				"N-ERN":	0,
-				"ADRIATIC":	0,
-				"BRIJUNI":	0,
-				"CHRT":	0,
-				"NOTICEFROM":	0,
-				"LT":	0,
-				"TO":	0,
-				"M/V":	0,
-				"REFUL":	0,
-				"MAINTENANCE":	0,
-				"WORKS":	0,
-				"BETWEEN":	0,
-				"POSITIONS":	0,
-				"A)":	0,
-				"B)":	0,
-				"C)":	0,
-				"D)":	0,
-				"E)":	0,
-				"N":	0,
-				"-":	0,
-				"E":	0,
-				"VHF":	0,
-				"CH":	0,
-				"NAVIGATION":	0,
-				"AND":	0,
-				"FISHING":	0,
-				"IN":	0,
-				"RADIUS":	0,
-				"MILES":	0,
-				"THE":	0,
-				"VESSEL":	0,
-				"PROHIBITED":	0,
-			}
-		)
 
 
 
 
 	def test_analysis_SE94(self):
 
-		analyzer = Navanalyzer("S")
-		bow = {
+		with self.connection:
 
-			"CTF":			1,
-			"SOUND":		1,
-			"SOUTH":		1,
-			"CONTACT":		1,
-			"UNTIL":		1,
-			"FURTHER":		1,
-			"FROM":			1,
-			"UTC":			1,
-			"CONDUCTING":	1,
-			"UNDERWATER":	1,
-			"GAS":			1,
-			"PIPELINE":		0,
-			"CANCEL":		0,
-		}
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "SE94"), bow)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+			self.connection.execute("""INSERT INTO navbow_test VALUES
+				("CTF"),
+				("SOUND"),
+				("SOUTH"),
+				("CONTACT"),
+				("UNTIL"),
+				("FURTHER"),
+				("FROM"),
+				("UTC"),
+				("CONDUCTING"),
+				("UNDERWATER"),
+				("GAS")
+			""")
+
+		analyzer = NavtexAnalyzer("S")
+		result = analyzer(os.path.join(tests_root, "msg", "SE94"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 61) # 1 + 4 + 8 + 16 + 32
@@ -1219,10 +1092,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["known"][6]["UNTIL"],1)
 		self.assertEqual(result["analysis"]["known"][6]["UTC"],1)
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertFalse(len(result["analysis"]["pending"]))
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -1231,63 +1100,19 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "S","E","94" ))
 
 		self.assertNotIn("DTG", result["analysis"])
-		self.assertEqual(
-
-			bow,
-			{
-				"CTF":				1,
-				"SOUND":			1,
-				"SOUTH":			1,
-				"CONTACT":			1,
-				"UNTIL":			1,
-				"FURTHER":			1,
-				"FROM":				1,
-				"UTC":				1,
-				"CONDUCTING":		1,
-				"UNDERWATER":		1,
-				"GAS":				1,
-				"NAVTEX-HAMBURG":	0,
-				"NCC":				0,
-				"WEATHERFORECAST":	0,
-				"FOR":				0,
-				"GERMAN":			0,
-				"BIGHT":			0,
-				"NORTHEAST":		0,
-				"ABOUT":			0,
-				"LATER":			0,
-				"DECREASING":		0,
-				"A":				0,
-				"LITTLE":			0,
-				"AND":				0,
-				"SHIFTING":			0,
-				"EASTERN":			0,
-				"AT":				0,
-				"TIMES":			0,
-				"MISTY":			0,
-				"SEA":				0,
-				"INCREASING":		0,
-				"METRE":			0,
-				"OUTLOOK":			0,
-				"WESTERN":			0,
-				"PART":				0,
-				"NORTH":			0,
-				"TO":				0,
-				"OTHERWISE":		0,
-				"EAST":				0,
-				"SOUTHEAST":		0,
-				"PIPELINE":			0,
-				"CANCEL":			0,
-			}
-		)
 
 
 
 
 	def test_analysis_NA22(self):
 
-		analyzer = Navanalyzer("M")
-		bow = dict()
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "NA22"), bow)
+		with self.connection:
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+
+		analyzer = NavtexAnalyzer("M")
+		result = analyzer(os.path.join(tests_root, "msg", "NA22"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 107) # 1 + 2 + 8 + 32 + 64
@@ -1342,10 +1167,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertFalse(len(result["analysis"]["known"]))
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertFalse(len(result["analysis"]["pending"]))
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -1359,33 +1180,20 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			"03/11/2019 0905"
 		)
-		self.assertEqual(
-
-			bow,
-			{
-				"UTC":			0,
-				"MAR":			0,
-				"NORWEGIAN":	0,
-				"NAV":			0,
-				"WARNING":		0,
-				"CHART":		0,
-				"AREA":			0,
-				"GRIP":			0,
-				"HILBAAAN":		0,
-				"RACON":		0,
-				"IS":			0,
-				"INOPERATIVE":	0,
-			}
-		)
 
 
 
 
 	def test_analysis_IA76(self):
 
-		analyzer = Navanalyzer("I")
-		bow = { "ICE": 1 }
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "IA76"), bow)
+		with self.connection:
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+			self.connection.execute("INSERT INTO navbow_test VALUES ('ICE')")
+
+		analyzer = NavtexAnalyzer("I")
+		result = analyzer(os.path.join(tests_root, "msg", "IA76"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 117) # 1 + 4 + 16 + 32 + 64
@@ -1496,10 +1304,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"][2]["ICE"],1)
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertFalse(len(result["analysis"]["pending"]))
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -1514,58 +1318,20 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
 		)
-		self.assertEqual(
-
-			bow,
-			{
-				"ICE":	1,
-				"UTC":	0,
-				"JAN":	0,
-				"BALTIC":	0,
-				"INFORMATION":	0,
-				"VESSELS":	0,
-				"BOUND":	0,
-				"FOR":	0,
-				"PORTS":	0,
-				"SUBJECT":	0,
-				"TO":	0,
-				"TRAFFIC":	0,
-				"RESTRICTIONS":	0,
-				"SHALL":	0,
-				"CALL":	0,
-				"ICEINFO":	0,
-				"OR":	0,
-				"PHONE":	0,
-				"+46":	0,
-				"AS":	0,
-				"FOLLOWS":	0,
-				"PASSING":	0,
-				"LAT":	0,
-				"ARRIVAL":	0,
-				"WHEN":	0,
-				"THE":	0,
-				"SHIP":	0,
-				"IS":	0,
-				"WELL":	0,
-				"MOORED":	0,
-				"DEPARTURE":	0,
-				"REPORT":	0,
-				"ON":	0,
-				"VHF":	0,
-				"LATEST":	0,
-				"HOURS":	0,
-				"BEFORE":	0,
-			}
-		)
 
 
 
 
 	def test_analysis_VA28(self):
 
-		analyzer = Navanalyzer("V")
-		bow = { "ICE": 1 }
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "VA28"), bow)
+		with self.connection:
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+			self.connection.execute("INSERT INTO navbow_test VALUES ('ICE')")
+
+		analyzer = NavtexAnalyzer("V")
+		result = analyzer(os.path.join(tests_root, "msg", "VA28"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 101) # 1 + 4 + 32 + 64
@@ -1638,10 +1404,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertFalse(len(result["analysis"]["known"]))
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertFalse(len(result["analysis"]["pending"]))
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -1656,42 +1418,20 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
 		)
-		self.assertEqual(
-
-			bow,
-			{
-				"ICE":			1,
-				"UTC":			0,
-				"AUG":			0,
-				"GMDSS":		0,
-				"HUMBER":		0,
-				"COASTGUARD":	0,
-				"MF":			0,
-				"R/T":			0,
-				"AND":			0,
-				"DSC":			0,
-				"SERVICES":		0,
-				"FROM":			0,
-				"LANGHAM":		0,
-				"SITE":			0,
-				"OFF":			0,
-				"AIR":			0,
-				"CANCEL":		0,
-				"WZ":			0,
-				"GA73":			0,
-				"VA10":			0,
-			}
-
-		)
 
 
 
 
 	def test_analysis_MZ56(self):
 
-		analyzer = Navanalyzer("V")
-		bow = { "HAND": 1 }
-		result = analyzer.with_mapping(os.path.join(tests_root, "msg", "MZ56"), bow)
+		with self.connection:
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_test")
+			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+			self.connection.execute("INSERT INTO navbow_test VALUES ('HAND')")
+
+		analyzer = NavtexAnalyzer("V")
+		result = analyzer(os.path.join(tests_root, "msg", "MZ56"))
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 121) # 1 + 8 + 16 + 32 + 64
@@ -1738,10 +1478,6 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIsInstance(result["analysis"]["known"], dict)
 		self.assertEqual(result["analysis"]["known"][2]["HAND"],1)
 
-		self.assertIn("pending", result["analysis"])
-		self.assertIsInstance(result["analysis"]["pending"], dict)
-		self.assertFalse(len(result["analysis"]["pending"]))
-
 		self.assertIn("punct", result["analysis"])
 		self.assertIsInstance(result["analysis"]["punct"], dict)
 		self.assertFalse(len(result["analysis"]["punct"]))
@@ -1755,92 +1491,6 @@ class AnalyzerCase(unittest.TestCase):
 			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
 			"08/01/2019 1713"
 		)
-		self.assertEqual(
-
-			bow,
-			{
-				"HAND":		1,
-				"UTC":		0,
-				"AUG":		0,
-				"NAVAREA":	0,
-				"-":		0,
-				"NO":		0,
-				"MESSAGES":	0,
-				"ON":		0,
-			}
-		)
-
-
-
-
-
-
-
-
-	def test_with_mapping_invalid_BoW(self):
-
-		analyzer = Navanalyzer("V")
-
-		for invalid in (
-
-			420, 69., True, False, None, ..., print, unittest, Navanalyzer,
-			[{ "HAND": 1 }],( "HAND",1 ),{ "HAND",1 }
-		):
-			result = analyzer.with_mapping(os.path.join(tests_root, "msg", "MZ56"), invalid)
-			self.assertIsInstance(result, dict)
-			self.assertEqual(len(result), 4)
-			self.assertEqual(result.get("state"), 73) # 1 + 8 + 64
-			self.assertIsInstance(result.get("raw"), list)
-			self.assertIsInstance(result.get("air"), list)
-			self.assertEqual(
-
-				result.get("air"),
-				[
-					[ "ZCZC", "MZ56" ],
-					[ "011713", "UTC", "AUG", "19" ],
-					[ "NAVAREA", "1", "-", "NO", "MESSAGES", "ON", "HAND" ],
-					[ "NNNN" ],
-				]
-			)
-
-			self.assertIsInstance(result.get("analysis"), dict)
-
-			self.assertIn("coords", result["analysis"])
-			self.assertIsInstance(result["analysis"]["coords"], dict)
-			self.assertFalse(len(result["analysis"]["coords"]))
-
-			self.assertIn("alnums", result["analysis"])
-			self.assertFalse(len(result["analysis"]["alnums"]))
-
-			self.assertIn("nums", result["analysis"])
-			self.assertIsInstance(result["analysis"]["nums"], dict)
-			self.assertEqual(result["analysis"]["nums"][1]["011713"],1)
-			self.assertEqual(result["analysis"]["nums"][1]["19"],1)
-			self.assertEqual(result["analysis"]["nums"][2]["1"],1)
-
-			self.assertIn("unknown", result["analysis"])
-			self.assertFalse(len(result["analysis"]["unknown"]))
-
-			self.assertIn("known", result["analysis"])
-			self.assertFalse(len(result["analysis"]["known"]))
-
-			self.assertIn("pending", result["analysis"])
-			self.assertIsInstance(result["analysis"]["pending"], dict)
-			self.assertFalse(len(result["analysis"]["pending"]))
-
-			self.assertIn("punct", result["analysis"])
-			self.assertIsInstance(result["analysis"]["punct"], dict)
-			self.assertFalse(len(result["analysis"]["punct"]))
-
-			self.assertNotIn("header", result["analysis"])
-
-			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
-			self.assertEqual(
-
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				"08/01/2019 1713"
-			)
 
 
 
