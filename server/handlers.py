@@ -1,3 +1,4 @@
+from os							import getenv
 from uuid						import uuid1
 from json						import loads
 from typing						import Dict
@@ -9,6 +10,7 @@ from functools					import partial
 from server.db					import db_fetch
 from server.db					import db_remove
 from server.db					import db_accept
+from analyzer					import NavtexAnalyzer
 from pygwarts.magical.spells	import patronus
 from tornado.web				import RequestHandler
 from tornado.websocket			import WebSocketHandler
@@ -178,32 +180,17 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 			# It is assumed that endpoint will receive either "data" json with "messages"
 			# or uploaded binary "files" (not both).
 			if	(raw := self.request.files):
-
-				try:
-
-					files = { part[0]["filename"]: part[0]["body"] for part in raw.values() }
-					print("\n\n\ndoing raw files")
-					print(files)
-
-				except Exception as E:
-
-					reason = f"Fiels receive from {src} failed due to {patronus(E)}"
-					await self.deny_reason(417, "files receive", reason)
-					self.loggy.warning(reason)
-
+				targets = { part[0]["filename"]: part[0]["body"] for part in raw.values() }
 
 			elif(messages := loads(self.request.body).get("messages")):
+				targets = messages
 
-				try:
+			else: return await self.deny(422, "data transfer", src)
 
-					print("\n\n\ndoing json text")
-					print(messages)
 
-				except Exception as E:
-
-					reason = f"Messages receive from {src} failed due to {patronus(E)}"
-					await self.deny_reason(417, "messages receive", reason)
-					self.loggy.warning(reason)
+			analyzer = NavtexAnalyzer(getenv("STATION_LITERAL"))
+			analysis = { name: analyzer(body) for name,body in targets.items() }
+			print(analysis)
 
 
 	def Future_status(self, addr :str, client_uuid :str, future :Future):
