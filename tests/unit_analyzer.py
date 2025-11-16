@@ -3530,6 +3530,48 @@ class AnalyzerCase(unittest.TestCase):
 				self.assertRaises(TypeError, analyzer.pretty_air, invalid)
 
 
+	def test_pretty_unknown_valid(self):
+
+		analyzer = NavtexAnalyzer("M")
+		target = {
+
+			5:	{ "ISING": 1 },
+			10:	{ "GOAST": 2 }
+		}
+		self.assertEqual(
+
+			analyzer.pretty_unknown(target),
+			"\nunknown word \"ISING\" at line 5"
+			"\nunknown 2 words \"GOAST\" at line 10"
+		)
+
+
+	def test_pretty_unknown_empty(self):
+
+		target = dict()
+		analyzer = NavtexAnalyzer("M")
+		self.assertEqual(analyzer.pretty_unknown(target),"")
+
+
+	def test_pretty_unknown_invalid(self):
+
+		analyzer = NavtexAnalyzer("M")
+		for invalid in (
+
+			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
+			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
+			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
+			{ "OOH", "EEH", "AH" },
+			{ "OOH": "EEH" }
+		):
+			self.assertRegex(
+
+				analyzer.pretty_unknown(invalid),
+				"\nunknown words check failed due to "
+			)
+
+
 
 
 

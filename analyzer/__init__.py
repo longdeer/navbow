@@ -14,6 +14,8 @@ from analyzer.DTG				import MONTH_MAP
 from analyzer.scanner			import sanit_state
 from analyzer.scanner			import word_scan
 from db							import db_match_set
+from pygwarts.magical.spells	import flagrate
+from pygwarts.magical.spells	import patronus
 
 
 
@@ -190,7 +192,7 @@ class NavtexAnalyzer:
 				# message header must start with. Technically Navtex receiver will discard the whole
 				# message if header is invalid. In following operation if only header is valid, SSN will
 				# be extracted and putted in result dictionary with corresponding "state" shift.
-				if	(SSN := self.validate_header(" ".join(header))) is not None:
+				if(SSN := self.validate_header(" ".join(header))) is not None:
 
 					analysis["header"] = SSN
 					state  |= 4
@@ -300,6 +302,35 @@ class NavtexAnalyzer:
 
 
 
+	def pretty_unknown(self, analysis :Dict[int,Dict[str,int]]) -> str :
+
+		"""
+			Analyzer for unknown words mapping in "analysis" dictionary. Will return string like:
+
+				unknown word "ISING" at line 5
+				unknown 2 words "GOAST" at line 10
+
+			in case of not empty and valid "analysis" dictionary. Will return special indicator string
+			in case of Exception. Will return empty string in case of empty "analysis".
+		"""
+
+		pretty_message = str()
+
+		try:
+
+			for line,words in analysis.items():
+				for word,count in words.items():
+
+					pretty_message += "\nunknown %sword%s \"%s\" at line %s"%(
+
+						f"{count} " if 1 <count else "",
+						flagrate(count),
+						word,
+						line
+					)
+
+		except	Exception as E: return f"\nunknown words check failed due to {patronus(E)}"
+		else:	return pretty_message
 	def validate_header(self, header :str) -> Tuple[str,str,str] | None :
 
 		"""
