@@ -13,7 +13,7 @@ from analyzer.DTG				import G_MESSAGE_DTG
 from analyzer.DTG				import MONTH_MAP
 from analyzer.scanner			import sanit_state
 from analyzer.scanner			import word_scan
-from server.db					import db_analysis_check
+from db							import db_match_set
 
 
 
@@ -232,7 +232,7 @@ class NavtexAnalyzer:
 
 
 				pending_words = set(pend.keys())
-				known = db_analysis_check(pending_words)
+				known = db_match_set(pending_words)
 				unknown = pending_words - known
 
 

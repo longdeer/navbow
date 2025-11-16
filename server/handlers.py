@@ -7,10 +7,10 @@ from typing						import Set
 from asyncio					import Future
 from datetime					import datetime
 from functools					import partial
-from server.db					import db_fetch
-from server.db					import db_remove
-from server.db					import db_accept
 from analyzer					import NavtexAnalyzer
+from db							import db_fetch
+from db							import db_remove
+from db							import db_accept
 from pygwarts.magical.spells	import patronus
 from tornado.web				import RequestHandler
 from tornado.websocket			import WebSocketHandler

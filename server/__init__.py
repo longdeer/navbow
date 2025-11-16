@@ -20,7 +20,7 @@ from tornado.web			import Application
 
 history = dict()
 control_sockets = dict()
-hosts = loads(getenv("ACCESS_LIST"))
+hosts = loads(getenv("ACCESS_LIST",r"{}"))
 irma = LibraryContrib(
 
 	handler=getenv("LOGGY_FILE"),

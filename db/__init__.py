@@ -15,7 +15,7 @@ from pygwarts.magical.spells	import patronus
 
 
 
-def db_analysis_check(pendings :Sequence[str], loggy=None) -> Set[str] | str :
+def db_match_set(pendings :Sequence[str], loggy=None) -> Set[str] | str :
 
 	"""
 		Fetches words filtered by "pendings" set. Always returns a set, either with
