@@ -239,6 +239,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_word_scan_015(self):
 
+		# Consecutive punctuations will be considered as words
 		lines = [
 
 			[ "BUOY.", "BUOY..", "BUOY.,", "BUOY.:", "BUOY:.",  ],

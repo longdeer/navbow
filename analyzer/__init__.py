@@ -331,6 +331,42 @@ class NavtexAnalyzer:
 
 		except	Exception as E: return f"\nunknown words check failed due to {patronus(E)}"
 		else:	return pretty_message
+
+
+
+
+	def pretty_punct(self, analysis :Dict[int,Dict[str,int]]) -> str :
+
+		"""
+			Analyzer for unmatched punctuation mapping in "analysis" dictionary. Will return string like:
+
+				unmatched "'" at line 4
+				unmatched 2 ")" at line 7
+
+			in case of not empty and valid "analysis" dictionary. Will return special indicator string
+			in case of Exception. Will return empty string in case of empty "analysis".
+		"""
+
+		pretty_message = str()
+
+		try:
+
+			for line,puncts in analysis.items():
+				for punct,count in puncts.items():
+
+					pretty_message += "\nunmatched %s\"%s\" at line %s"%(
+
+						f"{count} " if 1 <count else "",
+						punct,
+						line
+					)
+
+		except	Exception as E: return f"\nunmatched punctuation check failed due to {patronus(E)}"
+		else:	return pretty_message
+
+
+
+
 	def validate_header(self, header :str) -> Tuple[str,str,str] | None :
 
 		"""

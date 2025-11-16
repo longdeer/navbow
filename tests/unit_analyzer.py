@@ -3530,6 +3530,9 @@ class AnalyzerCase(unittest.TestCase):
 				self.assertRaises(TypeError, analyzer.pretty_air, invalid)
 
 
+
+
+
 	def test_pretty_unknown_valid(self):
 
 		analyzer = NavtexAnalyzer("M")
@@ -3569,6 +3572,50 @@ class AnalyzerCase(unittest.TestCase):
 
 				analyzer.pretty_unknown(invalid),
 				"\nunknown words check failed due to "
+			)
+
+
+
+
+	def test_pretty_punct_valid(self):
+
+		analyzer = NavtexAnalyzer("N")
+		target = {
+
+			4:	{ "'": 1 },
+			7:	{ ")": 2 }
+		}
+		self.assertEqual(
+
+			analyzer.pretty_punct(target),
+			"\nunmatched \"'\" at line 4"
+			"\nunmatched 2 \")\" at line 7"
+		)
+
+
+	def test_pretty_punct_empty(self):
+
+		target = dict()
+		analyzer = NavtexAnalyzer("N")
+		self.assertEqual(analyzer.pretty_punct(target),"")
+
+
+	def test_pretty_punct_invalid(self):
+
+		analyzer = NavtexAnalyzer("N")
+		for invalid in (
+
+			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
+			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
+			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
+			{ "OOH", "EEH", "AH" },
+			{ "OOH": "EEH" }
+		):
+			self.assertRegex(
+
+				analyzer.pretty_punct(invalid),
+				"\nunmatched punctuation check failed due to "
 			)
 
 
