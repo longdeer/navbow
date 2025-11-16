@@ -3464,6 +3464,78 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
+	def test_pretty_air_valid(self):
+
+		analyzer = NavtexAnalyzer("K")
+		self.assertEqual(
+			analyzer.pretty_air(
+				[
+					["ZCZC", "IA76"],
+					["210800", "UTC", "JAN"],
+					["BALTIC", "ICE", "INFORMATION"],
+					["VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO", "TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "ICEINFO"],
+					["ON", "VHF", "OR"],
+					["PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:"],
+					["WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78."],
+					["ARRIVAL", "REPORT", "ON", "VHF", "CH16", "WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."],
+					["DEPARTURE", "REPORT", "ON", "VHF", "CH16", "LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."],
+					["FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "BALTICE.ORG"]
+				]
+			),
+			"1    ZCZC IA76\n"
+			"2    210800 UTC JAN\n"
+			"3    BALTIC ICE INFORMATION\n"
+			"4    VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL ICEINFO\n"
+			"5    ON VHF OR\n"
+			"6    PHONE +46 (0)10 492 76 00 AS FOLLOWS:\n"
+			"7    WHEN PASSING LAT N60 ON VHF CH78.\n"
+			"8    ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.\n"
+			"9    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
+			"10   FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG"
+		)
+
+
+	def test_pretty_air_invalid(self):
+
+		analyzer = NavtexAnalyzer("L")
+		for invalid in (
+
+			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
+			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
+			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
+			{ "OOH", "EEH", "AH" },
+			{ "OOH": "EEH" }
+		):
+			with self.subTest(invalid=invalid):
+				self.assertRaises(AssertionError, analyzer.pretty_air, invalid)
+
+		for invalid in (
+
+			[[ "OOH", "EEH" ],[ "OOH", 42, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", 69., "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", True, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", False, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", None, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", ..., "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", print, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", unittest, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", NavtexAnalyzer, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", [ "AH" ], "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", ( "AH", ), "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", { "AH" }, "AH" ]],
+			[[ "OOH", "EEH" ],[ "OOH", { "A":"H" }, "AH" ]],
+		):
+			with self.subTest(invalid=invalid):
+				self.assertRaises(TypeError, analyzer.pretty_air, invalid)
+
+
+
+
+
+
+
+
 if __name__ == "__main__" : unittest.main(verbosity=2)
 
 

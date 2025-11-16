@@ -265,6 +265,41 @@ class NavtexAnalyzer:
 
 
 
+	def pretty_air(self, air_lines :List[List[str]]) -> str :
+
+		"""
+			Pretty formatting messages from "air" format, which is the ready message packed in
+			list of lists. Aligns message text prepending number for every line and returns final
+			string with no NL wrapping. Does not handle any Exception. Asserts "air_lines" is
+			list of lists. Will join strings in every line, so for incorrect item type the Exception
+			will be raised.
+		"""
+
+		assert(
+
+			isinstance(air_lines,list)
+		),	f"\"pretty_air\" accept only list of lists of strings, not {type(air_lines)}"
+
+		pretty_message = str()
+		counter = 1
+
+		for line in air_lines:
+
+			assert(
+
+				isinstance(line,list)
+			),	f"\"pretty_air\" accept only list of lists of strings, not list of {type(line)}"
+
+			pretty_message += str(counter).ljust(5," ")
+			pretty_message += " ".join(line)
+			pretty_message += "\n"
+			counter += 1
+
+		return pretty_message.rstrip("\n")
+
+
+
+
 	def validate_header(self, header :str) -> Tuple[str,str,str] | None :
 
 		"""
