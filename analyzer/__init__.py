@@ -268,7 +268,7 @@ class NavtexAnalyzer:
 
 
 
-	def pretty_air(self, air_lines :List[List[str]]) -> str :
+	def pretty_air(self, target :Dict[str,Dict[str,Dict[int,Dict[str,int]]]|List[List[str]]|int]) -> str :
 
 		"""
 			Pretty formatting messages from "air" format, which is the ready message packed in
@@ -280,11 +280,55 @@ class NavtexAnalyzer:
 
 		assert(
 
+			isinstance(target,dict)
+		),	f"\"pretty_air\" target must be dictionary, not {type(target)}"
+
+
+		state = target.get("state")
+		assert(
+
+			isinstance(state,int)
+		),	f"\"pretty_air\" target dictionary must content \"state\" integer"
+
+
+		air_lines = target.get("air")
+		assert(
+
 			isinstance(air_lines,list)
-		),	f"\"pretty_air\" accept only list of lists of strings, not {type(air_lines)}"
+		),	f"\"pretty_air\" target dictionary must content \"air\" list of lists of strings"
+
+
+		analysis = target.get("analysis")
+		assert(
+
+			isinstance(analysis,dict)
+		),	f"\"pretty_air\" target dictionary must content \"analysis\" dictionary"
+
+
+		DTG = analysis.get("DTG")
+		assert(
+
+			isinstance(DTG,datetime)
+		),	f"\"pretty_air\" analysis must content \"DTG\" datetime object"
+
+
+		unknown = analysis.get("unknown")
+		assert(
+
+			isinstance(unknown,dict)
+		),	f"\"pretty_air\" analysis must content \"unknown\" dictionary"
+
+
+		punct = analysis.get("punct")
+		assert(
+
+			isinstance(punct,dict)
+		),	f"\"pretty_air\" analysis must content \"punct\" dictionary"
+
 
 		pretty_message = str()
 		counter = 1
+
 
 		for line in air_lines:
 
@@ -297,6 +341,14 @@ class NavtexAnalyzer:
 			pretty_message += " ".join(line)
 			pretty_message += "\n"
 			counter += 1
+
+
+		if not state &4 : pretty_message += "\ninvalid header (ZCZC)"
+		pretty_message += self.pretty_DTG(DTG)
+		pretty_message += self.pretty_unknown(unknown)
+		pretty_message += self.pretty_punct(punct)
+		if not state &8 : pretty_message += "\ninvalid EoS (NNNN)"
+
 
 		return pretty_message.rstrip("\n")
 

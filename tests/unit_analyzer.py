@@ -3464,34 +3464,152 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_pretty_air_valid(self):
+	def test_pretty_air_valid1(self):
 
-		analyzer = NavtexAnalyzer("K")
+		analyzer = NavtexAnalyzer("I")
+		the_day = datetime.datetime.today()
+		m = the_day.strftime("%b").upper()
+		d = the_day.strftime("%d0800")
+		r = str()
+		target = {
+
+			"analysis":	{
+
+				"header":	( "I", "A", "76" ),
+				"DTG":		the_day,
+				"unknown":	{},
+				"punct":	{}
+			},
+			"state":	93,
+			"air":		[
+				[ "ZCZC", "IA76" ],
+				[ d, "UTC", m ],
+				[ "BALTIC", "ICE", "INFORMATION" ],
+				[ "VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO", "TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "ICEINFO" ],
+				[ "ON", "VHF", "OR" ],
+				[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+				[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+				[ "ARRIVAL", "REPORT", "ON", "VHF", "CH16", "WHEN", "THE", "SHIP", "IS", "WELL", "MOORED." ],
+				[ "DEPARTURE", "REPORT", "ON", "VHF", "CH16", "LATEST", "6", "HOURS", "BEFORE", "DEPARTURE." ],
+				[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "BALTICE.ORG" ],
+				[ "NNNN" ]
+			]
+		}
 		self.assertEqual(
-			analyzer.pretty_air(
-				[
-					["ZCZC", "IA76"],
-					["210800", "UTC", "JAN"],
-					["BALTIC", "ICE", "INFORMATION"],
-					["VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO", "TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "ICEINFO"],
-					["ON", "VHF", "OR"],
-					["PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:"],
-					["WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78."],
-					["ARRIVAL", "REPORT", "ON", "VHF", "CH16", "WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."],
-					["DEPARTURE", "REPORT", "ON", "VHF", "CH16", "LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."],
-					["FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "BALTICE.ORG"]
-				]
-			),
-			"1    ZCZC IA76\n"
-			"2    210800 UTC JAN\n"
-			"3    BALTIC ICE INFORMATION\n"
-			"4    VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL ICEINFO\n"
-			"5    ON VHF OR\n"
-			"6    PHONE +46 (0)10 492 76 00 AS FOLLOWS:\n"
-			"7    WHEN PASSING LAT N60 ON VHF CH78.\n"
-			"8    ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.\n"
-			"9    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
-			"10   FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG"
+			analyzer.pretty_air(target),
+			(	"1    ZCZC IA76\n"
+				"2    %s UTC %s\n"
+				"3    BALTIC ICE INFORMATION\n"
+				"4    VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL ICEINFO\n"
+				"5    ON VHF OR\n"
+				"6    PHONE +46 (0)10 492 76 00 AS FOLLOWS:\n"
+				"7    WHEN PASSING LAT N60 ON VHF CH78.\n"
+				"8    ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.\n"
+				"9    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
+				"10   FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG\n"
+				"11   NNNN"
+			)%(d,m)
+		)
+
+
+	def test_pretty_air_valid2(self):
+
+		analyzer = NavtexAnalyzer("J")
+		the_day = datetime.datetime.today() - datetime.timedelta(days=1)
+		m = the_day.strftime("%b").upper()
+		d = the_day.strftime("%d0800")
+		r = str()
+		target = {
+
+			"analysis":	{
+
+				"DTG":		the_day,
+				"unknown":	{ 4: { "VHF": 1 }, 8: { "VHF": 2, "CH16": 1 }},
+				"punct":	{ 5: { ")": 1 }, 9: { "(": 2 }}
+			},
+			"state":	113,
+			"air":		[
+				[ d, "UTC", m ],
+				[ "BALTIC", "ICE", "INFORMATION" ],
+				[ "VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO", "TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "ICEINFO" ],
+				[ "ON", "VHF", "OR" ],
+				[ "PHONE", "+46", "(0)10", "492)", "76", "00", "AS", "FOLLOWS:" ],
+				[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+				[ "ARRIVAL", "REPORT", "ON", "VHF", "CH16", "WHEN", "THE", "SHIP", "IS", "WELL", "MOORED." ],
+				[ "DEPARTURE", "REPORT", "ON", "VHF", "CH16", "LATEST", "6", "HOURS", "BEFORE", "DEPARTURE." ],
+				[ "FOR", "INFORMATION", "ON", "((RESTRICTIONS", "GO", "TO", "BALTICE.ORG" ]
+			]
+		}
+		self.assertEqual(
+			analyzer.pretty_air(target),
+			(	"1    %s UTC %s\n"
+				"2    BALTIC ICE INFORMATION\n"
+				"3    VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL ICEINFO\n"
+				"4    ON VHF OR\n"
+				"5    PHONE +46 (0)10 492) 76 00 AS FOLLOWS:\n"
+				"6    WHEN PASSING LAT N60 ON VHF CH78.\n"
+				"7    ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.\n"
+				"8    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
+				"9    FOR INFORMATION ON ((RESTRICTIONS GO TO BALTICE.ORG\n"
+				"\ninvalid header (ZCZC)"
+				"\nmessage is outdated"
+				"\nunknown word \"VHF\" at line 4"
+				"\nunknown 2 words \"VHF\" at line 8"
+				"\nunknown word \"CH16\" at line 8"
+				"\nunmatched \")\" at line 5"
+				"\nunmatched 2 \"(\" at line 9"
+				"\ninvalid EoS (NNNN)"
+			)%(d,m)
+		)
+
+
+	def test_pretty_air_valid3(self):
+
+		analyzer = NavtexAnalyzer("I")
+		the_day = datetime.datetime.today()
+		m = the_day.strftime("%b").upper()
+		d = the_day.strftime("%d0800")
+		r = str()
+		target = {
+
+			"analysis":	{
+
+				"header":	( "I", "A", "76" ),
+				"DTG":		the_day,
+				"unknown":	{ 1: "word" },
+				"punct":	{ 2: "coma" }
+			},
+			"state":	93,
+			"air":		[
+				[ "ZCZC", "IA76" ],
+				[ d, "UTC", m ],
+				[ "BALTIC", "ICE", "INFORMATION" ],
+				[ "VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO", "TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "ICEINFO" ],
+				[ "ON", "VHF", "OR" ],
+				[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+				[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+				[ "ARRIVAL", "REPORT", "ON", "VHF", "CH16", "WHEN", "THE", "SHIP", "IS", "WELL", "MOORED." ],
+				[ "DEPARTURE", "REPORT", "ON", "VHF", "CH16", "LATEST", "6", "HOURS", "BEFORE", "DEPARTURE." ],
+				[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "BALTICE.ORG" ],
+				[ "NNNN" ]
+			]
+		}
+		self.assertEqual(
+			analyzer.pretty_air(target),
+			(	"1    ZCZC IA76\n"
+				"2    %s UTC %s\n"
+				"3    BALTIC ICE INFORMATION\n"
+				"4    VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL ICEINFO\n"
+				"5    ON VHF OR\n"
+				"6    PHONE +46 (0)10 492 76 00 AS FOLLOWS:\n"
+				"7    WHEN PASSING LAT N60 ON VHF CH78.\n"
+				"8    ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.\n"
+				"9    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
+				"10   FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG\n"
+				"11   NNNN\n"
+				"\nunknown words check failed due to AttributeError: 'str' object has no attribute 'items'"
+				"\nunmatched punctuation check failed due to AttributeError: 'str' object has no attribute 'items'"
+			)%(d,m)
 		)
 
 
@@ -3505,29 +3623,22 @@ class AnalyzerCase(unittest.TestCase):
 			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
 			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
 			{ "OOH", "EEH", "AH" },
-			{ "OOH": "EEH" }
+			{ "OOH": "EEH" },
+			{ "state": 93 },
+			{ "state": 93, "air": []},
+			{ "state": 93, "air": [], "analysis": {}},
+			{ "state": 93, "air": [], "analysis": { "DTG": datetime.datetime.today() }},
+			{
+				"state":	93,
+				"air":		[],
+				"analysis":	{
+					"DTG":		datetime.datetime.today(),
+					"unknown":	{}
+				}
+			}
 		):
 			with self.subTest(invalid=invalid):
 				self.assertRaises(AssertionError, analyzer.pretty_air, invalid)
-
-		for invalid in (
-
-			[[ "OOH", "EEH" ],[ "OOH", 42, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", 69., "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", True, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", False, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", None, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", ..., "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", print, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", unittest, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", NavtexAnalyzer, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", [ "AH" ], "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", ( "AH", ), "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", { "AH" }, "AH" ]],
-			[[ "OOH", "EEH" ],[ "OOH", { "A":"H" }, "AH" ]],
-		):
-			with self.subTest(invalid=invalid):
-				self.assertRaises(TypeError, analyzer.pretty_air, invalid)
 
 
 
