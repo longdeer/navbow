@@ -3532,6 +3532,36 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
+	def test_pretty_DTG_valid(self):
+
+		analyzer = NavtexAnalyzer("D")
+		target1 = datetime.datetime.today()
+		target2 = target1 - datetime.timedelta(days=1)
+		target3 = target1 - datetime.timedelta(days=-1)
+		self.assertEqual(analyzer.pretty_DTG(target1),"")
+		self.assertEqual(analyzer.pretty_DTG(target2),"\nmessage is outdated")
+		self.assertEqual(analyzer.pretty_DTG(target3),"\nmessage is outdated")
+
+
+	def test_pretty_DTG_invalid(self):
+
+		analyzer = NavtexAnalyzer("D")
+		for invalid in (
+
+			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
+			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
+			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
+			{ "OOH", "EEH", "AH" },
+			{ "OOH": "EEH" },
+			{ 5: { "ISING": 1, "GOAST": None }},
+			{ 5: { "ISING": 1, "GOAST": print }},
+		):
+			with self.subTest(invalid=invalid):
+				self.assertRegex(analyzer.pretty_DTG(invalid), "\ndatetime group check failed due to ")
+
+
+
 
 	def test_pretty_unknown_valid(self):
 
@@ -3566,13 +3596,11 @@ class AnalyzerCase(unittest.TestCase):
 			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
 			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
 			{ "OOH", "EEH", "AH" },
-			{ "OOH": "EEH" }
+			{ "OOH": "EEH" },
+			{ 5: { "ISING": 1, "GOAST": None }},
+			{ 5: { "ISING": 1, "GOAST": print }},
 		):
-			self.assertRegex(
-
-				analyzer.pretty_unknown(invalid),
-				"\nunknown words check failed due to "
-			)
+			self.assertRegex(analyzer.pretty_unknown(invalid),"\nunknown words check failed due to ")
 
 
 
@@ -3612,11 +3640,7 @@ class AnalyzerCase(unittest.TestCase):
 			{ "OOH", "EEH", "AH" },
 			{ "OOH": "EEH" }
 		):
-			self.assertRegex(
-
-				analyzer.pretty_punct(invalid),
-				"\nunmatched punctuation check failed due to "
-			)
+			self.assertRegex(analyzer.pretty_punct(invalid),"\nunmatched punctuation check failed due to ")
 
 
 

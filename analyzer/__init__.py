@@ -1,21 +1,22 @@
-from typing						import List
-from typing						import Dict
-from typing						import Tuple
-from datetime					import datetime
-from collections				import defaultdict
-from pathlib					import Path
-from analyzer.header			import B1
-from analyzer.header			import G_NAVTEX_MESSAGE_HEADER
-from analyzer.coordinates		import P_COORDINATE
-from analyzer.numerical			import P_NUMERICAL
-from analyzer.alphanumerical	import P_ALPHANUMERICAL
-from analyzer.DTG				import G_MESSAGE_DTG
-from analyzer.DTG				import MONTH_MAP
-from analyzer.scanner			import sanit_state
-from analyzer.scanner			import word_scan
-from db							import db_match_set
-from pygwarts.magical.spells	import flagrate
-from pygwarts.magical.spells	import patronus
+from typing							import List
+from typing							import Dict
+from typing							import Tuple
+from datetime						import datetime
+from collections					import defaultdict
+from pathlib						import Path
+from analyzer.header				import B1
+from analyzer.header				import G_NAVTEX_MESSAGE_HEADER
+from analyzer.coordinates			import P_COORDINATE
+from analyzer.numerical				import P_NUMERICAL
+from analyzer.alphanumerical		import P_ALPHANUMERICAL
+from analyzer.DTG					import G_MESSAGE_DTG
+from analyzer.DTG					import MONTH_MAP
+from analyzer.scanner				import sanit_state
+from analyzer.scanner				import word_scan
+from db								import db_match_set
+from pygwarts.magical.spells		import flagrate
+from pygwarts.magical.spells		import patronus
+from pygwarts.magical.time_turner	import TimeTurner
 
 
 
@@ -298,6 +299,31 @@ class NavtexAnalyzer:
 			counter += 1
 
 		return pretty_message.rstrip("\n")
+
+
+
+
+	def pretty_DTG(self, analysis :datetime) -> str :
+
+		"""
+			Analyzer for datetime group in "analysis" dictionary. Will return string like:
+
+				message is outdated
+
+			in case of valid "analysis" datetime object which points to YYYY-MM-DD that differ from
+			current moment YYYY-MM-DD, or empty string otherwise. Will return special indicator
+			string in case of Exception.
+		"""
+
+		pretty_message = str()
+
+		try:
+
+			if	analysis.strftime("%Y-%m-%d") != TimeTurner().Ymd_dashed:
+				pretty_message += "\nmessage is outdated"
+
+		except	Exception as E: return f"\ndatetime group check failed due to {patronus(E)}"
+		else:	return pretty_message
 
 
 
