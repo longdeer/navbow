@@ -84,6 +84,31 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 
 
 
+def decoder(B :bytes, ptr1 :List[str], ptr2 :List[bool], flag :bool):
+
+	"""
+		Decoder for a single byte "B" as ASCII symbol. Successfully decoded bit will be added
+		to string which "ptr1" points to. Boolean "flag" will decide wether "\\r" will be treated
+		like "\\n" or not. In case of fail with non-ASCII symbol, "*" will be added and False
+		will be stored for "ptr2" pointer.
+	"""
+
+	try:
+
+		match (symbol := B.decode("ascii")):
+
+			case "\r":	ptr1[0] += "\n" if flag else ""
+			case _:		ptr1[0] += symbol
+
+	except:	ptr1[0],ptr2[0] = ptr1[0] + "*",True
+
+
+
+
+
+
+
+
 def byte_scan(target :str | Path | bytes, carriage :bool =False) -> Tuple[bool,str] :
 
 	"""
@@ -91,55 +116,27 @@ def byte_scan(target :str | Path | bytes, carriage :bool =False) -> Tuple[bool,s
 		recreates whole text. If any not ASCII symbol will be encountered, it will be substituted
 		with "*" and "broken" flag will be set to True. Optional flag "carriage" allows treating
 		carriage return symbol "\\r" as new line. Returns the tuple of "broken" flag and
-		recreated text string. Doesn't handle any possible Exceptions, but ensures "target"
-		is either accessible file or a bytes object.
+		recreated text string. Empty "target" will produce ( False,"" ). Doesn't handle any
+		possible Exceptions, but ensures "target" is either accessible file or a bytes object.
 	"""
 
-	text	= str()
-	broken	= False
+	text	= [ str() ]
+	broken	= [ False ]
 
 	match target:
 		case str() | Path() if ospath.isfile(target) and osaccess(target, R_OK):
 
 			with open(target, "rb") as file:
-				while(B := file.read(1)):
-
-					try:
-
-						match (symbol := B.decode("ascii")):
-
-							case "\r":	text += "\n" if carriage else ""
-							case _:		text += symbol
-
-					except:	text,broken = text + "*",True
-
+				while(B := file.read(1)): decoder(B, text, broken, carriage)
 
 		case str():
-			for B in map(partial(bytes, encoding="utf-8"), target):
-
-				try:
-
-					match (symbol := B.decode("ascii")):
-
-						case "\r":	text += "\n" if carriage else ""
-						case _:		text += symbol
-
-				except:	text,broken = text + "*",True
-
+			for B in map(partial(bytes, encoding="utf-8"), target): decoder(B, text, broken, carriage)
 
 		case bytes():
-			for B in map(lambda i : target[i:i+1],range(len(target))):
+			for B in map(lambda i : target[i:i+1],range(len(target))): decoder(B, text, broken, carriage)
 
-				try:
-
-					match (symbol := B.decode("ascii")):
-
-						case "\r":	text += "\n" if carriage else ""
-						case _:		text += symbol
-
-				except:	text,broken = text + "*",True
-		case _: return True,text
-	return broken,text
+		case _: return True,text[0]
+	return broken[0],text[0]
 
 
 

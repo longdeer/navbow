@@ -179,7 +179,7 @@ class NavtexAnalyzer:
 					"nums":		defaultdict(lambda : defaultdict(int)),
 					"known":	defaultdict(lambda : defaultdict(int)),
 					"unknown":	defaultdict(lambda : defaultdict(int)),
-					"punct":	defaultdict(lambda : defaultdict(int)),
+					"punct":	defaultdict(lambda : defaultdict(int))
 				}
 
 

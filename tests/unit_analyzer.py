@@ -11,6 +11,7 @@ import	unittest
 from	datetime						import datetime
 from	sqlite3							import connect
 from	contextlib						import closing
+from	collections						import defaultdict
 from	pygwarts.magical.time_turner	import TimeTurner
 from	analyzer						import NavtexAnalyzer
 from	header							import B1
@@ -54,8 +55,20 @@ class AnalyzerCase(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
 
+		cls.MZ56 = os.path.join(tests_root, "msg", "MZ56")
+		cls.VA28 = os.path.join(tests_root, "msg", "VA28")
+		cls.IA76 = os.path.join(tests_root, "msg", "IA76")
+		cls.NA22 = os.path.join(tests_root, "msg", "NA22")
+		cls.SE94 = os.path.join(tests_root, "msg", "SE94")
+		cls.QA42 = os.path.join(tests_root, "msg", "QA42")
+		cls.OL66 = os.path.join(tests_root, "msg", "OL66")
+		cls.JA94 = os.path.join(tests_root, "msg", "JA94")
+		cls.empty_file = os.path.join(tests_root, "msg", "empty")
+		cls.spaces_file = os.path.join(tests_root, "msg", "spaces")
+		cls.corrupted_file = os.path.join(tests_root, "msg", "WZ29")
 		cls.db_path = os.path.join(tests_root, "test.sqlite3")
 		cls.connection = connect(cls.db_path)
+		cls.pseudo_message = "OOH EEH\nOOH AH AH\nTING TANG\nWALLA WALLA BING BANG"
 		os.environ["DB_PATH"] = cls.db_path
 		os.environ["WORDS_TABLE"] = "navbow_test"
 
@@ -548,10 +561,166 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
+	def test_analysis_empty_file(self):
+
+		analyzer = NavtexAnalyzer("W")
+		self.assertEqual(
+
+			analyzer(self.empty_file),
+			{
+				"message":	None,
+				"state":	0
+			}
+		)
+
+
+	def test_analysis_empty_string(self):
+
+		analyzer = NavtexAnalyzer("W")
+		with open(self.empty_file) as F:
+
+			self.assertEqual(
+
+				analyzer(F.read()),
+				{
+					"message":	None,
+					"state":	0
+				}
+			)
+
+
+	def test_analysis_empty_bytes(self):
+
+		analyzer = NavtexAnalyzer("W")
+		with open(self.empty_file, "rb") as F:
+
+			self.assertEqual(
+
+				analyzer(F.read()),
+				{
+					"message":	None,
+					"state":	0
+				}
+			)
+
+
+	def test_analysis_spaces_file(self):
+
+		analyzer = NavtexAnalyzer("W")
+		self.assertEqual(
+
+			analyzer(self.spaces_file),
+			{
+				"message":	None,
+				"state":	0
+			}
+		)
+
+
+	def test_analysis_spaces_string(self):
+
+		analyzer = NavtexAnalyzer("W")
+		with open(self.spaces_file) as F:
+
+			self.assertEqual(
+
+				analyzer(F.read()),
+				{
+					"message":	None,
+					"state":	0
+				}
+			)
+
+
+	def test_analysis_spaces_bytes(self):
+
+		analyzer = NavtexAnalyzer("W")
+		with open(self.spaces_file, "rb") as F:
+
+			self.assertEqual(
+
+				analyzer(F.read()),
+				{
+					"message":	None,
+					"state":	0
+				}
+			)
+
+
+	def test_analysis_pseudo(self):
+
+		analyzer = NavtexAnalyzer("V")
+		target = {
+			"analysis": {
+
+				"coords":	defaultdict(lambda : defaultdict(int)),
+				"alnums":	defaultdict(lambda : defaultdict(int)),
+				"nums":		defaultdict(lambda : defaultdict(int)),
+				"known":	defaultdict(lambda : defaultdict(int)),
+				"unknown":	defaultdict(lambda : defaultdict(int)),
+				"punct":	defaultdict(lambda : defaultdict(int))
+
+			},
+			"state": 33,
+			"air": [
+
+				[ "OOH", "EEH" ],
+				[ "OOH", "AH", "AH" ],
+				[ "TING", "TANG" ],
+				[ "WALLA", "WALLA", "BING", "BANG" ]
+			],
+			"raw": [
+
+				"OOH EEH",
+				"OOH AH AH",
+				"TING TANG",
+				"WALLA WALLA BING BANG"
+			],
+		}
+		target["analysis"]["unknown"][1]["OOH"] = 1
+		target["analysis"]["unknown"][1]["AH"] = 2
+		target["analysis"]["unknown"][2]["TING"] = 1
+		target["analysis"]["unknown"][2]["TANG"] = 1
+		result = analyzer(self.pseudo_message)
+		self.assertEqual(result["raw"],target["raw"])
+		self.assertEqual(result["air"],target["air"])
+		self.assertEqual(result["state"],target["state"])
+		self.assertEqual(
+
+			result["analysis"]["coords"],
+			target["analysis"]["coords"]
+		)
+		self.assertEqual(
+
+			result["analysis"]["alnums"],
+			target["analysis"]["alnums"]
+		)
+		self.assertEqual(
+
+			result["analysis"]["nums"],
+			target["analysis"]["nums"]
+		)
+		self.assertEqual(
+
+			result["analysis"]["known"],
+			target["analysis"]["known"]
+		)
+		self.assertEqual(
+
+			result["analysis"]["punct"],
+			target["analysis"]["punct"]
+		)
+		self.assertEqual(
+
+			result["analysis"]["unknown"],
+			target["analysis"]["unknown"]
+		)
+
+
 	def test_analysis_WZ29_file(self):
 
 		analyzer = NavtexAnalyzer("W")
-		result = analyzer(os.path.join(tests_root, "msg", "WZ29"))
+		result = analyzer(self.corrupted_file)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 2)
 		self.assertEqual(result.get("state"), 0)
@@ -567,7 +736,7 @@ class AnalyzerCase(unittest.TestCase):
 			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
 
 		analyzer = NavtexAnalyzer("J")
-		result = analyzer(os.path.join(tests_root, "msg", "JA94"))
+		result = analyzer(self.JA94)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 109) # 1 + 4 + 8 + 32 + 64
@@ -636,7 +805,7 @@ class AnalyzerCase(unittest.TestCase):
 			""")
 
 		analyzer = NavtexAnalyzer("O")
-		result = analyzer(os.path.join(tests_root, "msg", "OL66"))
+		result = analyzer(self.OL66)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 63) # 1 + 2 + 4 + 8 + 16 + 32
@@ -782,7 +951,7 @@ class AnalyzerCase(unittest.TestCase):
 			""")
 
 		analyzer = NavtexAnalyzer("Q")
-		result = analyzer(os.path.join(tests_root, "msg", "QA42"))
+		result = analyzer(self.QA42)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 125) # 1 + 4 + 8 + 16 + 32 + 64
@@ -992,7 +1161,7 @@ class AnalyzerCase(unittest.TestCase):
 			""")
 
 		analyzer = NavtexAnalyzer("S")
-		result = analyzer(os.path.join(tests_root, "msg", "SE94"))
+		result = analyzer(self.SE94)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 61) # 1 + 4 + 8 + 16 + 32
@@ -1116,7 +1285,7 @@ class AnalyzerCase(unittest.TestCase):
 			self.connection.execute("CREATE TABLE navbow_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
 
 		analyzer = NavtexAnalyzer("M")
-		result = analyzer(os.path.join(tests_root, "msg", "NA22"))
+		result = analyzer(self.NA22)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 107) # 1 + 2 + 8 + 32 + 64
@@ -1197,7 +1366,7 @@ class AnalyzerCase(unittest.TestCase):
 			self.connection.execute("INSERT INTO navbow_test VALUES ('ICE')")
 
 		analyzer = NavtexAnalyzer("I")
-		result = analyzer(os.path.join(tests_root, "msg", "IA76"))
+		result = analyzer(self.IA76)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 117) # 1 + 4 + 16 + 32 + 64
@@ -1335,7 +1504,7 @@ class AnalyzerCase(unittest.TestCase):
 			self.connection.execute("INSERT INTO navbow_test VALUES ('ICE')")
 
 		analyzer = NavtexAnalyzer("V")
-		result = analyzer(os.path.join(tests_root, "msg", "VA28"))
+		result = analyzer(self.VA28)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 101) # 1 + 4 + 32 + 64
@@ -1435,7 +1604,7 @@ class AnalyzerCase(unittest.TestCase):
 			self.connection.execute("INSERT INTO navbow_test VALUES ('HAND')")
 
 		analyzer = NavtexAnalyzer("V")
-		result = analyzer(os.path.join(tests_root, "msg", "MZ56"))
+		result = analyzer(self.MZ56)
 		self.assertIsInstance(result, dict)
 		self.assertEqual(len(result), 4)
 		self.assertEqual(result.get("state"), 121) # 1 + 8 + 16 + 32 + 64
@@ -1503,10 +1672,10 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_WZ29_text(self):
+	def test_analysis_WZ29_string(self):
 
 		analyzer = NavtexAnalyzer("W")
-		with open(os.path.join(tests_root, "msg", "WZ29")) as F:
+		with open(self.corrupted_file) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -1516,7 +1685,7 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertIn("*", result.get("message"))
 
 
-	def test_analysis_JA94_text(self):
+	def test_analysis_JA94_string(self):
 
 		with self.connection:
 
@@ -1525,7 +1694,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("J")
 
-		with open(os.path.join(tests_root, "msg", "JA94")) as F:
+		with open(self.JA94) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -1581,7 +1750,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_OL66_text(self):
+	def test_analysis_OL66_string(self):
 
 		with self.connection:
 
@@ -1597,7 +1766,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("O")
 
-		with open(os.path.join(tests_root, "msg", "OL66")) as F:
+		with open(self.OL66) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -1724,7 +1893,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_QA42_text(self):
+	def test_analysis_QA42_string(self):
 
 		with self.connection:
 
@@ -1746,7 +1915,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("Q")
 
-		with open(os.path.join(tests_root, "msg", "QA42")) as F:
+		with open(self.QA42) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -1937,7 +2106,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_SE94_text(self):
+	def test_analysis_SE94_string(self):
 
 		with self.connection:
 
@@ -1959,7 +2128,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("S")
 
-		with open(os.path.join(tests_root, "msg", "SE94")) as F:
+		with open(self.SE94) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2077,7 +2246,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_NA22_text(self):
+	def test_analysis_NA22_string(self):
 
 		with self.connection:
 
@@ -2086,7 +2255,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("M")
 
-		with open(os.path.join(tests_root, "msg", "NA22")) as F:
+		with open(self.NA22) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2160,7 +2329,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_IA76_text(self):
+	def test_analysis_IA76_string(self):
 
 		with self.connection:
 
@@ -2170,7 +2339,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("I")
 
-		with open(os.path.join(tests_root, "msg", "IA76")) as F:
+		with open(self.IA76) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2301,7 +2470,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_VA28_text(self):
+	def test_analysis_VA28_string(self):
 
 		with self.connection:
 
@@ -2311,7 +2480,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("V")
 
-		with open(os.path.join(tests_root, "msg", "VA28")) as F:
+		with open(self.VA28) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2404,7 +2573,7 @@ class AnalyzerCase(unittest.TestCase):
 
 
 
-	def test_analysis_MZ56_text(self):
+	def test_analysis_MZ56_string(self):
 
 		with self.connection:
 
@@ -2414,7 +2583,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("V")
 
-		with open(os.path.join(tests_root, "msg", "MZ56")) as F:
+		with open(self.MZ56) as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2487,7 +2656,7 @@ class AnalyzerCase(unittest.TestCase):
 	def test_analysis_WZ29_bytes(self):
 
 		analyzer = NavtexAnalyzer("W")
-		with open(os.path.join(tests_root, "msg", "WZ29"), "rb") as F:
+		with open(self.corrupted_file, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2506,7 +2675,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("J")
 
-		with open(os.path.join(tests_root, "msg", "JA94"), "rb") as F:
+		with open(self.JA94, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2578,7 +2747,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("O")
 
-		with open(os.path.join(tests_root, "msg", "OL66"), "rb") as F:
+		with open(self.OL66, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2727,7 +2896,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("Q")
 
-		with open(os.path.join(tests_root, "msg", "QA42"), "rb") as F:
+		with open(self.QA42, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -2940,7 +3109,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("S")
 
-		with open(os.path.join(tests_root, "msg", "SE94"), "rb") as F:
+		with open(self.SE94, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -3067,7 +3236,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("M")
 
-		with open(os.path.join(tests_root, "msg", "NA22"), "rb") as F:
+		with open(self.NA22, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -3151,7 +3320,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("I")
 
-		with open(os.path.join(tests_root, "msg", "IA76"), "rb") as F:
+		with open(self.IA76, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -3292,7 +3461,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("V")
 
-		with open(os.path.join(tests_root, "msg", "VA28"), "rb") as F:
+		with open(self.VA28, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)
@@ -3395,7 +3564,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		analyzer = NavtexAnalyzer("V")
 
-		with open(os.path.join(tests_root, "msg", "MZ56"), "rb") as F:
+		with open(self.MZ56, "rb") as F:
 
 			result = analyzer(F.read())
 			self.assertIsInstance(result, dict)

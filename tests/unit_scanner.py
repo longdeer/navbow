@@ -41,6 +41,18 @@ class SannerCase(unittest.TestCase):
 	# RA28
 	# SE94
 
+	@classmethod
+	def setUpClass(cls):
+
+		cls.KA60 = os.path.join(tests_root, "msg", "KA60")
+		cls.JA94 = os.path.join(tests_root, "msg", "JA94")
+		cls.BA33 = os.path.join(tests_root, "msg", "BA33")
+		cls.NA22 = os.path.join(tests_root, "msg", "NA22")
+		cls.IA76 = os.path.join(tests_root, "msg", "IA76")
+		cls.empty_file = os.path.join(tests_root, "msg", "empty")
+		cls.spaces_file = os.path.join(tests_root, "msg", "spaces")
+		cls.corrupted_file = os.path.join(tests_root, "msg", "WZ29")
+
 
 	def test_word_scan_001(self):
 
@@ -303,9 +315,9 @@ class SannerCase(unittest.TestCase):
 
 
 
-	def test_byte_scan_invalid_file(self):
+	def test_byte_scan_corrupted_file(self):
 
-		broken,message = byte_scan(os.path.join(tests_root, "msg", "WZ29"))
+		broken,message = byte_scan(self.corrupted_file)
 		self.assertTrue(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -313,7 +325,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_valid_file(self):
 
-		broken,message = byte_scan(os.path.join(tests_root, "msg", "KA60"))
+		broken,message = byte_scan(self.KA60)
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -321,7 +333,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_empty_file(self):
 
-		broken,message = byte_scan(os.path.join(tests_root, "msg", "empty"))
+		broken,message = byte_scan(self.empty_file)
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertFalse(len(message))
@@ -329,7 +341,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_spaces_file(self):
 
-		broken,message = byte_scan(os.path.join(tests_root, "msg", "spaces"))
+		broken,message = byte_scan(self.spaces_file)
 		self.assertFalse(broken)
 		self.assertIsInstance(message,str)
 		self.assertTrue(len(message))
@@ -338,9 +350,9 @@ class SannerCase(unittest.TestCase):
 
 
 
-	def test_byte_scan_invalid_string(self):
+	def test_byte_scan_corrupted_string(self):
 
-		with open(os.path.join(tests_root, "msg", "WZ29")) as F:
+		with open(self.corrupted_file) as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertTrue(broken)
@@ -350,7 +362,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_valid_string(self):
 
-		with open(os.path.join(tests_root, "msg", "KA60")) as F:
+		with open(self.KA60) as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertFalse(broken)
@@ -360,7 +372,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_empty_string(self):
 
-		with open(os.path.join(tests_root, "msg", "empty")) as F:
+		with open(self.empty_file) as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertFalse(broken)
@@ -370,7 +382,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_spaces_string(self):
 
-		with open(os.path.join(tests_root, "msg", "spaces")) as F:
+		with open(self.spaces_file) as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertFalse(broken)
@@ -381,9 +393,9 @@ class SannerCase(unittest.TestCase):
 
 
 
-	def test_byte_scan_invalid_bytes(self):
+	def test_byte_scan_corrupted_bytes(self):
 
-		with open(os.path.join(tests_root, "msg", "WZ29"), "rb") as F:
+		with open(self.corrupted_file, "rb") as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertTrue(broken)
@@ -393,7 +405,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_valid_bytes(self):
 
-		with open(os.path.join(tests_root, "msg", "KA60"), "rb") as F:
+		with open(self.KA60, "rb") as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertFalse(broken)
@@ -403,7 +415,7 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_empty_bytes(self):
 
-		with open(os.path.join(tests_root, "msg", "empty"), "rb") as F:
+		with open(self.empty_file, "rb") as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertFalse(broken)
@@ -413,15 +425,13 @@ class SannerCase(unittest.TestCase):
 
 	def test_byte_scan_spaces_bytes(self):
 
-		with open(os.path.join(tests_root, "msg", "spaces"), "rb") as F:
+		with open(self.spaces_file, "rb") as F:
 
 			broken,message = byte_scan(F.read())
 			self.assertFalse(broken)
 			self.assertIsInstance(message,str)
 			self.assertTrue(len(message))
 			self.assertFalse("*" in message)
-
-
 
 
 	def test_byte_scan_others(self):
@@ -443,9 +453,9 @@ class SannerCase(unittest.TestCase):
 
 
 
-	def test_sanit_invalid(self):
+	def test_sanit_corrupted_file(self):
 
-		scan = sanit_state(os.path.join(tests_root, "msg", "WZ29"))
+		scan = sanit_state(self.corrupted_file)
 		self.assertIsInstance(scan, dict)
 		self.assertEqual(len(scan),2)
 		self.assertEqual(scan.get("sanit"),0)
@@ -453,11 +463,35 @@ class SannerCase(unittest.TestCase):
 		self.assertTrue(len(scan.get("message")))
 
 
-	def test_sanit_empty(self):
+	def test_sanit_corrupted_string(self):
+
+		with open(self.corrupted_file) as F:
+
+			scan = sanit_state(F.read())
+			self.assertIsInstance(scan, dict)
+			self.assertEqual(len(scan),2)
+			self.assertEqual(scan.get("sanit"),0)
+			self.assertIsInstance(scan.get("message"),str)
+			self.assertTrue(len(scan.get("message")))
+
+
+	def test_sanit_corrupted_bytes(self):
+
+		with open(self.corrupted_file, "rb") as F:
+
+			scan = sanit_state(F.read())
+			self.assertIsInstance(scan, dict)
+			self.assertEqual(len(scan),2)
+			self.assertEqual(scan.get("sanit"),0)
+			self.assertIsInstance(scan.get("message"),str)
+			self.assertTrue(len(scan.get("message")))
+
+
+	def test_sanit_empty_file(self):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(tests_root, "msg", "empty")),
+			sanit_state(self.empty_file),
 			{
 				"raw_lines":	[ "" ],
 				"air_lines":	[],
@@ -468,11 +502,45 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_sanit_spaces(self):
+	def test_sanit_empty_string(self):
+
+		with open(self.empty_file) as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines":	[ "" ],
+					"air_lines":	[],
+					"chunks":		set(),
+					"symbols":		set(),
+					"sanit":		0,
+				}
+			)
+
+
+	def test_sanit_empty_bytes(self):
+
+		with open(self.empty_file, "rb") as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines":	[ "" ],
+					"air_lines":	[],
+					"chunks":		set(),
+					"symbols":		set(),
+					"sanit":		0,
+				}
+			)
+
+
+	def test_sanit_spaces_file(self):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(tests_root, "msg", "spaces")),
+			sanit_state(self.spaces_file),
 			{
 				"raw_lines":	[ "","\t","     "," \t \t","","" ],
 				"air_lines":	[],
@@ -483,11 +551,45 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_sanit_JA94(self):
+	def test_sanit_spaces_string(self):
+
+		with open(self.spaces_file) as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines":	[ "","\t","     "," \t \t","","" ],
+					"air_lines":	[],
+					"chunks":		set(),
+					"symbols":		set(),
+					"sanit":		0,
+				}
+			)
+
+
+	def test_sanit_spaces_bytes(self):
+
+		with open(self.spaces_file, "rb") as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines":	[ "","\t","     "," \t \t","","" ],
+					"air_lines":	[],
+					"chunks":		set(),
+					"symbols":		set(),
+					"sanit":		0,
+				}
+			)
+
+
+	def test_sanit_JA94_file(self):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(tests_root, "msg", "JA94")),
+			sanit_state(self.JA94),
 			{
 				"raw_lines": [
 
@@ -524,11 +626,97 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_sanit_BA33(self):
+	def test_sanit_JA94_text(self):
+
+		with open(self.JA94) as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"ZCZC JA94",
+						"151930 UTC FEB",
+						"CANCEL GERMAN NAV WARN 079/19",
+						"NNNN",
+						""
+					],
+					"air_lines": [
+
+						[ "ZCZC", "JA94" ],
+						[ "151930", "UTC", "FEB" ],
+						[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+						[ "NNNN" ]
+					],
+					"chunks": set((
+
+						"079/19",
+						"JA94",
+						"NAV",
+						"FEB",
+						"CANCEL",
+						"ZCZC",
+						"NNNN",
+						"UTC",
+						"GERMAN",
+						"WARN",
+						"151930",
+					)),
+					"symbols":	set("B/M3TUEF5CL4J1WNV079GARZ"),
+					"sanit":	1,
+				}
+			)
+
+
+	def test_sanit_JA94_bytes(self):
+
+		with open(self.JA94, "rb") as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"ZCZC JA94",
+						"151930 UTC FEB",
+						"CANCEL GERMAN NAV WARN 079/19",
+						"NNNN",
+						""
+					],
+					"air_lines": [
+
+						[ "ZCZC", "JA94" ],
+						[ "151930", "UTC", "FEB" ],
+						[ "CANCEL", "GERMAN", "NAV", "WARN", "079/19" ],
+						[ "NNNN" ]
+					],
+					"chunks": set((
+
+						"079/19",
+						"JA94",
+						"NAV",
+						"FEB",
+						"CANCEL",
+						"ZCZC",
+						"NNNN",
+						"UTC",
+						"GERMAN",
+						"WARN",
+						"151930",
+					)),
+					"symbols":	set("B/M3TUEF5CL4J1WNV079GARZ"),
+					"sanit":	1,
+				}
+			)
+
+
+	def test_sanit_BA33_file(self):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(tests_root, "msg", "BA33")),
+			sanit_state(self.BA33),
 			{
 				"raw_lines": [
 
@@ -583,11 +771,133 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_sanit_NA22(self):
+	def test_sanit_BA33_string(self):
+
+		with open(self.BA33) as F:
+		
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"",
+						"ZCZC BA33",
+						"181136 UTC MAR 19",
+						"NORWEGIAN NAV. WARNING 198/2019",
+						"CHART 73",
+						"AREA LOFOTEN INNERSIDEN",
+						"FESTVAAG LIGHT 68-10.2N 014-12.6E IS UNLIT.",
+						"NNNN",
+						""
+					],
+					"air_lines": [
+
+						[ "ZCZC", "BA33" ],
+						[ "181136", "UTC", "MAR", "19" ],
+						[ "NORWEGIAN", "NAV.", "WARNING", "198/2019" ],
+						[ "CHART", "73" ],
+						[ "AREA", "LOFOTEN", "INNERSIDEN" ],
+						[ "FESTVAAG", "LIGHT", "68-10.2N", "014-12.6E", "IS", "UNLIT." ],
+						[ "NNNN" ]
+					],
+					"chunks": set((
+
+						"181136",
+						"19",
+						"UTC",
+						"WARNING",
+						"NORWEGIAN",
+						"CHART",
+						"NAV.",
+						"LIGHT",
+						"AREA",
+						"014-12.6E",
+						"LOFOTEN",
+						"ZCZC",
+						"IS",
+						"MAR",
+						"68-10.2N",
+						"198/2019",
+						"BA33",
+						"FESTVAAG",
+						"NNNN",
+						"73",
+						"UNLIT.",
+						"INNERSIDEN",
+					)),
+					"symbols":	set("73.ECMBR-8FZNV/L0UG2O69W1DTASH4I"),
+					"sanit":	1,
+				}
+			)
+
+
+	def test_sanit_BA33_bytes(self):
+
+		with open(self.BA33, "rb") as F:
+		
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"",
+						"ZCZC BA33",
+						"181136 UTC MAR 19",
+						"NORWEGIAN NAV. WARNING 198/2019",
+						"CHART 73",
+						"AREA LOFOTEN INNERSIDEN",
+						"FESTVAAG LIGHT 68-10.2N 014-12.6E IS UNLIT.",
+						"NNNN",
+						""
+					],
+					"air_lines": [
+
+						[ "ZCZC", "BA33" ],
+						[ "181136", "UTC", "MAR", "19" ],
+						[ "NORWEGIAN", "NAV.", "WARNING", "198/2019" ],
+						[ "CHART", "73" ],
+						[ "AREA", "LOFOTEN", "INNERSIDEN" ],
+						[ "FESTVAAG", "LIGHT", "68-10.2N", "014-12.6E", "IS", "UNLIT." ],
+						[ "NNNN" ]
+					],
+					"chunks": set((
+
+						"181136",
+						"19",
+						"UTC",
+						"WARNING",
+						"NORWEGIAN",
+						"CHART",
+						"NAV.",
+						"LIGHT",
+						"AREA",
+						"014-12.6E",
+						"LOFOTEN",
+						"ZCZC",
+						"IS",
+						"MAR",
+						"68-10.2N",
+						"198/2019",
+						"BA33",
+						"FESTVAAG",
+						"NNNN",
+						"73",
+						"UNLIT.",
+						"INNERSIDEN",
+					)),
+					"symbols":	set("73.ECMBR-8FZNV/L0UG2O69W1DTASH4I"),
+					"sanit":	1,
+				}
+			)
+
+
+	def test_sanit_NA22_file(self):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(tests_root, "msg", "NA22")),
+			sanit_state(self.NA22),
 			{
 				"raw_lines": [
 
@@ -640,11 +950,129 @@ class SannerCase(unittest.TestCase):
 		)
 
 
-	def test_sanit_IA76(self):
+	def test_sanit_NA22_string(self):
+
+		with open(self.NA22) as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"ZCZC NA22",
+						"110905 UTC MAR 19",
+						"NORWEGIAN NAV. WARNING 184/2019",
+						"CHART  N36",
+						"AREA GRIP",
+						"HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE",
+						"NNNN",
+						""
+					],
+					"air_lines": [
+
+						[ "ZCZC", "NA22" ],
+						[ "110905", "UTC", "MAR", "19" ],
+						[ "NORWEGIAN", "NAV.", "WARNING", "184/2019" ],
+						[ "CHART", "N36" ],
+						[ "AREA", "GRIP" ],
+						[ "HILBAAAN", "RACON", "63-12.0N", "007-43.8E", "IS", "INOPERATIVE" ],
+						[ "NNNN" ]
+					],
+					"chunks": set((
+
+						"ZCZC",
+						"NA22",
+						"UTC",
+						"110905",
+						"MAR",
+						"19",
+						"NORWEGIAN",
+						"NAV.",
+						"WARNING",
+						"184/2019",
+						"CHART",
+						"N36",
+						"AREA",
+						"GRIP",
+						"HILBAAAN",
+						"RACON",
+						"63-12.0N",
+						"007-43.8E",
+						"IS",
+						"INOPERATIVE",
+						"NNNN",
+					)),
+					"symbols":	set("-./0123456789ABCEGHILMNOPRSTUVWZ"),
+					"sanit":	3,
+				}
+			)
+
+
+	def test_sanit_NA22_bytes(self):
+
+		with open(self.NA22, "rb") as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"ZCZC NA22",
+						"110905 UTC MAR 19",
+						"NORWEGIAN NAV. WARNING 184/2019",
+						"CHART  N36",
+						"AREA GRIP",
+						"HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE",
+						"NNNN",
+						""
+					],
+					"air_lines": [
+
+						[ "ZCZC", "NA22" ],
+						[ "110905", "UTC", "MAR", "19" ],
+						[ "NORWEGIAN", "NAV.", "WARNING", "184/2019" ],
+						[ "CHART", "N36" ],
+						[ "AREA", "GRIP" ],
+						[ "HILBAAAN", "RACON", "63-12.0N", "007-43.8E", "IS", "INOPERATIVE" ],
+						[ "NNNN" ]
+					],
+					"chunks": set((
+
+						"ZCZC",
+						"NA22",
+						"UTC",
+						"110905",
+						"MAR",
+						"19",
+						"NORWEGIAN",
+						"NAV.",
+						"WARNING",
+						"184/2019",
+						"CHART",
+						"N36",
+						"AREA",
+						"GRIP",
+						"HILBAAAN",
+						"RACON",
+						"63-12.0N",
+						"007-43.8E",
+						"IS",
+						"INOPERATIVE",
+						"NNNN",
+					)),
+					"symbols":	set("-./0123456789ABCEGHILMNOPRSTUVWZ"),
+					"sanit":	3,
+				}
+			)
+
+
+	def test_sanit_IA76_file(self):
 
 		self.assertEqual(
 
-			sanit_state(os.path.join(tests_root, "msg", "IA76")),
+			sanit_state(self.IA76),
 			{
 				"raw_lines": [
 
@@ -739,6 +1167,212 @@ class SannerCase(unittest.TestCase):
 				"sanit":	1,
 			}
 		)
+
+
+	def test_sanit_IA76_string(self):
+
+		with open(self.IA76) as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"ZCZC IA76",
+						"210800 UTC JAN",
+						"BALTIC ICE INFORMATION",
+						"VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL 'ICEINFO'",
+						"ON VHF OR",
+						"PHONE +46 (0)10 492 76 00 AS FOLLOWS:",
+						"WHEN PASSING LAT N60 ON VHF CH78.",
+						"ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.",
+						"DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.",
+						"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
+					],
+					"air_lines": [
+
+						[ "ZCZC", "IA76" ],
+						[ "210800", "UTC", "JAN" ],
+						[ "BALTIC", "ICE", "INFORMATION" ],
+						[
+							"VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO",
+							"TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "'ICEINFO'"
+						],
+						[ "ON", "VHF", "OR" ],
+						[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+						[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+						[
+							"ARRIVAL", "REPORT", "ON", "VHF", "CH16",
+							"WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."
+						],
+						[
+							"DEPARTURE", "REPORT", "ON", "VHF", "CH16",
+							"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
+						],
+						[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
+					],
+					"chunks": set((
+
+						"+46",
+						"UTC",
+						"PORTS",
+						"ZCZC",
+						"INFORMATION",
+						"PHONE",
+						"76",
+						"DEPARTURE",
+						"'ICEINFO'",
+						"210800",
+						"ON",
+						"'BALTICE.ORG'",
+						"00",
+						"BALTIC",
+						"AS",
+						"TRAFFIC",
+						"WHEN",
+						"WELL",
+						"OR",
+						"THE",
+						"6",
+						"N60",
+						"RESTRICTIONS",
+						"CALL",
+						"SHALL",
+						"SHIP",
+						"VHF",
+						"IS",
+						"ARRIVAL",
+						"REPORT",
+						"VESSELS",
+						"(0)10",
+						"MOORED.",
+						"BEFORE",
+						"BOUND",
+						"LAT",
+						"ICE",
+						"IA76",
+						"PASSING",
+						"LATEST",
+						"JAN",
+						"CH78.",
+						"CH16",
+						"GO",
+						"TO",
+						"FOR",
+						"DEPARTURE.",
+						"FOLLOWS:",
+						"HOURS",
+						"492",
+						"SUBJECT",
+					)),
+					"symbols":	set("(9PRZDG+:6A0WM.SU48C2H1FJE)T7BIOLN'V"),
+					"sanit":	1,
+				}
+			)
+
+
+	def test_sanit_IA76_bytes(self):
+
+		with open(self.IA76, "rb") as F:
+
+			self.assertEqual(
+
+				sanit_state(F.read()),
+				{
+					"raw_lines": [
+
+						"ZCZC IA76",
+						"210800 UTC JAN",
+						"BALTIC ICE INFORMATION",
+						"VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL 'ICEINFO'",
+						"ON VHF OR",
+						"PHONE +46 (0)10 492 76 00 AS FOLLOWS:",
+						"WHEN PASSING LAT N60 ON VHF CH78.",
+						"ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.",
+						"DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.",
+						"FOR INFORMATION ON RESTRICTIONS GO TO 'BALTICE.ORG'",
+					],
+					"air_lines": [
+
+						[ "ZCZC", "IA76" ],
+						[ "210800", "UTC", "JAN" ],
+						[ "BALTIC", "ICE", "INFORMATION" ],
+						[
+							"VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO",
+							"TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "'ICEINFO'"
+						],
+						[ "ON", "VHF", "OR" ],
+						[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+						[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+						[
+							"ARRIVAL", "REPORT", "ON", "VHF", "CH16",
+							"WHEN", "THE", "SHIP", "IS", "WELL", "MOORED."
+						],
+						[
+							"DEPARTURE", "REPORT", "ON", "VHF", "CH16",
+							"LATEST", "6", "HOURS", "BEFORE", "DEPARTURE."
+						],
+						[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "'BALTICE.ORG'" ],
+					],
+					"chunks": set((
+
+						"+46",
+						"UTC",
+						"PORTS",
+						"ZCZC",
+						"INFORMATION",
+						"PHONE",
+						"76",
+						"DEPARTURE",
+						"'ICEINFO'",
+						"210800",
+						"ON",
+						"'BALTICE.ORG'",
+						"00",
+						"BALTIC",
+						"AS",
+						"TRAFFIC",
+						"WHEN",
+						"WELL",
+						"OR",
+						"THE",
+						"6",
+						"N60",
+						"RESTRICTIONS",
+						"CALL",
+						"SHALL",
+						"SHIP",
+						"VHF",
+						"IS",
+						"ARRIVAL",
+						"REPORT",
+						"VESSELS",
+						"(0)10",
+						"MOORED.",
+						"BEFORE",
+						"BOUND",
+						"LAT",
+						"ICE",
+						"IA76",
+						"PASSING",
+						"LATEST",
+						"JAN",
+						"CH78.",
+						"CH16",
+						"GO",
+						"TO",
+						"FOR",
+						"DEPARTURE.",
+						"FOLLOWS:",
+						"HOURS",
+						"492",
+						"SUBJECT",
+					)),
+					"symbols":	set("(9PRZDG+:6A0WM.SU48C2H1FJE)T7BIOLN'V"),
+					"sanit":	1,
+				}
+			)
 
 
 
