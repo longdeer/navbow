@@ -268,7 +268,8 @@ class NavtexAnalyzer:
 
 
 
-	def pretty_air(self, target :Dict[str,Dict[str,Dict[int,Dict[str,int]]]|List[List[str]]|int]) -> str :
+	@staticmethod
+	def pretty_air(target :Dict[str,Dict[str,Dict[int,Dict[str,int]]]|List[List[str]]|int]) -> str :
 
 		"""
 			Pretty formatting messages from "air" format, which is the ready message packed in
@@ -305,13 +306,6 @@ class NavtexAnalyzer:
 		),	f"\"pretty_air\" target dictionary must content \"analysis\" dictionary"
 
 
-		DTG = analysis.get("DTG")
-		assert(
-
-			isinstance(DTG,datetime)
-		),	f"\"pretty_air\" analysis must content \"DTG\" datetime object"
-
-
 		unknown = analysis.get("unknown")
 		assert(
 
@@ -344,9 +338,9 @@ class NavtexAnalyzer:
 
 
 		if not state &4 : pretty_message += "\ninvalid header (ZCZC)"
-		pretty_message += self.pretty_DTG(DTG)
-		pretty_message += self.pretty_unknown(unknown)
-		pretty_message += self.pretty_punct(punct)
+		pretty_message += NavtexAnalyzer.pretty_DTG(analysis.get("DTG"))
+		pretty_message += NavtexAnalyzer.pretty_unknown(unknown)
+		pretty_message += NavtexAnalyzer.pretty_punct(punct)
 		if not state &8 : pretty_message += "\ninvalid EoS (NNNN)"
 
 
@@ -355,7 +349,8 @@ class NavtexAnalyzer:
 
 
 
-	def pretty_DTG(self, analysis :datetime) -> str :
+	@staticmethod
+	def pretty_DTG(analysis :datetime) -> str :
 
 		"""
 			Analyzer for datetime group in "analysis" dictionary. Will return string like:
@@ -371,7 +366,7 @@ class NavtexAnalyzer:
 
 		try:
 
-			if	analysis.strftime("%Y-%m-%d") != TimeTurner().Ymd_dashed:
+			if	analysis is not None and analysis.strftime("%Y-%m-%d") != TimeTurner().Ymd_dashed:
 				pretty_message += "\nmessage is outdated"
 
 		except	Exception as E: return f"\ndatetime group check failed due to {patronus(E)}"
@@ -380,7 +375,8 @@ class NavtexAnalyzer:
 
 
 
-	def pretty_unknown(self, analysis :Dict[int,Dict[str,int]]) -> str :
+	@staticmethod
+	def pretty_unknown(analysis :Dict[int,Dict[str,int]]) -> str :
 
 		"""
 			Analyzer for unknown words mapping in "analysis" dictionary. Will return string like:
@@ -413,7 +409,8 @@ class NavtexAnalyzer:
 
 
 
-	def pretty_punct(self, analysis :Dict[int,Dict[str,int]]) -> str :
+	@staticmethod
+	def pretty_punct(analysis :Dict[int,Dict[str,int]]) -> str :
 
 		"""
 			Analyzer for unmatched punctuation mapping in "analysis" dictionary. Will return string like:

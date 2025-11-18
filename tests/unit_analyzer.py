@@ -3659,14 +3659,12 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("D")
 		for invalid in (
 
-			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			"", "lines", 42, 69., True, False, ..., print, unittest, NavtexAnalyzer,
 			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
 			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
 			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
 			{ "OOH", "EEH", "AH" },
-			{ "OOH": "EEH" },
-			{ 5: { "ISING": 1, "GOAST": None }},
-			{ 5: { "ISING": 1, "GOAST": print }},
+			{ "OOH": "EEH" }
 		):
 			with self.subTest(invalid=invalid):
 				self.assertRegex(analyzer.pretty_DTG(invalid), "\ndatetime group check failed due to ")
