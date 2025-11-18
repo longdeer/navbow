@@ -366,7 +366,9 @@ class NavtexAnalyzer:
 
 		try:
 
-			if	analysis is not None and analysis.strftime("%Y-%m-%d") != TimeTurner().Ymd_dashed:
+			if(analysis is None): pretty_message += "\npublish date and time not found"
+			elif(analysis.strftime("%Y-%m-%d") != TimeTurner().Ymd_dashed):
+
 				pretty_message += "\nmessage is outdated"
 
 		except	Exception as E: return f"\ndatetime group check failed due to {patronus(E)}"

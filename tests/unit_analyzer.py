@@ -3613,6 +3613,50 @@ class AnalyzerCase(unittest.TestCase):
 		)
 
 
+	def test_pretty_air_valid4(self):
+
+		analyzer = NavtexAnalyzer("I")
+		target = {
+
+			"analysis":	{
+
+				"header":	( "I", "A", "76" ),
+				"unknown":	{ 1: "word" },
+				"punct":	{ 2: "coma" }
+			},
+			"state":	93,
+			"air":		[
+				[ "ZCZC", "IA76" ],
+				[ "BALTIC", "ICE", "INFORMATION" ],
+				[ "VESSELS", "BOUND", "FOR", "PORTS", "SUBJECT", "TO", "TRAFFIC", "RESTRICTIONS", "SHALL", "CALL", "ICEINFO" ],
+				[ "ON", "VHF", "OR" ],
+				[ "PHONE", "+46", "(0)10", "492", "76", "00", "AS", "FOLLOWS:" ],
+				[ "WHEN", "PASSING", "LAT", "N60", "ON", "VHF", "CH78." ],
+				[ "ARRIVAL", "REPORT", "ON", "VHF", "CH16", "WHEN", "THE", "SHIP", "IS", "WELL", "MOORED." ],
+				[ "DEPARTURE", "REPORT", "ON", "VHF", "CH16", "LATEST", "6", "HOURS", "BEFORE", "DEPARTURE." ],
+				[ "FOR", "INFORMATION", "ON", "RESTRICTIONS", "GO", "TO", "BALTICE.ORG" ],
+				[ "NNNN" ]
+			]
+		}
+		self.assertEqual(
+			analyzer.pretty_air(target),
+			(	"1    ZCZC IA76\n"
+				"2    BALTIC ICE INFORMATION\n"
+				"3    VESSELS BOUND FOR PORTS SUBJECT TO TRAFFIC RESTRICTIONS SHALL CALL ICEINFO\n"
+				"4    ON VHF OR\n"
+				"5    PHONE +46 (0)10 492 76 00 AS FOLLOWS:\n"
+				"6    WHEN PASSING LAT N60 ON VHF CH78.\n"
+				"7    ARRIVAL REPORT ON VHF CH16 WHEN THE SHIP IS WELL MOORED.\n"
+				"8    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
+				"9    FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG\n"
+				"10   NNNN\n"
+				"\npublish date and time not found"
+				"\nunknown words check failed due to AttributeError: 'str' object has no attribute 'items'"
+				"\nunmatched punctuation check failed due to AttributeError: 'str' object has no attribute 'items'"
+			)
+		)
+
+
 	def test_pretty_air_invalid(self):
 
 		analyzer = NavtexAnalyzer("L")
@@ -3652,6 +3696,7 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(analyzer.pretty_DTG(target1),"")
 		self.assertEqual(analyzer.pretty_DTG(target2),"\nmessage is outdated")
 		self.assertEqual(analyzer.pretty_DTG(target3),"\nmessage is outdated")
+		self.assertEqual(analyzer.pretty_DTG(None),"\npublish date and time not found")
 
 
 	def test_pretty_DTG_invalid(self):
