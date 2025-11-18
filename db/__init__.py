@@ -25,7 +25,7 @@ def db_match_set(pendings :Sequence[str], loggy=None) -> Set[str] | str :
 	try:
 
 		db = getenv("DB_PATH")
-		table = getenv("TABLE_NAME")
+		table = getenv("WORDS_TABLE")
 		connection = connect(db)
 		if loggy : loggy.debug(f"Established connection to db: \"{db}\"")
 
@@ -65,7 +65,7 @@ def db_fetch(loggy) -> List[str] | str :
 	try:
 
 		db = getenv("DB_PATH")
-		table = getenv("TABLE_NAME")
+		table = getenv("WORDS_TABLE")
 		connection = connect(db)
 		loggy.debug(f"Established connection to db: \"{db}\"")
 
@@ -120,7 +120,7 @@ def db_remove(word :str, loggy) -> None | str :
 
 		db = getenv("DB_PATH")
 		connection = connect(db)
-		table = getenv("TABLE_NAME")
+		table = getenv("WORDS_TABLE")
 		loggy.debug(f"Established connection to db: \"{db}\"")
 
 
@@ -203,7 +203,7 @@ def db_accept(word :str, loggy) -> None | str :
 
 		db = getenv("DB_PATH")
 		connection = connect(db)
-		table = getenv("TABLE_NAME")
+		table = getenv("WORDS_TABLE")
 		loggy.debug(f"Established connection to db: \"{db}\"")
 
 

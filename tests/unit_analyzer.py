@@ -4,16 +4,17 @@ import sys
 tests_root = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(tests_root)
 analyzer_root = os.path.join(project_root,"analyzer")
-if project_root not in sys.path : sys.path.insert(0,project_root)
-if analyzer_root not in sys.path : sys.path.insert(0,analyzer_root)
+if(project_root not in sys.path): sys.path.insert(0,project_root)
+if(analyzer_root not in sys.path): sys.path.insert(0,analyzer_root)
 
 import	unittest
-import	datetime
-from	sqlite3		import connect
-from	contextlib	import closing
-from	analyzer	import NavtexAnalyzer
-from	header		import B1
-from	header		import B2
+from	datetime						import datetime
+from	sqlite3							import connect
+from	contextlib						import closing
+from	pygwarts.magical.time_turner	import TimeTurner
+from	analyzer						import NavtexAnalyzer
+from	header							import B1
+from	header							import B2
 
 
 
@@ -56,7 +57,7 @@ class AnalyzerCase(unittest.TestCase):
 		cls.db_path = os.path.join(tests_root, "test.sqlite3")
 		cls.connection = connect(cls.db_path)
 		os.environ["DB_PATH"] = cls.db_path
-		os.environ["TABLE_NAME"] = "navbow_test"
+		os.environ["WORDS_TABLE"] = "navbow_test"
 
 
 	def test_valid_station_init(self):
@@ -610,11 +611,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertIn("header", result["analysis"])
 		self.assertEqual(result["analysis"]["header"],( "J","A","94" ))
 		self.assertIn("DTG", result["analysis"])
-		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+		self.assertIsInstance(result["analysis"]["DTG"], float)
 		self.assertEqual(
 
-			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-			f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
+			TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+			f"02/15/{TimeTurner().format('%Y')} 1930"
 		)
 
 
@@ -960,10 +961,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "Q","A","42" ))
 
 		self.assertIn("DTG", result["analysis"])
-		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+		self.assertIsInstance(result["analysis"]["DTG"], float)
 		self.assertEqual(
 
-			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+			TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 			"06/09/2019 2240"
 		)
 
@@ -1177,10 +1178,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertNotIn("header", result["analysis"])
 
 		self.assertIn("DTG", result["analysis"])
-		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+		self.assertIsInstance(result["analysis"]["DTG"], float)
 		self.assertEqual(
 
-			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+			TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 			"03/11/2019 0905"
 		)
 
@@ -1315,11 +1316,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "I","A","76" ))
 
 		self.assertIn("DTG", result["analysis"])
-		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+		self.assertIsInstance(result["analysis"]["DTG"], float)
 		self.assertEqual(
 
-			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-			f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
+			TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+			f"01/21/{TimeTurner().format('%Y')} 0800"
 		)
 
 
@@ -1415,11 +1416,11 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertEqual(result["analysis"]["header"],( "V","A","28" ))
 
 		self.assertIn("DTG", result["analysis"])
-		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+		self.assertIsInstance(result["analysis"]["DTG"], float)
 		self.assertEqual(
 
-			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-			f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
+			TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+			f"08/05/{TimeTurner().format('%Y')} 0550"
 		)
 
 
@@ -1488,10 +1489,10 @@ class AnalyzerCase(unittest.TestCase):
 		self.assertNotIn("header", result["analysis"])
 
 		self.assertIn("DTG", result["analysis"])
-		self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+		self.assertIsInstance(result["analysis"]["DTG"], float)
 		self.assertEqual(
 
-			result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+			TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 			"08/01/2019 1713"
 		)
 
@@ -1570,11 +1571,11 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertIn("header", result["analysis"])
 			self.assertEqual(result["analysis"]["header"],( "J","A","94" ))
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+				f"02/15/{TimeTurner().format('%Y')} 1930"
 			)
 
 
@@ -1926,10 +1927,10 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertEqual(result["analysis"]["header"],( "Q","A","42" ))
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 				"06/09/2019 2240"
 			)
 
@@ -2149,10 +2150,10 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertNotIn("header", result["analysis"])
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 				"03/11/2019 0905"
 			)
 
@@ -2290,11 +2291,11 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertEqual(result["analysis"]["header"],( "I","A","76" ))
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+				f"01/21/{TimeTurner().format('%Y')} 0800"
 			)
 
 
@@ -2393,11 +2394,11 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertEqual(result["analysis"]["header"],( "V","A","28" ))
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+				f"08/05/{TimeTurner().format('%Y')} 0550"
 			)
 
 
@@ -2469,10 +2470,10 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertNotIn("header", result["analysis"])
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 				"08/01/2019 1713"
 			)
 
@@ -2551,11 +2552,11 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertIn("header", result["analysis"])
 			self.assertEqual(result["analysis"]["header"],( "J","A","94" ))
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				f"02/15/{datetime.datetime.today().strftime('%Y')} 1930"
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+				f"02/15/{TimeTurner().format('%Y')} 1930"
 			)
 
 
@@ -2907,10 +2908,10 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertEqual(result["analysis"]["header"],( "Q","A","42" ))
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 				"06/09/2019 2240"
 			)
 
@@ -3130,10 +3131,10 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertNotIn("header", result["analysis"])
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 				"03/11/2019 0905"
 			)
 
@@ -3271,11 +3272,11 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertEqual(result["analysis"]["header"],( "I","A","76" ))
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				f"01/21/{datetime.datetime.today().strftime('%Y')} 0800"
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+				f"01/21/{TimeTurner().format('%Y')} 0800"
 			)
 
 
@@ -3374,11 +3375,11 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertEqual(result["analysis"]["header"],( "V","A","28" ))
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
-				f"08/05/{datetime.datetime.today().strftime('%Y')} 0550"
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
+				f"08/05/{TimeTurner().format('%Y')} 0550"
 			)
 
 
@@ -3450,10 +3451,10 @@ class AnalyzerCase(unittest.TestCase):
 			self.assertNotIn("header", result["analysis"])
 
 			self.assertIn("DTG", result["analysis"])
-			self.assertIsInstance(result["analysis"]["DTG"], datetime.datetime)
+			self.assertIsInstance(result["analysis"]["DTG"], float)
 			self.assertEqual(
 
-				result["analysis"]["DTG"].strftime("%m/%d/%Y %H%M"),
+				TimeTurner(result["analysis"]["DTG"]).format("%m/%d/%Y %H%M"),
 				"08/01/2019 1713"
 			)
 
@@ -3467,16 +3468,16 @@ class AnalyzerCase(unittest.TestCase):
 	def test_pretty_air_valid1(self):
 
 		analyzer = NavtexAnalyzer("I")
-		the_day = datetime.datetime.today()
-		m = the_day.strftime("%b").upper()
-		d = the_day.strftime("%d0800")
+		the_day = TimeTurner()
+		m = the_day.b.upper()
+		d = f"{the_day.d}0800"
 		r = str()
 		target = {
 
 			"analysis":	{
 
 				"header":	( "I", "A", "76" ),
-				"DTG":		the_day,
+				"DTG":		the_day.epoch,
 				"unknown":	{},
 				"punct":	{}
 			},
@@ -3515,15 +3516,15 @@ class AnalyzerCase(unittest.TestCase):
 	def test_pretty_air_valid2(self):
 
 		analyzer = NavtexAnalyzer("J")
-		the_day = datetime.datetime.today() - datetime.timedelta(days=1)
-		m = the_day.strftime("%b").upper()
-		d = the_day.strftime("%d0800")
+		the_day = TimeTurner(days=1)
+		m = the_day.b.upper()
+		d = f"{the_day.d}0800"
 		r = str()
 		target = {
 
 			"analysis":	{
 
-				"DTG":		the_day,
+				"DTG":		the_day.epoch,
 				"unknown":	{ 4: { "VHF": 1 }, 8: { "VHF": 2, "CH16": 1 }},
 				"punct":	{ 5: { ")": 1 }, 9: { "(": 2 }}
 			},
@@ -3566,16 +3567,16 @@ class AnalyzerCase(unittest.TestCase):
 	def test_pretty_air_valid3(self):
 
 		analyzer = NavtexAnalyzer("I")
-		the_day = datetime.datetime.today()
-		m = the_day.strftime("%b").upper()
-		d = the_day.strftime("%d0800")
+		the_day = TimeTurner()
+		m = the_day.b.upper()
+		d = f"{the_day.d}0800"
 		r = str()
 		target = {
 
 			"analysis":	{
 
 				"header":	( "I", "A", "76" ),
-				"DTG":		the_day,
+				"DTG":		the_day.epoch,
 				"unknown":	{ 1: "word" },
 				"punct":	{ 2: "coma" }
 			},
@@ -3671,12 +3672,12 @@ class AnalyzerCase(unittest.TestCase):
 			{ "state": 93 },
 			{ "state": 93, "air": []},
 			{ "state": 93, "air": [], "analysis": {}},
-			{ "state": 93, "air": [], "analysis": { "DTG": datetime.datetime.today() }},
+			{ "state": 93, "air": [], "analysis": { "DTG": TimeTurner().epoch }},
 			{
 				"state":	93,
 				"air":		[],
 				"analysis":	{
-					"DTG":		datetime.datetime.today(),
+					"DTG":		TimeTurner().epoch,
 					"unknown":	{}
 				}
 			}
@@ -3690,12 +3691,12 @@ class AnalyzerCase(unittest.TestCase):
 	def test_pretty_DTG_valid(self):
 
 		analyzer = NavtexAnalyzer("D")
-		target1 = datetime.datetime.today()
-		target2 = target1 - datetime.timedelta(days=1)
-		target3 = target1 - datetime.timedelta(days=-1)
+		target1 = datetime.today()
+		target2 = TimeTurner(days=1)
+		target3 = TimeTurner(days=-1)
 		self.assertEqual(analyzer.pretty_DTG(target1),"")
 		self.assertEqual(analyzer.pretty_DTG(target2),"\nmessage is outdated")
-		self.assertEqual(analyzer.pretty_DTG(target3),"\nmessage is outdated")
+		self.assertEqual(analyzer.pretty_DTG(target3.epoch),"\nmessage is outdated")
 		self.assertEqual(analyzer.pretty_DTG(None),"\npublish date and time not found")
 
 
@@ -3704,7 +3705,7 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("D")
 		for invalid in (
 
-			"", "lines", 42, 69., True, False, ..., print, unittest, NavtexAnalyzer,
+			"", "lines", ..., print, unittest, NavtexAnalyzer,
 			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
 			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
 			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],

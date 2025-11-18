@@ -207,20 +207,15 @@ class NavtexAnalyzer:
 
 
 					# Despite the fact DTG is optional for Navtex messages, it has common pattern, so once
-					# such line is find it will be converted to "datetime" object and putted in result
+					# such line is found it will be converted to TimeTurner object and putted in result
 					# dictionary. It is important, that if message somehow has a few DTG lines, result
 					# dictionary will have only the last one. Also invalid DTG will be skipped.
 					if	(match := G_MESSAGE_DTG.fullmatch(" ".join(line))):
 						
-						d,m,H,M,Y = match.group("day", "month", "hour", "minute", "year")
+						d,H,M,m,Y = match.group("day", "hour", "minute", "month", "year")
+						Y = f"20{Y}" if Y else TimeTurner().Y
 
-						Y = int(f"20{Y}") if Y else int(datetime.today().strftime("%Y"))
-						m = MONTH_MAP[m]
-						d = int(d)
-						H = int(H)
-						M = int(M)
-
-						try:	analysis["DTG"] = datetime(Y,m,d,H,M)
+						try:	analysis["DTG"] = TimeTurner([ Y,m,d ],[ H,M ]).epoch
 						except:	pass
 						else:	state |= 64
 
@@ -350,10 +345,10 @@ class NavtexAnalyzer:
 
 
 	@staticmethod
-	def pretty_DTG(analysis :datetime) -> str :
+	def pretty_DTG(analysis :float | TimeTurner | datetime) -> str :
 
 		"""
-			Analyzer for datetime group in "analysis" dictionary. Will return string like:
+			Analyzer for date and time group in "analysis" dictionary. Will return string like:
 
 				message is outdated
 
@@ -367,7 +362,7 @@ class NavtexAnalyzer:
 		try:
 
 			if(analysis is None): pretty_message += "\npublish date and time not found"
-			elif(analysis.strftime("%Y-%m-%d") != TimeTurner().Ymd_dashed):
+			elif(TimeTurner(analysis).Ymd_dashed != TimeTurner().Ymd_dashed):
 
 				pretty_message += "\nmessage is outdated"
 

@@ -4,8 +4,8 @@ import sys
 tests_root = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(tests_root)
 analyzer_root = os.path.join(project_root,"analyzer")
-if project_root not in sys.path : sys.path.insert(0,project_root)
-if analyzer_root not in sys.path : sys.path.insert(0,analyzer_root)
+if(project_root not in sys.path): sys.path.insert(0,project_root)
+if(analyzer_root not in sys.path): sys.path.insert(0,analyzer_root)
 
 import	unittest
 from	scanner import word_scan
