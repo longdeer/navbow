@@ -10,7 +10,7 @@ function initController() {
 
 	clockWork(document.getElementById("clock"));
 
-	const controllerState = new Set();
+	const controllerState = {};
 	const viewer = document.getElementById("viewer");
 	const controller = document.getElementById("controller");
 	const ws = new WebSocket(`ws://${location.host}/controller-ws-cast`);
@@ -23,21 +23,30 @@ function initController() {
 
 			// slicing out -+ buttons from current "word"
 			const word = div.innerText.slice(0,-2);
-			controllerState.add(word);
+			controllerState[word] = div;
 
 			div
 				.getElementsByClassName("remove-button")[0]
-				.addEventListener("click",event => removeWord(event, controllerState, word));
+				.addEventListener("click",event => forgetWord(event, word, ws));
 			div
 				.getElementsByClassName("accept-button")[0]
-				.addEventListener("click",event => acceptWord(event, controllerState, word))
+				.addEventListener("click",event => acceptWord(event, word, ws))
 		}
 	);
 
 
 	ws.addEventListener("message",event => {
 
-		const { view,control } = JSON.parse(event.data);
+		const { view, control, released } = JSON.parse(event.data);
+
+		if(released) {
+			if(released in controllerState) {
+
+				controller.removeChild(controllerState[released]);
+				delete controllerState[released];
+				return
+			}	console.error(`Received ${released} which is not in controller state`)
+		}
 
 		if(typeof(view) !== "string") {
 
@@ -53,34 +62,36 @@ function initController() {
 		viewer.insertBefore(messageBlock, viewer.getElementsByClassName("viewer-message")[0]);
 
 
-		if(Array.isArray(control) && control.every(word => typeof(word) === "string")) {
+		if(control) {
+			if(Array.isArray(control) && control.every(word => typeof(word) === "string")) {
 
-			control.forEach(word => {
-				if(!controllerState.has(word)) {
+				control.forEach(word => {
+					if(!(word in controllerState)) {
 
-					const controlBlock = document.createElement("div");
-					const removeButton = document.createElement("button");
-					const acceptButton = document.createElement("button");
+						const controlBlock = document.createElement("div");
+						const removeButton = document.createElement("button");
+						const acceptButton = document.createElement("button");
 
-					controlBlock.className = "controller-message";
-					removeButton.className = "remove-button";
-					acceptButton.className = "accept-button";
+						controlBlock.className = "controller-message";
+						removeButton.className = "remove-button";
+						acceptButton.className = "accept-button";
 
-					removeButton.innerText = "-";
-					acceptButton.innerText = "+";
+						removeButton.innerText = "-";
+						acceptButton.innerText = "+";
 
-					removeButton.addEventListener("click",event => removeWord(event, controllerState, word));
-					acceptButton.addEventListener("click",event => acceptWord(event, controllerState, word));
+						removeButton.addEventListener("click",event => forgetWord(event, word, ws));
+						acceptButton.addEventListener("click",event => acceptWord(event, word, ws));
 
-					controlBlock.appendChild(document.createTextNode(word));
-					controlBlock.appendChild(removeButton);
-					controlBlock.appendChild(acceptButton);
+						controlBlock.appendChild(document.createTextNode(word));
+						controlBlock.appendChild(removeButton);
+						controlBlock.appendChild(acceptButton);
 
-					controller.appendChild(controlBlock);
-					controllerState.add(word)
-				}
-			})
-		}	else console.error("Controller socket received invalid \"words\"")
+						controller.appendChild(controlBlock);
+						controllerState[word] = controlBlock
+					}
+				})
+			}	else console.error("Controller socket received invalid \"words\"")
+		}
 	})
 }
 
@@ -93,15 +104,15 @@ function initManager() {
 
 	const table = document.getElementById("words-table");
 
-	Array.prototype.forEach.call(
+	// Array.prototype.forEach.call(
 
-		document.getElementsByClassName("del-button"),
-		button => button.addEventListener("click",event => {
+	// 	document.getElementsByClassName("del-button"),
+	// 	button => button.addEventListener("click",event => {
 
-			const word = event.target.parentNode.cells[1].innerText;
-			if(confirm(`Delete "${word}"?`)) removeWord(event, word)
-		})
-	)
+	// 		const word = event.target.parentNode.cells[1].innerText;
+	// 		if(confirm(`Delete "${word}"?`)) removeWord(event, word)
+	// 	})
+	// )
 }
 
 
@@ -123,60 +134,23 @@ function clockWork(element) {
 
 
 
-function removeWord(event /* Event */, word /* String */) {
+function forgetWord(event /* Event */, word /* String */, ws /* WebSocket */) {
 
 	event.preventDefault();
-	fetch(
 
-		"/controller-word-remove",
-		{
-			method:		"DELETE",
-			headers:	{ "Content-Type": "application/json" },
-			body:		JSON.stringify({ word })
-		}
-	)
-	.then(response => {
-		if(response.status !== 200)
-
-			response.json()
-			.then(({ reason }) => alert(reason))
-			.catch(() => alert(`Uncaught response status: ${response.status}`))
-
-		// only remove "word" from "state" in case of success query
-		else event.target.parentNode.parentNode.removeChild(event.target.parentNode);
-	})
-	.catch(E => alert(E))
+	try { ws.send(`forget:${word}`) }
+	catch(E) { console.error(`Failed to forget ${word} due to ${E}`) }
 }
 
 
 
 
-function acceptWord(event, state /* Set */, word /* String */) {
+function acceptWord(event /* Event */, word /* String */, ws /* WebSocket */) {
 
 	event.preventDefault();
-	fetch(
 
-		"/controller-word-accept",
-		{
-			method:		"PUT",
-			headers:	{ "Content-Type": "application/json" },
-			body:		JSON.stringify({ word })
-		}
-	)
-	.then(response => {
-		if(response.status !== 200)
-
-			response.json()
-			.then(({ reason }) => alert(reason))
-			.catch(() => alert(`Uncaught response status: ${response.status}`))
-
-		else {
-
-			event.target.parentNode.parentNode.removeChild(event.target.parentNode);
-			state.delete(word) // only remove "word" from "state" in case of success query
-		}
-	})
-	.catch(E => alert(E))
+	try { ws.send(`accept:${word}`) }
+	catch(E) { console.error(`Failed to accept ${word} due to ${E}`) }
 }
 
 

@@ -33,6 +33,14 @@ class NavbowRequestHandler(RequestHandler):
 		return attr
 
 
+	async def broadcast(self, item :str, load :Dict[Any,Any]):
+
+		for client,socket in self.clients.items():
+
+			self.loggy.info(f"Sending {item} to {client}")
+			await socket.write_message(load)
+
+
 	async def accept(self, load :Dict[str,Any]):
 
 		self.set_status(200)
@@ -214,10 +222,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 									load["control"] = control
 
 
-								for client,socket in self.clients.items():
-
-									self.loggy.info(f"Sending {name} to {client}")
-									await socket.write_message(load)
+								await self.broadcast(name,load)
 
 
 							else:	self.loggy.warning(f"Invalid \"{name}\" view received")
@@ -265,12 +270,11 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 						self.loggy.warning(f"Navtex analyzer returned invalid analysis for \"{name}\"")
 						continue
 
+
 				self.history["view"].insert(0,load["view"])
+				await self.broadcast(name,load)
 
-				for client,socket in self.clients.items():
 
-					self.loggy.info(f"Sending {name} to {client}")
-					await socket.write_message(load)
 			return	await self.accept(response)
 
 
@@ -314,7 +318,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 			Takes Future object returned by "write_message" method of "WebSocketHandler" object
 			and consider it's status. As this method designed to be added as a Future callback,
 			the "future" is assumed to be done. Any result value will be considered success,
-			cause in any other cases corresponding Excepetion must be raised, according to
+			cause in any other cases corresponding Exception must be raised, according to
 			https://docs.python.org/3.12/library/asyncio-future.html#asyncio.Future.result
 		"""
 
@@ -336,11 +340,62 @@ class NavbowWebSocketHandler(WebSocketHandler):
 		return attr
 
 
-	def initialize(self, clients :Dict[str,RequestHandler], hosts :Set[str], loggy):
+	def initialize(	self,
+					clients	:Dict[str,RequestHandler],
+					history	:Dict[str,List[str]],
+					hosts	:Set[str],
+					loggy
+				):
 
 		self.clients = clients
+		self.history = history
 		self.hosts = hosts
 		self.loggy = loggy
+
+
+	async def broadcast(self, item :str, load :Dict[Any,Any]):
+
+		for client,socket in self.clients.items():
+
+			self.loggy.info(f"Sending {item} to {client}")
+			await socket.write_message(load)
+
+
+	async def on_message(self, message :str):
+
+		src = self.request.remote_ip
+
+		if	src in self.hosts:
+			match message.split(":"):
+
+				case [ "forget",word ]:
+
+					# Just removing "word" from "control" history
+					try:	self.history["control"].remove(word)
+					except	Exception as E: self.loggy.warning(f"Failed to forget \"{word}\" due to {patronus(E)}")
+					else:
+
+						self.loggy.info(f"\"{word}\" forgotten by {src} ({self.current_connection_uuid})")
+						await self.broadcast("release",{ "released": word })
+
+				case [ "accept",word ]:
+
+					try:
+
+						print(f"accepting {word}") # Imitating db query for now
+						self.history["control"].remove(word)
+
+					except	Exception as E: self.loggy.warning(f"Failed to accept \"{word}\" due to {patronus(E)}")
+					else:
+
+						self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
+						await self.broadcast("release",{ "released": word })
+				case _:	self.loggy.warning(f"Improper message received: {message}")
+
+		else:
+
+			self.close(1008, "Source address not allowed")
+			self.loggy.info(f"denied websocket for {src}")
 
 
 	def open(self):
@@ -351,7 +406,7 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 			self.current_connection_uuid = uuid1()
 			self.clients[self.current_connection_uuid] = self
-			self.loggy.info(f"openned websocket for {src} ({self.current_connection_uuid})")
+			self.loggy.info(f"opened websocket for {src} ({self.current_connection_uuid})")
 
 		else:
 
