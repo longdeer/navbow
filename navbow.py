@@ -1,4 +1,6 @@
+from os			import getenv
 from sys		import argv
+from sys		import exit
 from argparse	import ArgumentParser
 from dotenv		import load_dotenv
 
@@ -36,7 +38,7 @@ if	__name__ == "__main__":
 		metavar="path|text",
 		nargs="+",
 		help=(
-			"run Analyzer for provided strings as either pathnames or files text"
+			"run Analyzer for provided strings as either path names or files text"
 		)
 	)
 	current_args.add_argument(
@@ -51,19 +53,33 @@ if	__name__ == "__main__":
 	)
 	current_args.add_argument(
 
-		"-p", "--pipe",
+		"-p", "--pretty",
+		action="store_true",
+		help=(
+			"when --analyze issued with this flag, every successful analysis will be putted to "
+			"\"pretty_air\" function to produce fancy output message; unsuccessful analysis "
+			"means non-ASCII symbols were found and substituted with * so for such inputs "
+			"message already formed."
+		)
+	)
+	current_args.add_argument(
+
+		"-u", "--upload",
 		const="environment",
 		metavar="address:port",
 		nargs="?",
 		help=(
-			"when --analyze files issued with this flag, provided address:port will be used "
+			"when --analyze files issued with this argument, provided address:port will be used "
 			"to send results to; if address:port omitted, it will be tried from .env file; "
-			"using this flag with --server or --test will make no effect"
+			"using this argument with --server or --test will make no effect"
+
 		)
 	)
 	current_call = current_args.parse_args()
 	analyzer_state = current_call.analyzer
 	server_state = current_call.server
+	pretty_state = current_call.pretty
+	upload_state = current_call.upload
 	test_state = current_call.test
 	load_dotenv()
 
@@ -91,23 +107,54 @@ if	__name__ == "__main__":
 
 		case 2:
 
-			from analyzer import Navanalyzer
-			match current_call.pipe:
+			from analyzer import NavtexAnalyzer
 
-				case None:			print("running analyzer")
-				case "environment":	print("running analyzer and piping to .env server")
-				case _:
+			navanalyzer = NavtexAnalyzer(getenv("STATION_LITERAL"))
+			analysis = {}
 
-					try:
+			for file in analyzer_state:
 
-						addr,port = current_call.pipe.split(":")
-						port = int(port)
+				current_analysis = navanalyzer(file)
+				analysis[file] = current_analysis
 
+				if	"analysis" in current_analysis and pretty_state:
+					analysis[file]["pretty_air"] = navanalyzer.pretty_air(analysis[file])
+
+			if	upload_state is not None:
+
+				from requests	import post
+				from json		import dumps
+
+				load = { "data": { "analysis": {}}}
+				target = load["data"]["analysis"]
+
+				for file,analysis in analysis.items():
+					if	"analysis" in analysis:
+
+						target[file] = { "view": analysis.get("pretty_air", navanalyzer.pretty_air(analysis)) }
+						control = set()
+						for words in analysis["analysis"]["unknown"].values(): control |= set(words)
+						if control : target[file]["control"] = sorted(control)
+					else:
+						target[file] = { "view": analysis.get("message") }
+						target[file]["corrupted"] = True
+
+				if	upload_state == "environment":
+
+					load["url"] = f"http://{getenv('LISTEN_ADDRESS')}:{getenv('LISTEN_PORT')}/ws-cast-receiver"
+				else:
+					try:	addr,port = upload_state.split(":")
 					except:
 
-						print("\n\n\nFailed to parse address and port for pipe, analyzer didn't worked!")
-					else:
-						print(f"running analyzer and piping to {addr}:{port}")
+						print("\n\n\nFailed to parse address and port for upload, analyzer didn't worked!")
+						exit(1)
+
+					else:	load["url"] = f"http://{addr}:{port}/ws-cast-receiver"
+
+				load["data"] = dumps(load["data"])
+				print(post(**load).reason)
+			else:
+				print(analysis)
 
 		case 4:
 
