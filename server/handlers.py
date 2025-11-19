@@ -1,19 +1,20 @@
-from os							import getenv
-from uuid						import uuid1
-from json						import loads
-from typing						import Dict
-from typing						import List
-from typing						import Set
-from asyncio					import Future
-from datetime					import datetime
-from functools					import partial
-from analyzer					import NavtexAnalyzer
-from db							import db_fetch
-from db							import db_remove
-from db							import db_accept
-from pygwarts.magical.spells	import patronus
-from tornado.web				import RequestHandler
-from tornado.websocket			import WebSocketHandler
+from os								import getenv
+from uuid							import uuid1
+from json							import loads
+from typing							import Dict
+from typing							import List
+from typing							import Set
+from typing							import Any
+from asyncio						import Future
+from functools						import partial
+from analyzer						import NavtexAnalyzer
+from db								import db_fetch
+from db								import db_remove
+from db								import db_accept
+from pygwarts.magical.spells		import patronus
+from pygwarts.magical.time_turner	import TimeTurner
+from tornado.web					import RequestHandler
+from tornado.websocket				import WebSocketHandler
 
 
 
@@ -30,6 +31,13 @@ class NavbowRequestHandler(RequestHandler):
 		attr = super().__getattribute__(name)
 		if name == "loggy" : attr.handover(self)
 		return attr
+
+
+	async def accept(self, load :Dict[str,Any]):
+
+		self.set_status(200)
+		self.set_header("Content-type", "application/json")
+		self.finish(load)
 
 
 	async def deny(self, code :int, operation :str, address :str):
@@ -165,6 +173,8 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 	async def post(self):
 
 		src = self.request.remote_ip
+		body = loads(self.request.body)
+
 
 		if src not in self.hosts : await self.deny(403, "data transfer", src)
 		else:
@@ -179,18 +189,104 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 			#
 			# It is assumed that endpoint will receive either "data" json with "messages"
 			# or uploaded binary "files" (not both).
-			if	(raw := self.request.files):
-				targets = { part[0]["filename"]: part[0]["body"] for part in raw.values() }
+			if	isinstance(targets := body.get("analysis"), dict):
+				for name,content in targets.items():
+					if	isinstance(content,dict):
+						if	isinstance(view := content.get("view"),str):
 
-			elif(messages := loads(self.request.body).get("messages")):
-				targets = messages
+							if content.get("corrupted"): load = { "view": self.form_corrupted(view) }
+							else: load = { "view": f"{self.form_timestamp()}\n\n{view}" }
+
+							if isinstance((control := content.get("control")),list): load["control"] = control
+
+							for client,socket in self.clients.items():
+
+								self.loggy.info(f"Sending {name} to {client}")
+								await socket.write_message(load)
+
+						else:	self.loggy.warning(f"Invalid \"{name}\" view received")
+					else:		self.loggy.warning(f"Invalid \"{name}\" content received")
+				else:			return
+
+
+			elif(targets := body.get("messages")): pass
+			elif(raw := self.request.files):
+
+				targets = { part[0]["filename"]: part[0]["body"] for part in raw.values() }
 
 			else: return await self.deny(422, "data transfer", src)
 
 
 			analyzer = NavtexAnalyzer(getenv("STATION_LITERAL"))
-			analysis = { name: analyzer(body) for name,body in targets.items() }
-			print(analysis)
+			response = dict()
+
+
+			for name,content in targets.items():
+
+				analysis = analyzer(content)
+				response[name] = analysis
+
+				match analysis:
+
+					case { "message": view }:	load = { "view": self.form_corrupted(view) }
+					case { "analysis": res }:
+
+						try:	pretty_view = analyzer.pretty_air(analysis)
+						except	Exception as E:
+
+							self.loggy.warning(f"failed to prettify {analysis} due to {patronus(E)}")
+
+						else:
+
+							load = { "view": f"{self.form_timestamp()}\n\n{pretty_view}" }
+							control = set()
+							for words in res["unknown"].values(): control |= set(words)
+							if control : load["control"] = sorted(control)
+
+					case _:
+
+						self.loggy.warning(f"Navtex analyzer returned invalid analysis for \"{name}\"")
+						continue
+
+				for client,socket in self.clients.items():
+
+					self.loggy.info(f"Sending {name} to {client}")
+					await socket.write_message(load)
+			return	await self.accept(response)
+
+
+
+
+	def form_timestamp(self):
+
+		"""
+			Makes a current moment timestamp for message
+		"""
+
+		p = TimeTurner()
+		return f"---- {p.A} {p.B} {int(p.d)} {p.Y} {p.H}:{p.M}:{p.S} (local time)"
+
+
+
+
+	def form_corrupted(self, message :str) -> str | None :
+
+		"""
+			Make final message which will account for non-ASCII symbols. If "message" argument
+			is a string, will wrap it with timestamp header and warning footer. Will return None
+			otherwise.
+		"""
+
+		if	isinstance(message,str):
+			return "%s\n\n%s\n\n%s\n\n%s"%(
+
+				self.form_timestamp(),
+				"corrupted message",
+				message,
+				"* must be checked in original file"
+			)
+
+
 
 
 	def Future_status(self, addr :str, client_uuid :str, future :Future):
