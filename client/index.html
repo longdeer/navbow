@@ -14,12 +14,12 @@
 		</header>
 		<main>
 			<div id="viewer">
-				{% for view in history.get("views",[]) %}
+				{% for view in history.get("view") %}
 					<pre class="viewer-message">{{ view }}</pre>
 				{% end %}
 			</div>
 			<div id="controller">
-				{% for control in history.get("control",[]) %}
+				{% for control in history.get("control") %}
 					<div class="controller-message">{{ control }}<button class="remove-button">-</button><button class="accept-button">+</button>
 					</div>
 				{% end %}

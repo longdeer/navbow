@@ -173,8 +173,6 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 	async def post(self):
 
 		src = self.request.remote_ip
-		body = loads(self.request.body)
-
 
 		if src not in self.hosts : await self.deny(403, "data transfer", src)
 		else:
@@ -182,39 +180,53 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 			# Received json must content a messages mapping of
 			# file names with it's corresponding text content.
 			#
-			# Non UTF-8 symbols transfer must raise no Exceptions in "JSON.loads"
+			# Non-ASCII symbols transfer must raise no Exceptions in "JSON.loads"
 			# parsing time, when it is obvious Exception when it will be read from file
 			# without special encoding set. So for the transfer the further word scan
 			# must account for such problem symbols.
 			#
-			# It is assumed that endpoint will receive either "data" json with "messages"
+			# It is assumed that endpoint will receive either "data" json with "messages"/"analysis"
 			# or uploaded binary "files" (not both).
-			if	isinstance(targets := body.get("analysis"), dict):
-				for name,content in targets.items():
-					if	isinstance(content,dict):
-						if	isinstance(view := content.get("view"),str):
-
-							if content.get("corrupted"): load = { "view": self.form_corrupted(view) }
-							else: load = { "view": f"{self.form_timestamp()}\n\n{view}" }
-
-							if isinstance((control := content.get("control")),list): load["control"] = control
-
-							for client,socket in self.clients.items():
-
-								self.loggy.info(f"Sending {name} to {client}")
-								await socket.write_message(load)
-
-						else:	self.loggy.warning(f"Invalid \"{name}\" view received")
-					else:		self.loggy.warning(f"Invalid \"{name}\" content received")
-				else:			return
-
-
-			elif(targets := body.get("messages")): pass
-			elif(raw := self.request.files):
+			if	(raw := self.request.files):
 
 				targets = { part[0]["filename"]: part[0]["body"] for part in raw.values() }
+			else:
+				body = loads(self.request.body)
 
-			else: return await self.deny(422, "data transfer", src)
+				if	isinstance(targets := body.get("analysis"), dict):
+					for name,content in targets.items():
+						if	isinstance(content,dict):
+							if	isinstance(view := content.get("view"),str):
+
+
+								if content.get("corrupted"): view = self.form_corrupted(view)
+								else: view = f"{self.form_timestamp()}\n\n{view}"
+
+
+								self.history["view"].insert(0,view)
+								load = { "view": view }
+
+
+								if	isinstance((control := content.get("control")),list):
+
+									total = sorted(set(self.history["control"]) | set(control))
+									self.history["control"] = total
+									load["control"] = control
+
+
+								for client,socket in self.clients.items():
+
+									self.loggy.info(f"Sending {name} to {client}")
+									await socket.write_message(load)
+
+
+							else:	self.loggy.warning(f"Invalid \"{name}\" view received")
+						else:		self.loggy.warning(f"Invalid \"{name}\" content received")
+					else:			return
+
+
+				elif	(targets := body.get("messages")): pass
+				else:	return await self.deny(422, "data transfer", src)
 
 
 			analyzer = NavtexAnalyzer(getenv("STATION_LITERAL"))
@@ -225,10 +237,11 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 				analysis = analyzer(content)
 				response[name] = analysis
+				load = dict()
 
 				match analysis:
 
-					case { "message": view }:	load = { "view": self.form_corrupted(view) }
+					case { "message": view }:	load["view"] = self.form_corrupted(view)
 					case { "analysis": res }:
 
 						try:	pretty_view = analyzer.pretty_air(analysis)
@@ -238,15 +251,21 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 						else:
 
-							load = { "view": f"{self.form_timestamp()}\n\n{pretty_view}" }
+							load["view"] = f"{self.form_timestamp()}\n\n{pretty_view}"
 							control = set()
+
 							for words in res["unknown"].values(): control |= set(words)
-							if control : load["control"] = sorted(control)
+							if	control:
+
+								self.history["control"] = sorted(set(self.history["control"]) | control)
+								load["control"] = sorted(control)
 
 					case _:
 
 						self.loggy.warning(f"Navtex analyzer returned invalid analysis for \"{name}\"")
 						continue
+
+				self.history["view"].insert(0,load["view"])
 
 				for client,socket in self.clients.items():
 

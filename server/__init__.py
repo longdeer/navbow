@@ -18,7 +18,7 @@ from tornado.web			import Application
 
 
 
-history = dict()
+history = { "view": list(), "control": list() }
 control_sockets = dict()
 hosts = loads(getenv("ACCESS_LIST",r"{}"))
 irma = LibraryContrib(
