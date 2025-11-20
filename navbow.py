@@ -47,8 +47,9 @@ if	__name__ == "__main__":
 		metavar="module",
 		nargs="*",
 		help=(
-			"run tests for analyzer | server | client modules by supplying corresponding words arguments, "
-			"or by omitting arguments to run all tests; any other arguments will be ignored"
+			"run tests for analyzer | server | client | db modules by supplying corresponding "
+			"words arguments, or by omitting arguments to run all tests; any other arguments "
+			"will be ignored."
 		)
 	)
 	current_args.add_argument(
@@ -159,6 +160,10 @@ if	__name__ == "__main__":
 		case 4:
 
 			for test_module in test_state or [ "analyzer", "server", "client" ]:
+				if	test_module == "db":
+
+					from tests.unit_db				import *
+
 				if	test_module == "analyzer":
 
 					from tests.unit_scanner			import *

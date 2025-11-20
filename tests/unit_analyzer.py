@@ -66,7 +66,7 @@ class AnalyzerCase(unittest.TestCase):
 		cls.empty_file = os.path.join(tests_root, "msg", "empty")
 		cls.spaces_file = os.path.join(tests_root, "msg", "spaces")
 		cls.corrupted_file = os.path.join(tests_root, "msg", "WZ29")
-		cls.db_path = os.path.join(tests_root, "test.sqlite3")
+		cls.db_path = os.path.join(tests_root, "analyzer_test.sqlite3")
 		cls.connection = connect(cls.db_path)
 		cls.pseudo_message = "OOH EEH\nOOH AH AH\nTING TANG\nWALLA WALLA BING BANG"
 		os.environ["DB_PATH"] = cls.db_path
