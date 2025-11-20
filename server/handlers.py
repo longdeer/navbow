@@ -8,9 +8,9 @@ from typing							import Any
 from asyncio						import Future
 from functools						import partial
 from analyzer						import NavtexAnalyzer
-from db								import db_fetch
+from db								import db_fetch_words
 from db								import db_remove
-from db								import db_accept
+from db								import db_add
 from pygwarts.magical.spells		import patronus
 from pygwarts.magical.time_turner	import TimeTurner
 from tornado.web					import RequestHandler
@@ -108,7 +108,7 @@ class WordsHandler(NavbowRequestHandler):
 			return self.render("restricted.html")
 
 		self.loggy.debug(f"words.html access granted for {src}")
-		if isinstance(words := db_fetch(self.loggy),list): return self.render("words.html", content=words)
+		if isinstance(words := db_fetch_words(),list): return self.render("words.html", content=words)
 
 		self.loggy.warning("Database content was not fetched by route handler")
 		return self.render("words.html", content=[])
@@ -131,7 +131,7 @@ class WordRemoveHandler(MainHandler):
 		self.loggy.debug(f"Received word to delete: {word}")
 
 
-		if	(reason := db_remove(word, self.loggy)):
+		if	(reason := db_remove(word)):
 
 			await self.deny_reason(400, "word removing", reason)
 			return
@@ -149,7 +149,7 @@ class WordAcceptHandler(MainHandler):
 
 			word = loads(self.request.body).get("word")
 
-			if(reason := db_accept(word, self.loggy)): await self.deny_reason(400, "word accepting", reason)
+			if(reason := db_add(word, src)): await self.deny_reason(400, "word accepting", reason)
 			else:
 
 				try:	self.history["control"].remove(word)
@@ -391,7 +391,6 @@ class NavbowWebSocketHandler(WebSocketHandler):
 						self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
 						await self.broadcast("release",{ "released": word })
 				case _:	self.loggy.warning(f"Improper message received: {message}")
-
 		else:
 
 			self.close(1008, "Source address not allowed")

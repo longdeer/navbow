@@ -1,12 +1,15 @@
-from os							import getenv
-from typing						import Set
-from typing						import List
-from typing						import Tuple
-from collections.abc			import Sequence
-from sqlite3					import connect
-from operator					import itemgetter
-from contextlib					import closing
-from pygwarts.magical.spells	import patronus
+from os								import getenv
+from typing							import Set
+from typing							import List
+from typing							import Tuple
+from typing							import Callable
+from collections.abc				import Sequence
+from sqlite3						import connect
+from operator						import itemgetter
+from contextlib						import closing
+from pygwarts.magical.spells		import patronus
+from pygwarts.magical.time_turner	import TimeTurner
+from pygwarts.irma.contrib			import LibraryContrib
 
 
 
@@ -15,38 +18,62 @@ from pygwarts.magical.spells	import patronus
 
 
 
-def db_match_set(pendings :Sequence[str], loggy=None) -> Set[str] | str :
+irma = LibraryContrib(
+
+	handler=getenv("DB_LOGGY"),
+	init_name=f"{getenv('APP_NAME')}-db",
+	init_level=getenv("DB_LOGGY_LEVEL"),
+	force_handover=getenv("DB_LOGGY_HANDOVER")
+)
+
+
+
+
+
+
+
+
+def connection_manager(qurier :Callable[[str | Sequence[str]],Set[str] | List[str] | str | None]):
+	def wrapper(*args, loggy=irma):
+
+		try:
+
+			db = getenv("DB_PATH")
+			connection = connect(db)
+			loggy.debug(f"Established connection to db: \"{db}\"")
+
+			with closing(connection): return qurier(*args, connection, loggy)
+		except	Exception as E:
+
+			reason = f"Query failed due to {patronus(E)}"
+			loggy.warning(reason)
+
+			return reason
+	return	wrapper
+
+
+
+
+
+
+
+
+@connection_manager
+def db_match_set(pendings :Sequence[str], connection :"sqlite3", loggy :LibraryContrib) -> Set[str] :
 
 	"""
 		Fetches words filtered by "pendings" set. Always returns a set, either with
 		strings that correspond to words matched in db or empty.
 	"""
 
-	try:
+	query = "SELECT word FROM %s WHERE word IN ('%s')"%(getenv("WORDS_TABLE"),"','".join(pendings))
+	loggy.debug(f"Constructed query: {query}")
 
-		db = getenv("DB_PATH")
-		table = getenv("WORDS_TABLE")
-		connection = connect(db)
-		if loggy : loggy.debug(f"Established connection to db: \"{db}\"")
+	current = connection.execute(query).fetchall()
+	loggy.debug("Query result no exception")
+	loggy.info(f"Fetched {len(current)} matches from database")
 
-
-		with closing(connection):
-
-
-			query = "SELECT word FROM %s WHERE word IN ('%s')"%(table,"','".join(pendings))
-			if loggy : loggy.debug(f"Constructed query: {query}")
-			current = connection.execute(query).fetchall()
-			if loggy : loggy.debug("Query result no exception")
-
-
-			if loggy : loggy.info(f"Fetched {len(current)} matches from database")
-			return set(map(itemgetter(0),current))
-
-
-	except	Exception as E:
-
-		if loggy : loggy.warning(f"Fetching db failed due to {patronus(E)}")
-		return set()
+	return set(map(itemgetter(0),current))
 
 
 
@@ -55,47 +82,28 @@ def db_match_set(pendings :Sequence[str], loggy=None) -> Set[str] | str :
 
 
 
-def db_fetch(loggy) -> List[str] | str :
+@connection_manager
+def db_fetch_words(connection :"sqlite3", loggy :LibraryContrib) -> List[Tuple[str]] | str :
 
 	"""
 		Fetches all rows from db and returns it as list of tuples.
 		Any Exception caught will be returned as "reason" string instead of rows.
 	"""
 
-	try:
+	query = "SELECT word,added,source FROM %s"%getenv("WORDS_TABLE")
+	loggy.debug(f"Constructed query: {query}")
 
-		db = getenv("DB_PATH")
-		table = getenv("WORDS_TABLE")
-		connection = connect(db)
-		loggy.debug(f"Established connection to db: \"{db}\"")
+	current = connection.execute(query).fetchall()
+	loggy.debug("Query result no exception")
 
+	if	not current:
 
-		with closing(connection):
-
-
-			query = "SELECT word,added,source FROM %s"%table
-			loggy.debug(f"Constructed query: {query}")
-			current = connection.execute(query).fetchall()
-			loggy.debug("Query result no exception")
-
-
-			if	not current:
-
-				reason = f"No rows found in database"
-				loggy.warning(reason)
-				return reason
-
-
-			loggy.info(f"Fetched {len(current)} rows from database")
-			return sorted(current,key=itemgetter(1,0))
-
-
-	except	Exception as E:
-
-		reason = f"Fetching db failed due to {patronus(E)}"
+		reason = f"No rows found in database"
 		loggy.warning(reason)
 		return reason
 
+	loggy.info(f"Fetched {len(current)} rows from database")
+	return sorted(current,key=itemgetter(1,0))
 
 
 
@@ -103,7 +111,9 @@ def db_fetch(loggy) -> List[str] | str :
 
 
 
-def db_remove(word :str, loggy) -> None | str :
+
+@connection_manager
+def db_remove(word :str, connection :"sqlite3", loggy :LibraryContrib) -> None | str :
 
 	"""
 		Will try to remove word from db
@@ -116,77 +126,52 @@ def db_remove(word :str, loggy) -> None | str :
 		loggy.warning(reason)
 		return reason
 
-	try:
 
-		db = getenv("DB_PATH")
-		connection = connect(db)
-		table = getenv("WORDS_TABLE")
-		loggy.debug(f"Established connection to db: \"{db}\"")
+	query = "SELECT word FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	loggy.debug(f"Constructed query: {query}")
 
-
-		with closing(connection):
+	current = connection.execute(query).fetchall()
+	loggy.debug(f"Query result: {current}")
 
 
-			query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
-			loggy.debug(f"Constructed query: {query}")
-			current = connection.execute(query).fetchall()
-			loggy.debug(f"Query result: {current}")
+	if	not current:
 
-
-			if	not current:
-
-				reason = f"\"{word}\" cannot be removed cause it is not in db"
-				loggy.warning(reason)
-				return reason
-
-
-			if	1 <len(current):
-
-				reason = f"\"{word}\" will not be removed cause it has multiple states in db"
-				loggy.warning(reason)
-				return reason
-
-
-			query = "DELETE FROM %s WHERE word='%s'"%(table,word)
-			loggy.debug(f"Constructed query: {query}")
-			op = connection.execute(query).fetchall()
-			loggy.debug(f"Query result: {op}")
-
-
-			query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
-			loggy.debug(f"Constructed query: {query}")
-			still = connection.execute(query).fetchall()
-			loggy.debug(f"Query result: {still}")
-
-
-			if	still:
-
-				reason = "%s\"%s\" not removed"%("remove output is abnormal, " if op else "",word)
-				loggy.warning(reason)
-				return reason
-
-
-			connection.commit()
-			loggy.info("\"%s\" removed from db%s"%(word," but output is abnormal" if op else ""))
-
-
-		loggy.debug(f"Closed connection to db: \"{db}\"")
-
-
-	except	Exception as E:
-
-		reason = f"\"{word}\" remove failed due to {patronus(E)}"
+		reason = f"\"{word}\" cannot be removed cause it is not in db"
 		loggy.warning(reason)
 		return reason
 
 
+	query = "DELETE FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+
+	query = "SELECT word FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	loggy.debug(f"Constructed query: {query}")
+
+	still = connection.execute(query).fetchall()
+	loggy.debug("Query result no exception")
+
+
+	if	still:
+
+		reason = f"\"{word}\" was not removed from db"
+		loggy.warning(reason)
+		return reason
+
+	loggy.info(f"\"{word}\" removed from db")
 
 
 
 
 
 
-def db_accept(word :str, loggy) -> None | str :
+
+
+@connection_manager
+def db_add(word :str, src :str, connection :"sqlite3", loggy :LibraryContrib) -> None | str :
 
 	"""
 		Will try to accept word (convert from unknown or 0 to known or 1)
@@ -195,79 +180,50 @@ def db_accept(word :str, loggy) -> None | str :
 
 	if	not isinstance(word,str):
 
-		reason = f"Invalid word type {type(word)} to update"
+		reason = f"Invalid word type {type(word)} to add to db"
 		loggy.warning(reason)
 		return reason
 
-	try:
 
-		db = getenv("DB_PATH")
-		connection = connect(db)
-		table = getenv("WORDS_TABLE")
-		loggy.debug(f"Established connection to db: \"{db}\"")
+	query = "SELECT word,added FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	loggy.debug(f"Constructed query: {query}")
 
-
-		with closing(connection):
+	current = connection.execute(query).fetchall()
+	loggy.debug(f"Query result: {current}")
 
 
-			query = "SELECT word,state FROM %s WHERE word='%s'"%(table,word)
-			loggy.debug(f"Constructed query: {query}")
-			current = connection.execute(query).fetchall()
-			loggy.debug(f"Query result: {current}")
+	if	current:
+
+		try:	reason = f"\"{word}\" in db since {TimeTurner(current[0][1]).Ymd_dashed}"
+		except	Exception as E: reason = f"\"{word}\" in db since when not determined"
+		finally:
+
+			loggy.warning(reason)
+			return reason
 
 
-			if	not current:
+	ts = TimeTurner().epoch
+	query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(getenv("WORDS_TABLE"),word,ts,src)
+	loggy.debug(f"Constructed query: {query}")
 
-				reason = f"\"{word}\" cannot be updated cause it is not in db"
-				loggy.warning(reason)
-				return reason
-
-
-			if	1 <len(current):
-
-				reason = f"\"{word}\" will not be updated cause it has multiple states in db"
-				loggy.warning(reason)
-				return reason
+	connection.execute(query)
+	loggy.debug("Query result no exception")
 
 
-			if	current[0]:
+	query = "SELECT word,added,source FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	loggy.debug(f"Constructed query: {query}")
 
-				reason = f"\"{word}\" cannot be updated cause it is not in unknown state"
-				loggy.warning(reason)
-				return reason
-
-
-			query = "UPDATE %s SET state=1 WHERE word='%s'"%(table,word)
-			loggy.debug(f"Constructed query: {query}")
-			op = connection.execute(query).fetchall()
-			loggy.debug(f"Query result: {op}")
+	added = connection.execute(query).fetchall()
+	loggy.debug(f"Query result: {added}")
 
 
-			query = "SELECT word,state FROM %s WHERE word='%s' AND state=0"%(table,word)
-			loggy.debug(f"Constructed query: {query}")
-			still = connection.execute(query).fetchall()
-			loggy.debug(f"Query result: {still}")
+	if	not added or added[0][1] != ts or added[0][2] != src:
 
-
-			if	still:
-
-				reason = "%s\"%s\" not updated"%("update output is abnormal, " if op else "",word)
-				loggy.warning(reason)
-				return reason
-
-
-			connection.commit()
-			loggy.info("\"%s\" updated to known%s"%(word," but output is abnormal" if op else ""))
-
-
-		loggy.debug(f"Closed connection to db: \"{db}\"")
-
-
-	except	Exception as E:
-
-		reason = f"\"{word}\" update failed due to {patronus(E)}"
+		reason = f"\"{word}\" adding not completed"
 		loggy.warning(reason)
 		return reason
+
+	loggy.info(f"\"{word}\" successfully added to db")
 
 
 

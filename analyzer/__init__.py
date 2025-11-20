@@ -231,6 +231,7 @@ class NavtexAnalyzer:
 
 				pending_words = set(pend.keys())
 				known = db_match_set(pending_words)
+				known = known if isinstance(known, set) else set()
 				unknown = pending_words - known
 
 

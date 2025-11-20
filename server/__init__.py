@@ -23,10 +23,10 @@ control_sockets = dict()
 hosts = loads(getenv("ACCESS_LIST",r"{}"))
 irma = LibraryContrib(
 
-	handler=getenv("LOGGY_FILE"),
+	handler=getenv("SERVER_LOGGY"),
 	init_name=getenv("APP_NAME"),
-	init_level=getenv("LOGGY_LEVEL"),
-	force_handover=getenv("LOGGY_HANDOVER")
+	init_level=getenv("SERVER_LOGGY_LEVEL"),
+	force_handover=getenv("SERVER_LOGGY_HANDOVER")
 )
 
 
