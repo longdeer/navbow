@@ -5,9 +5,10 @@ from typing							import Tuple
 from typing							import Callable
 from collections.abc				import Sequence
 from sqlite3						import connect
+from sqlite3						import Connection
 from operator						import itemgetter
-from contextlib						import closing
 from pygwarts.magical.spells		import patronus
+from pygwarts.magical.spells		import flagrate
 from pygwarts.magical.time_turner	import TimeTurner
 from pygwarts.irma.contrib			import LibraryContrib
 
@@ -42,13 +43,22 @@ def connection_manager(qurier :Callable[[str | Sequence[str]],Set[str] | List[st
 			connection = connect(db)
 			loggy.debug(f"Established connection to db: \"{db}\"")
 
-			with closing(connection): return qurier(*args, connection, loggy)
+			with connection:
+
+				response = qurier(*args, connection, loggy)
+				return response
+
 		except	Exception as E:
 
 			reason = f"Query failed due to {patronus(E)}"
 			loggy.warning(reason)
 
 			return reason
+
+		finally:
+				loggy.debug(f"Closing connection to db: \"{db}\"")
+				connection.close()
+
 	return	wrapper
 
 
@@ -59,7 +69,7 @@ def connection_manager(qurier :Callable[[str | Sequence[str]],Set[str] | List[st
 
 
 @connection_manager
-def db_match_set(pendings :Sequence[str], connection :"sqlite3", loggy :LibraryContrib) -> Set[str] :
+def db_match_set(pendings :Sequence[str], connection :Connection, loggy :LibraryContrib) -> Set[str] :
 
 	"""
 		Fetches words filtered by "pendings" set. Always returns a set, either with
@@ -71,7 +81,7 @@ def db_match_set(pendings :Sequence[str], connection :"sqlite3", loggy :LibraryC
 
 	current = connection.execute(query).fetchall()
 	loggy.debug("Query result no exception")
-	loggy.info(f"Fetched {len(current)} matches from database")
+	loggy.info(f"Matched {len(current)} row{flagrate(len(current))} from database")
 
 	return set(map(itemgetter(0),current))
 
@@ -83,7 +93,7 @@ def db_match_set(pendings :Sequence[str], connection :"sqlite3", loggy :LibraryC
 
 
 @connection_manager
-def db_fetch_words(connection :"sqlite3", loggy :LibraryContrib) -> List[Tuple[str]] | str :
+def db_fetch_words(connection :Connection, loggy :LibraryContrib) -> List[Tuple[str]] | str :
 
 	"""
 		Fetches all rows from db and returns it as list of tuples.
@@ -102,7 +112,7 @@ def db_fetch_words(connection :"sqlite3", loggy :LibraryContrib) -> List[Tuple[s
 		loggy.warning(reason)
 		return reason
 
-	loggy.info(f"Fetched {len(current)} rows from database")
+	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from database")
 	return sorted(current,key=itemgetter(1,0))
 
 
@@ -113,7 +123,7 @@ def db_fetch_words(connection :"sqlite3", loggy :LibraryContrib) -> List[Tuple[s
 
 
 @connection_manager
-def db_remove(word :str, connection :"sqlite3", loggy :LibraryContrib) -> None | str :
+def db_remove(word :str, connection :Connection, loggy :LibraryContrib) -> None | str :
 
 	"""
 		Will try to remove word from db
@@ -171,7 +181,7 @@ def db_remove(word :str, connection :"sqlite3", loggy :LibraryContrib) -> None |
 
 
 @connection_manager
-def db_add(word :str, src :str, connection :"sqlite3", loggy :LibraryContrib) -> None | str :
+def db_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -> None | str :
 
 	"""
 		Will try to accept word (convert from unknown or 0 to known or 1)

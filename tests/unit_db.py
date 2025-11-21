@@ -62,15 +62,13 @@ class DatabaseCase(unittest.TestCase):
 				loggy.debug.mock_calls[0],
 				um.call(f"Established connection to db: \"{self.db_path}\"")
 			)
-			try:	self.assertEqual(
+			self.assertIn(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH','EEH')")
-			)
-			except	AssertionError: self.assertEqual(
-
-				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('EEH','OOH')")
+				[
+					um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH','EEH')"),
+					um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('EEH','OOH')")
+				]
 			)
 			self.assertEqual(
 
@@ -80,11 +78,57 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Fetched 0 matches from database")
+				um.call("Matched 0 rows from database")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
-	def test_db_match_set_matched(self):
+	def test_db_match_set_1matched(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute(
+					"CREATE TABLE %s (word TEXT UNIQUE NOT NULL PRIMARY KEY)"%self.words_table
+				)
+				self.connection.execute("INSERT INTO %s VALUES ('OOH'),('EEH')"%self.words_table)
+
+			self.assertEqual(db_match_set({ "OOH" },loggy=loggy),{ "OOH" })
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH')")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Matched 1 row from database")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_db_match_set_2matched(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -103,15 +147,13 @@ class DatabaseCase(unittest.TestCase):
 				loggy.debug.mock_calls[0],
 				um.call(f"Established connection to db: \"{self.db_path}\"")
 			)
-			try:	self.assertEqual(
+			self.assertIn(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH','EEH')")
-			)
-			except	AssertionError: self.assertEqual(
-
-				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('EEH','OOH')")
+				[
+					um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH','EEH')"),
+					um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('EEH','OOH')")
+				]
 			)
 			self.assertEqual(
 
@@ -121,7 +163,12 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Fetched 2 matches from database")
+				um.call("Matched 2 rows from database")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
@@ -143,20 +190,23 @@ class DatabaseCase(unittest.TestCase):
 				loggy.debug.mock_calls[0],
 				um.call(f"Established connection to db: \"{self.db_path}\"")
 			)
-			try:	self.assertEqual(
+			self.assertIn(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH','EEH')")
-			)
-			except	AssertionError: self.assertEqual(
-
-				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('EEH','OOH')")
+				[
+					um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('OOH','EEH')"),
+					um.call("Constructed query: SELECT word FROM navbow_db_test WHERE word IN ('EEH','OOH')")
+				]
 			)
 			self.assertEqual(
 
 				loggy.warning.mock_calls[0],
 				um.call("Query failed due to OperationalError: no such table: navbow_db_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
@@ -202,6 +252,11 @@ class DatabaseCase(unittest.TestCase):
 
 				loggy.warning.mock_calls[0],
 				um.call("No rows found in database")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
@@ -261,6 +316,11 @@ class DatabaseCase(unittest.TestCase):
 				loggy.info.mock_calls[0],
 				um.call("Fetched 3 rows from database")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_fetch_words_reason(self):
@@ -290,6 +350,11 @@ class DatabaseCase(unittest.TestCase):
 
 				loggy.warning.mock_calls[0],
 				um.call("Query failed due to OperationalError: no such table: navbow_db_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
@@ -367,6 +432,49 @@ class DatabaseCase(unittest.TestCase):
 				loggy.info.mock_calls[0],
 				um.call("\"OOH\" removed from db")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[7],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			response = db_fetch_words(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),2)
+			self.assertIsInstance(response[0],tuple)
+			self.assertIsInstance(response[1],tuple)
+			self.assertIn(response[0][0],[ "EEH","AH" ])
+			self.assertIsInstance(response[0][1],float)
+			self.assertIn(response[0][2],[ "127.0.0.1","127.0.0.3" ])
+			self.assertIn(response[1][0],[ "EEH","AH" ])
+			self.assertIsInstance(response[1][1],float)
+			self.assertIn(response[1][2],[ "127.0.0.1","127.0.0.3" ])
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 2 rows from database")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_remove_word_empty(self):
@@ -405,6 +513,11 @@ class DatabaseCase(unittest.TestCase):
 
 				loggy.warning.mock_calls[0],
 				um.call("\"OOH\" cannot be removed cause it is not in db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
@@ -454,6 +567,11 @@ class DatabaseCase(unittest.TestCase):
 				loggy.warning.mock_calls[0],
 				um.call("\"OOH\" cannot be removed cause it is not in db")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_remove_word_reason(self):
@@ -484,6 +602,11 @@ class DatabaseCase(unittest.TestCase):
 				loggy.warning.mock_calls[0],
 				um.call("Query failed due to OperationalError: no such table: navbow_db_test")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_remove_word_invalid(self):
@@ -508,6 +631,11 @@ class DatabaseCase(unittest.TestCase):
 
 				loggy.warning.mock_calls[0],
 				um.call("Invalid word type <class 'int'> to remove from db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
@@ -566,6 +694,45 @@ class DatabaseCase(unittest.TestCase):
 				loggy.info.mock_calls[0],
 				um.call("\"OOH\" successfully added to db")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[7],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = db_fetch_words(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),1)
+			self.assertIsInstance(response[0],tuple)
+			self.assertEqual(response[0][0],"OOH")
+			self.assertIsInstance(response[0][1],float)
+			self.assertEqual(response[0][2],"127.0.0.1")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from database")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
 
 
 	def test_db_add_word_added(self):
@@ -620,6 +787,11 @@ class DatabaseCase(unittest.TestCase):
 				loggy.warning.mock_calls[0],
 				um.call(f"\"OOH\" in db since {ts2.Ymd_dashed}")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_add_word_added_no_since(self):
@@ -670,6 +842,11 @@ class DatabaseCase(unittest.TestCase):
 				loggy.warning.mock_calls[0],
 				um.call("\"OOH\" in db since when not determined")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_add_word_reason(self):
@@ -700,6 +877,11 @@ class DatabaseCase(unittest.TestCase):
 				loggy.warning.mock_calls[0],
 				um.call("Query failed due to OperationalError: no such table: navbow_db_test")
 			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 	def test_db_add_word_invalid(self):
@@ -724,6 +906,11 @@ class DatabaseCase(unittest.TestCase):
 
 				loggy.warning.mock_calls[0],
 				um.call("Invalid word type <class 'int'> to add to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
 
