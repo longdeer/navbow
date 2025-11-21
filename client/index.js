@@ -37,8 +37,9 @@ function initController() {
 
 	ws.addEventListener("message",event => {
 
-		const { view, control, released } = JSON.parse(event.data);
+		const { view, control, released, reason } = JSON.parse(event.data);
 
+		if(reason) alert(reason); else
 		if(released) {
 			if(released in controllerState) {
 
@@ -46,8 +47,7 @@ function initController() {
 				delete controllerState[released];
 				return
 			}	console.error(`Received ${released} which is not in controller state`)
-		}
-
+		}	else
 		if(typeof(view) !== "string") {
 
 			console.error("Controller socket received invalid \"view\"");
@@ -103,9 +103,20 @@ function initManager() {
 	clockWork(document.getElementById("clock"),document.getElementById("calendar"));
 
 	const table = document.getElementById("words-table").getElementsByTagName("tbody")[0];
+	const tableInput = document.getElementById("add-word-input");
+	const inputReceiver = document.getElementsByName("add-word")[0];
 	const wmap = new Map();
 	const ws = new WebSocket(`ws://${location.host}/words-ws-cast`);
 
+	document.getElementById("add-button").addEventListener("click",event => {
+
+		event.preventDefault();
+		const word = inputReceiver.value.toUpperCase();
+
+		if(!word) return;
+		if(/[^\x00-\x7F]/.test(word)) alert(`Improper symbols in "${word}"!`); else
+		if(confirm(`Add "${word}" to database?`)) acceptWord(event, word, ws)
+	})
 	Array.prototype.forEach.call(
 
 		document.getElementsByClassName("del-button"),
@@ -121,14 +132,47 @@ function initManager() {
 	)
 	ws.addEventListener("message",event => {
 
-		const { removed } = JSON.parse(event.data);
+		const { removed, added, reason } = JSON.parse(event.data);
 
+		if(reason) alert(reason); else
 		if(removed) {
 			if(wmap.has(removed)) {
 
 				table.removeChild(wmap.get(removed));
 				wmap.delete(removed)
+
 			}	else console.warn(`Received remove signal for "${removed}" which is not in table`)
+		}	else
+		if(added) {
+
+			if(Array.isArray(added) && added.length == 3) {
+
+				const [ word, ts, source ] = added;
+				const newRow = table.insertRow(1);
+				const delButtonCell = newRow.insertCell();
+				const wordCell = newRow.insertCell();
+				const timestampCell = newRow.insertCell();
+				const sourceCell = newRow.insertCell();
+
+				delButtonCell.innerText = "X";
+				delButtonCell.classList.add("words-table-cell", "table-button", "del-button");
+				delButtonCell.addEventListener("click",event => {
+
+					if(confirm(`Delete "${word}"?`)) removeWord(event, word, ws)
+				})
+
+				wordCell.innerText = word;
+				wordCell.classList.add("words-table-cell");
+
+				timestampCell.innerText = ts;
+				timestampCell.classList.add("words-table-cell");
+
+				sourceCell.innerText = source;
+				sourceCell.classList.add("words-table-cell");
+
+				wmap.set(word,newRow);
+				inputReceiver.value = ""
+			}
 		}
 	})
 }

@@ -73,17 +73,21 @@ main {
 	border: 2px solid black;
 	padding: 10px;
 }
-.del-button {
+.table-button {
 	text-align: center;
 }
-.state-button {
+.table-input {
+	padding: 1px;
 	text-align: center;
 }
-.del-button:hover {
-	background-color: grey;
-	cursor: pointer;
+input[name="add-word"] {
+	margin: 0;
+	width: 95%;
+	font-size: 1.3em;
+	text-align: center;
+	border: none;
 }
-.state-button:hover {
+.table-button:hover {
 	background-color: grey;
 	cursor: pointer;
 }

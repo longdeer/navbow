@@ -382,7 +382,7 @@ class ControllerSocketHandler(NavbowWebSocketHandler):
 
 					try:
 						if	(reason := db_add(word, src)) is not None:
-							return await self.deny_reason(400, "word accepting", reason)
+							return await self.write_message({ "reason": reason })
 
 						self.history["control"].remove(word)
 
@@ -420,7 +420,7 @@ class WordsSocketHandler(NavbowWebSocketHandler):
 					try:
 						if	(reason := db_remove(word)) is not None:
 
-							return await self.deny_reason(400, "word removing", reason)
+							return await self.write_message({ "reason": reason })
 					except	Exception as E:
 
 						self.loggy.warning(f"Failed to remove \"{word}\" due to {patronus(E)}")
@@ -428,6 +428,21 @@ class WordsSocketHandler(NavbowWebSocketHandler):
 
 						self.loggy.info(f"\"{word}\" removed by {src} ({self.current_connection_uuid})")
 						await self.broadcast("removed",{ "removed": word })
+
+				case [ "accept",word ]:
+
+					try:	response = db_add(word, src)
+					except	Exception as E:
+
+						self.loggy.warning(f"Failed to add \"{word}\" due to {patronus(E)}")
+					else:
+						match response:
+							case str(): return await self.write_message({ "reason": response })
+							case tuple():
+
+								self.loggy.info(f"\"{word}\" added by {src} ({self.current_connection_uuid})")
+								await self.broadcast("added",{ "added": list(response) })
+
 				case _:	self.loggy.warning(f"Improper message received: {message}")
 		else:
 

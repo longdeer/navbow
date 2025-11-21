@@ -19,14 +19,22 @@
 		<main>
 			<div id="words-table-container">
 				<table id="words-table">
-					{% for word,added,source in content %}
-						<tr>
-							<td class="words-table-cell del-button">X</td>
-							<td class="words-table-cell">{{ word }}</td>
-							<td class="words-table-cell">{{ added }}</td>
-							<td class="words-table-cell">{{ source }}</td>
+					<tbody>
+						<tr id="add-word-input">
+							<td id="add-button" class="words-table-cell table-button">+</td>
+							<td class="words-table-cell table-input" colspan="3">
+								<input type="text" name="add-word">
+							</td>
 						</tr>
-					{% end %}
+						{% for word,added,source in content %}
+							<tr>
+								<td class="words-table-cell table-button del-button">X</td>
+								<td class="words-table-cell">{{ word }}</td>
+								<td class="words-table-cell">{{ added }}</td>
+								<td class="words-table-cell">{{ source }}</td>
+							</tr>
+						{% end %}
+					</tbody>
 				</table>
 			</div>
 		</main>
