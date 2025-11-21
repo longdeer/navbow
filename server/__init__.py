@@ -3,9 +3,8 @@ from json					import loads
 from asyncio				import Event
 from server.handlers		import IndexHandler
 from server.handlers		import WordsHandler
-from server.handlers		import NavbowWebSocketHandler
-from server.handlers		import WordRemoveHandler
-from server.handlers		import WordAcceptHandler
+from server.handlers		import ControllerSocketHandler
+from server.handlers		import WordsSocketHandler
 from server.handlers		import ViewerReceiverHandler
 from server.handlers		import IndexHandler
 from pygwarts.irma.contrib	import LibraryContrib
@@ -59,7 +58,7 @@ async def app(outer_addr :str =None, outer_port :int =None):
 			),
 			(
 				r"/controller-ws-cast",
-				NavbowWebSocketHandler,
+				ControllerSocketHandler,
 				{
 					"clients":	control_sockets,
 					"hosts":	set(hosts.get("view",[])),
@@ -68,20 +67,11 @@ async def app(outer_addr :str =None, outer_port :int =None):
 				}
 			),
 			(
-				r"/controller-word-remove",
-				WordRemoveHandler,
+				r"/words-ws-cast",
+				WordsSocketHandler,
 				{
-					"hosts":	set(hosts.get("control",[])),
-					"history":	history,
-					"loggy":	irma
-				}
-			),
-			(
-				r"/controller-word-accept",
-				WordAcceptHandler,
-				{
-					"hosts":	set(hosts.get("control",[])),
-					"history":	history,
+					"clients":	control_sockets,
+					"hosts":	set(hosts.get("view",[])),
 					"loggy":	irma
 				}
 			),

@@ -37,7 +37,7 @@ class NavbowRequestHandler(RequestHandler):
 
 		for client,socket in self.clients.items():
 
-			self.loggy.info(f"Sending {item} to {client}")
+			self.loggy.info(f"Sending \"{item}\" to {client}")
 			await socket.write_message(load)
 
 
@@ -112,50 +112,6 @@ class WordsHandler(NavbowRequestHandler):
 
 		self.loggy.warning("Database content was not fetched by route handler")
 		return self.render("words.html", content=[])
-
-
-
-
-class WordRemoveHandler(MainHandler):
-	async def delete(self):
-
-		src = self.request.remote_ip
-
-		if	src not in self.hosts:
-
-			await self.deny(403, "word removing", src)
-			return
-
-
-		word = loads(self.request.body).get("word")
-		self.loggy.debug(f"Received word to delete: {word}")
-
-
-		if	(reason := db_remove(word)):
-
-			await self.deny_reason(400, "word removing", reason)
-			return
-
-
-
-
-class WordAcceptHandler(MainHandler):
-	async def put(self):
-
-		src = self.request.remote_ip
-
-		if src not in self.hosts : await self.deny(403, "word accepting", src)
-		else:
-
-			word = loads(self.request.body).get("word")
-
-			if(reason := db_add(word, src)): await self.deny_reason(400, "word accepting", reason)
-			else:
-
-				try:	self.history["control"].remove(word)
-				except	ValueError : self.loggy.warning(f"{word} not found in controller history")
-				except	Exception as E : self.loggy.error(f"Unexpected {patronus(E)}")
-				else:	self.loggy.info(f"{src} accepted {word}")
 
 
 
@@ -342,13 +298,11 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 	def initialize(	self,
 					clients	:Dict[str,RequestHandler],
-					history	:Dict[str,List[str]],
 					hosts	:Set[str],
 					loggy
 				):
 
 		self.clients = clients
-		self.history = history
 		self.hosts = hosts
 		self.loggy = loggy
 
@@ -357,44 +311,8 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 		for client,socket in self.clients.items():
 
-			self.loggy.info(f"Sending {item} to {client}")
+			self.loggy.info(f"Sending \"{item}\" to {client}")
 			await socket.write_message(load)
-
-
-	async def on_message(self, message :str):
-
-		src = self.request.remote_ip
-
-		if	src in self.hosts:
-			match message.split(":"):
-
-				case [ "forget",word ]:
-
-					# Just removing "word" from "control" history
-					try:	self.history["control"].remove(word)
-					except	Exception as E: self.loggy.warning(f"Failed to forget \"{word}\" due to {patronus(E)}")
-					else:
-
-						self.loggy.info(f"\"{word}\" forgotten by {src} ({self.current_connection_uuid})")
-						await self.broadcast("release",{ "released": word })
-
-				case [ "accept",word ]:
-
-					try:
-
-						print(f"accepting {word}") # Imitating db query for now
-						self.history["control"].remove(word)
-
-					except	Exception as E: self.loggy.warning(f"Failed to accept \"{word}\" due to {patronus(E)}")
-					else:
-
-						self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
-						await self.broadcast("release",{ "released": word })
-				case _:	self.loggy.warning(f"Improper message received: {message}")
-		else:
-
-			self.close(1008, "Source address not allowed")
-			self.loggy.info(f"denied websocket for {src}")
 
 
 	def open(self):
@@ -419,6 +337,102 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 			del self.clients[self.current_connection_uuid]
 			self.loggy.info(f"closed connection ({self.current_connection_uuid})")
+
+
+
+
+
+
+
+
+class ControllerSocketHandler(NavbowWebSocketHandler):
+	def initialize(	self,
+					clients	:Dict[str,RequestHandler],
+					history	:Dict[str,List[str]],
+					hosts	:Set[str],
+					loggy
+				):
+
+		self.clients = clients
+		self.history = history
+		self.hosts = hosts
+		self.loggy = loggy
+
+
+	async def on_message(self, message :str):
+
+		src = self.request.remote_ip
+
+		if	src in self.hosts:
+			match message.split(":"):
+
+				case [ "forget",word ]:
+
+					# Just removing "word" from "control" history
+					try:	self.history["control"].remove(word)
+					except	Exception as E:
+
+						self.loggy.warning(f"Failed to forget \"{word}\" due to {patronus(E)}")
+					else:
+
+						self.loggy.info(f"\"{word}\" forgotten by {src} ({self.current_connection_uuid})")
+						await self.broadcast("release",{ "released": word })
+
+				case [ "accept",word ]:
+
+					try:
+						if	(reason := db_add(word, src)) is not None:
+							return await self.deny_reason(400, "word accepting", reason)
+
+						self.history["control"].remove(word)
+
+					except	Exception as E:
+
+						self.loggy.warning(f"Failed to accept \"{word}\" due to {patronus(E)}")
+					else:
+
+						self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
+						await self.broadcast("release",{ "released": word })
+				case _:	self.loggy.warning(f"Improper message received: {message}")
+		else:
+
+			self.close(1008, "Source address not allowed")
+			self.loggy.info(f"denied websocket for {src}")
+
+
+
+
+
+
+
+
+class WordsSocketHandler(NavbowWebSocketHandler):
+	async def on_message(self, message :str):
+
+		src = self.request.remote_ip
+
+		if	src in self.hosts:
+			match message.split(":"):
+
+				case [ "remove",word ]:
+
+					# Removing "word" from db
+					try:
+						if	(reason := db_remove(word)) is not None:
+
+							return await self.deny_reason(400, "word removing", reason)
+					except	Exception as E:
+
+						self.loggy.warning(f"Failed to remove \"{word}\" due to {patronus(E)}")
+					else:
+
+						self.loggy.info(f"\"{word}\" removed by {src} ({self.current_connection_uuid})")
+						await self.broadcast("removed",{ "removed": word })
+				case _:	self.loggy.warning(f"Improper message received: {message}")
+		else:
+
+			self.close(1008, "Source address not allowed")
+			self.loggy.info(f"denied websocket for {src}")
 
 
 

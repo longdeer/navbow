@@ -102,17 +102,35 @@ function initManager() {
 
 	clockWork(document.getElementById("clock"),document.getElementById("calendar"));
 
-	const table = document.getElementById("words-table");
+	const table = document.getElementById("words-table").getElementsByTagName("tbody")[0];
+	const wmap = new Map();
+	const ws = new WebSocket(`ws://${location.host}/words-ws-cast`);
 
-	// Array.prototype.forEach.call(
+	Array.prototype.forEach.call(
 
-	// 	document.getElementsByClassName("del-button"),
-	// 	button => button.addEventListener("click",event => {
+		document.getElementsByClassName("del-button"),
+		button => {
 
-	// 		const word = event.target.parentNode.cells[1].innerText;
-	// 		if(confirm(`Delete "${word}"?`)) removeWord(event, word)
-	// 	})
-	// )
+			const word = button.parentNode.cells[1].innerText;
+			wmap.set(word, button.parentNode);
+			button.addEventListener("click",event => {
+
+				if(confirm(`Delete "${word}"?`)) removeWord(event, word, ws)
+			})
+		}
+	)
+	ws.addEventListener("message",event => {
+
+		const { removed } = JSON.parse(event.data);
+
+		if(removed) {
+			if(wmap.has(removed)) {
+
+				table.removeChild(wmap.get(removed));
+				wmap.delete(removed)
+			}	else console.warn(`Received remove signal for "${removed}" which is not in table`)
+		}
+	})
 }
 
 
@@ -152,6 +170,17 @@ function acceptWord(event /* Event */, word /* String */, ws /* WebSocket */) {
 
 	try { ws.send(`accept:${word}`) }
 	catch(E) { console.error(`Failed to accept ${word} due to ${E}`) }
+}
+
+
+
+
+function removeWord(event /* Event */, word /* String */, ws /* WebSocket */) {
+
+	event.preventDefault();
+
+	try { ws.send(`remove:${word}`) }
+	catch(E) { console.error(`Failed to remove ${word} due to ${E}`) }
 }
 
 
