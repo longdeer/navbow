@@ -14,12 +14,9 @@ body {
 }
 header {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding-top: 15px;
-	padding-bottom: 15px;
-	font-size: 100px;
 	width: 100%;
 	margin: 0;
 }
@@ -32,6 +29,32 @@ main {
 	overflow: hidden;
 	justify-content: center;
 	background-color: #246da5;
+}
+#navigation {
+	font-size: 0;
+	margin: 0;
+	padding: 0;
+}
+.navigation-button {
+	margin: 0;
+	padding: 10px 30px;
+	border: none;
+	font-size: 1.8rem;
+	background-color: white;
+	color: black;
+}
+.navigation-button:hover {
+	background-color: #246da5;
+	color: white;
+}
+#clock {
+	padding-top: 0;
+	padding-bottom: 0;
+	font-size: 7rem;
+	line-height: .9;
+}
+#calendar {
+	font-size: 1.8rem;
 }
 #words-table-container {
 	display: flex;
@@ -81,6 +104,7 @@ main {
 	margin: 15px;
 	width: auto;
 	border-radius: 25px;
+	font-size: 1rem;
 }
 #controller {
 	display: flex;
@@ -97,6 +121,7 @@ main {
 	background-color: white;
 	width: auto;
 	border-radius: 25px;
+	font-size: 1.5rem;
 }
 .remove-button {
 	margin-left: 15px;

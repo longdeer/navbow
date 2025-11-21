@@ -8,7 +8,7 @@
 
 function initController() {
 
-	clockWork(document.getElementById("clock"));
+	clockWork(document.getElementById("clock"),document.getElementById("calendar"));
 
 	const controllerState = {};
 	const viewer = document.getElementById("viewer");
@@ -100,7 +100,7 @@ function initController() {
 
 function initManager() {
 
-	clockWork(document.getElementById("clock"));
+	clockWork(document.getElementById("clock"),document.getElementById("calendar"));
 
 	const table = document.getElementById("words-table");
 
@@ -118,7 +118,7 @@ function initManager() {
 
 
 
-function clockWork(element) {
+function clockWork(clock, calendar) {
 
 	const current = new Date();
 	const H = String(current.getHours()).padStart(2,"0");
@@ -126,9 +126,10 @@ function clockWork(element) {
 	const S = String(current.getSeconds()).padStart(2,"0");
 	const U = current.getMilliseconds();
 
-	element.innerText = `${H}:${M}:${S}`;
+	clock.innerText = `${H}:${M}:${S}`;
+	calendar.innerText = current.toDateString();
 
-	setTimeout(clockWork, 1000 -U, element)
+	setTimeout(clockWork, 1000 -U, clock, calendar)
 }
 
 
