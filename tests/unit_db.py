@@ -661,7 +661,12 @@ class DatabaseCase(unittest.TestCase):
 					)"""%self.words_table
 				)
 
-			self.assertIsNone(db_add("OOH", "127.0.0.1", loggy=loggy))
+			response = db_add("oOh", "127.0.0.1", loggy=loggy)
+			self.assertIsInstance(response,tuple)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"OOH")
+			self.assertIsInstance(response[1],float)
+			self.assertEqual(response[2],"127.0.0.1")
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],

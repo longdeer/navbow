@@ -181,7 +181,7 @@ def db_remove(word :str, connection :Connection, loggy :LibraryContrib) -> None 
 
 
 @connection_manager
-def db_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -> None | str :
+def db_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -> Tuple[str,float,str] | str :
 
 	"""
 		Will try to accept word (convert from unknown or 0 to known or 1)
@@ -194,6 +194,7 @@ def db_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -
 		loggy.warning(reason)
 		return reason
 
+	word = word.upper()
 
 	query = "SELECT word,added FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
 	loggy.debug(f"Constructed query: {query}")
@@ -234,6 +235,7 @@ def db_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -
 		return reason
 
 	loggy.info(f"\"{word}\" successfully added to db")
+	return added[0]
 
 
 
