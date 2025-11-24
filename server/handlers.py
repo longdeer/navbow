@@ -168,10 +168,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 							if	isinstance(view := content.get("view"),str):
 
 
-								if content.get("corrupted"): view = self.form_corrupted(view)
-								else: view = f"{self.form_timestamp()}\n\n{view}"
-
-
+								view = self.form_view(view, corrupted=content.get("corrupted"))
 								self.history["view"].insert(0,view)
 								load = { "view": view }
 
@@ -207,7 +204,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 				match analysis:
 
-					case { "message": view }:	load["view"] = self.form_corrupted(view)
+					case { "message": view }: load["view"] = self.form_view(view, corrupted=True)
 					case { "analysis": res }:
 
 						try:	pretty_view = analyzer.pretty_air(analysis)
@@ -217,7 +214,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 						else:
 
-							load["view"] = f"{self.form_timestamp()}\n\n{pretty_view}"
+							load["view"] = self.form_view(pretty_view)
 							control = set()
 
 							for words in res["unknown"].values(): control |= set(words)
@@ -253,7 +250,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 
 
-	def form_corrupted(self, message :str) -> str | None :
+	def form_view(self, message :str, corrupted=False) -> str | None :
 
 		"""
 			Make final message which will account for non-ASCII symbols. If "message" argument
@@ -262,29 +259,13 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 		"""
 
 		if	isinstance(message,str):
-			return "%s\n\n%s\n\n%s\n\n%s"%(
+			return "%s\n\n%s%s%s"%(
 
 				self.form_timestamp(),
-				"corrupted message",
+				"corrupted message\n\n" if corrupted else "",
 				message,
-				"* must be checked in original file"
+				"\n\n* must be checked in original file" if corrupted else ""
 			)
-
-
-
-
-	def Future_status(self, addr :str, client_uuid :str, future :Future):
-
-		"""
-			Takes Future object returned by "write_message" method of "WebSocketHandler" object
-			and consider it's status. As this method designed to be added as a Future callback,
-			the "future" is assumed to be done. Any result value will be considered success,
-			cause in any other cases corresponding Exception must be raised, according to
-			https://docs.python.org/3.12/library/asyncio-future.html#asyncio.Future.result
-		"""
-
-		future.result()
-		self.loggy.info(f"sent to {addr} ({client_uuid})")
 
 
 
@@ -386,18 +367,20 @@ class ControllerSocketHandler(NavbowWebSocketHandler):
 				case [ "accept",word ]:
 
 					try:
-						if	(reason := wordsdb_add(word, src)) is not None:
-							return await self.write_message({ "reason": reason })
+						match (response := wordsdb_add(word, src)):
 
-						self.history["control"].remove(word)
+							case str(): return await self.write_message({ "reason": response })
+							case tuple():
+
+								self.history["control"].remove(word)
+								self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
+								await self.broadcast("release",{ "released": word })
+
+							case _: self.error(f"Invalid accept:word response: {response}")
 
 					except	Exception as E:
 
 						self.loggy.warning(f"Failed to accept \"{word}\" due to {patronus(E)}")
-					else:
-
-						self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
-						await self.broadcast("release",{ "released": word })
 				case _:	self.loggy.warning(f"Improper message received: {message}")
 		else:
 
@@ -421,8 +404,7 @@ class WordsSocketHandler(NavbowWebSocketHandler):
 
 				case [ "remove",word ]:
 
-					# Removing "word" from db
-					try:
+					try:	# Removing "word" from db
 						if	(reason := wordsdb_remove(word)) is not None:
 
 							return await self.write_message({ "reason": reason })
@@ -442,6 +424,7 @@ class WordsSocketHandler(NavbowWebSocketHandler):
 						self.loggy.warning(f"Failed to add \"{word}\" due to {patronus(E)}")
 					else:
 						match response:
+
 							case str(): return await self.write_message({ "reason": response })
 							case tuple():
 

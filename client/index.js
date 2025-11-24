@@ -111,6 +111,7 @@ function initManager() {
 	document.getElementById("add-button").addEventListener("click",event => {
 
 		event.preventDefault();
+
 		const word = inputReceiver.value.toUpperCase();
 
 		if(!word) return;
