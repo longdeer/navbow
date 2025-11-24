@@ -8,9 +8,9 @@ from typing							import Any
 from asyncio						import Future
 from functools						import partial
 from analyzer						import NavtexAnalyzer
-from db								import db_fetch_words
-from db								import db_remove
-from db								import db_add
+from db								import wordsdb_fetch
+from db								import wordsdb_remove
+from db								import wordsdb_add
 from pygwarts.magical.spells		import patronus
 from pygwarts.magical.time_turner	import TimeTurner
 from tornado.web					import RequestHandler
@@ -65,7 +65,11 @@ class NavbowRequestHandler(RequestHandler):
 
 
 
-class MainHandler(NavbowRequestHandler):
+
+
+
+
+class IndexHandler(NavbowRequestHandler):
 	def initialize(self, hosts :Set[str], history :Dict[str,List[str]], loggy):
 
 		self.history = history
@@ -73,9 +77,6 @@ class MainHandler(NavbowRequestHandler):
 		self.loggy = loggy
 
 
-
-
-class IndexHandler(MainHandler):
 	def get(self):
 
 		src = self.request.remote_ip
@@ -87,6 +88,10 @@ class IndexHandler(MainHandler):
 
 		self.loggy.debug(f"index.html access granted for {src}")
 		return self.render("index.html", history=self.history)
+
+
+
+
 
 
 
@@ -108,7 +113,7 @@ class WordsHandler(NavbowRequestHandler):
 			return self.render("restricted.html")
 
 		self.loggy.debug(f"words.html access granted for {src}")
-		if isinstance(words := db_fetch_words(),list): return self.render("words.html", content=words)
+		if isinstance(words := wordsdb_fetch(),list): return self.render("words.html", content=words)
 
 		self.loggy.warning("Database content was not fetched by route handler")
 		return self.render("words.html", content=[])
@@ -381,7 +386,7 @@ class ControllerSocketHandler(NavbowWebSocketHandler):
 				case [ "accept",word ]:
 
 					try:
-						if	(reason := db_add(word, src)) is not None:
+						if	(reason := wordsdb_add(word, src)) is not None:
 							return await self.write_message({ "reason": reason })
 
 						self.history["control"].remove(word)
@@ -418,7 +423,7 @@ class WordsSocketHandler(NavbowWebSocketHandler):
 
 					# Removing "word" from db
 					try:
-						if	(reason := db_remove(word)) is not None:
+						if	(reason := wordsdb_remove(word)) is not None:
 
 							return await self.write_message({ "reason": reason })
 					except	Exception as E:
@@ -431,7 +436,7 @@ class WordsSocketHandler(NavbowWebSocketHandler):
 
 				case [ "accept",word ]:
 
-					try:	response = db_add(word, src)
+					try:	response = wordsdb_add(word, src)
 					except	Exception as E:
 
 						self.loggy.warning(f"Failed to add \"{word}\" due to {patronus(E)}")

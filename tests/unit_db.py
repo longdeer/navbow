@@ -11,10 +11,10 @@ import	unittest
 import	unittest.mock					as um
 from	sqlite3							import connect
 from	contextlib						import closing
-from	db								import db_match_set
-from	db								import db_fetch_words
-from	db								import db_remove
-from	db								import db_add
+from	db								import wordsdb_match_set
+from	db								import wordsdb_fetch
+from	db								import wordsdb_remove
+from	db								import wordsdb_add
 from	pygwarts.magical.time_turner	import TimeTurner
 
 
@@ -44,7 +44,7 @@ class DatabaseCase(unittest.TestCase):
 		cls.words_table = "navbow_db_test"
 
 
-	def test_db_match_set_empty(self):
+	def test_wordsdb_match_set_empty(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -56,7 +56,7 @@ class DatabaseCase(unittest.TestCase):
 					"CREATE TABLE %s (word TEXT UNIQUE NOT NULL PRIMARY KEY)"%self.words_table
 				)
 
-			self.assertEqual(db_match_set({ "OOH", "EEH" },loggy=loggy),set())
+			self.assertEqual(wordsdb_match_set({ "OOH", "EEH" },loggy=loggy),set())
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -87,7 +87,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_match_set_1matched(self):
+	def test_wordsdb_match_set_1matched(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -100,7 +100,7 @@ class DatabaseCase(unittest.TestCase):
 				)
 				self.connection.execute("INSERT INTO %s VALUES ('OOH'),('EEH')"%self.words_table)
 
-			self.assertEqual(db_match_set({ "OOH" },loggy=loggy),{ "OOH" })
+			self.assertEqual(wordsdb_match_set({ "OOH" },loggy=loggy),{ "OOH" })
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -128,7 +128,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_match_set_2matched(self):
+	def test_wordsdb_match_set_2matched(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -141,7 +141,7 @@ class DatabaseCase(unittest.TestCase):
 				)
 				self.connection.execute("INSERT INTO %s VALUES ('OOH'),('EEH')"%self.words_table)
 
-			self.assertEqual(db_match_set({ "OOH", "EEH" },loggy=loggy),{ "OOH", "EEH" })
+			self.assertEqual(wordsdb_match_set({ "OOH", "EEH" },loggy=loggy),{ "OOH", "EEH" })
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -172,7 +172,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_match_set_reason(self):
+	def test_wordsdb_match_set_reason(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -182,7 +182,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_match_set({ "OOH", "EEH" },loggy=loggy),
+				wordsdb_match_set({ "OOH", "EEH" },loggy=loggy),
 				"Query failed due to OperationalError: no such table: navbow_db_test"
 			)
 			self.assertEqual(
@@ -216,7 +216,7 @@ class DatabaseCase(unittest.TestCase):
 
 
 
-	def test_db_fetch_words_empty(self):
+	def test_wordsdb_fetch_empty(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -232,7 +232,7 @@ class DatabaseCase(unittest.TestCase):
 					)"""%self.words_table
 				)
 
-			self.assertEqual(db_fetch_words(loggy=loggy),"No rows found in database")
+			self.assertEqual(wordsdb_fetch(loggy=loggy),"No rows found in database")
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -260,7 +260,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_fetch_words(self):
+	def test_wordsdb_fetch_words(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 
@@ -289,7 +289,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_fetch_words(loggy=loggy),
+				wordsdb_fetch(loggy=loggy),
 				[
 					( "AH", ts3, "127.0.0.3" ),
 					( "OOH", ts2, "127.0.0.2" ),
@@ -323,7 +323,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_fetch_words_reason(self):
+	def test_wordsdb_fetch_reason(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -333,7 +333,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_fetch_words(loggy=loggy),
+				wordsdb_fetch(loggy=loggy),
 				"Query failed due to OperationalError: no such table: navbow_db_test"
 			)
 			self.assertEqual(
@@ -364,7 +364,7 @@ class DatabaseCase(unittest.TestCase):
 
 
 
-	def test_db_remove_word(self):
+	def test_wordsdb_remove_word(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 
@@ -391,7 +391,7 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertIsNone(db_remove("OOH",loggy=loggy))
+			self.assertIsNone(wordsdb_remove("OOH",loggy=loggy))
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -439,7 +439,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 			loggy.reset_mock()
-			response = db_fetch_words(loggy=loggy)
+			response = wordsdb_fetch(loggy=loggy)
 			self.assertIsInstance(response,list)
 			self.assertEqual(len(response),2)
 			self.assertIsInstance(response[0],tuple)
@@ -477,7 +477,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_remove_word_empty(self):
+	def test_wordsdb_remove_empty(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -493,7 +493,7 @@ class DatabaseCase(unittest.TestCase):
 					)"""%self.words_table
 				)
 
-			self.assertEqual(db_remove("OOH",loggy=loggy),"\"OOH\" cannot be removed cause it is not in db")
+			self.assertEqual(wordsdb_remove("OOH",loggy=loggy),"\"OOH\" cannot be removed cause it is not in db")
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -521,7 +521,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_remove_word_absent(self):
+	def test_wordsdb_remove_absent(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 
@@ -546,7 +546,7 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2)
 				)
 
-			self.assertEqual(db_remove("OOH",loggy=loggy),"\"OOH\" cannot be removed cause it is not in db")
+			self.assertEqual(wordsdb_remove("OOH",loggy=loggy),"\"OOH\" cannot be removed cause it is not in db")
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -574,7 +574,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_remove_word_reason(self):
+	def test_wordsdb_remove_reason(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -584,7 +584,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_remove("OOH",loggy=loggy),
+				wordsdb_remove("OOH",loggy=loggy),
 				"Query failed due to OperationalError: no such table: navbow_db_test"
 			)
 			self.assertEqual(
@@ -609,7 +609,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_remove_word_invalid(self):
+	def test_wordsdb_remove_invalid(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -619,7 +619,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_remove(69,loggy=loggy),
+				wordsdb_remove(69,loggy=loggy),
 				"Invalid word type <class 'int'> to remove from db"
 			)
 			self.assertEqual(
@@ -645,7 +645,7 @@ class DatabaseCase(unittest.TestCase):
 
 
 
-	def test_db_add_word(self):
+	def test_wordsdb_add(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -661,7 +661,7 @@ class DatabaseCase(unittest.TestCase):
 					)"""%self.words_table
 				)
 
-			response = db_add("oOh", "127.0.0.1", loggy=loggy)
+			response = wordsdb_add("oOh", "127.0.0.1", loggy=loggy)
 			self.assertIsInstance(response,tuple)
 			self.assertEqual(len(response),3)
 			self.assertEqual(response[0],"OOH")
@@ -705,7 +705,7 @@ class DatabaseCase(unittest.TestCase):
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 			loggy.reset_mock()
-			response = db_fetch_words(loggy=loggy)
+			response = wordsdb_fetch(loggy=loggy)
 			self.assertIsInstance(response,list)
 			self.assertEqual(len(response),1)
 			self.assertIsInstance(response[0],tuple)
@@ -740,7 +740,7 @@ class DatabaseCase(unittest.TestCase):
 
 
 
-	def test_db_add_word_added(self):
+	def test_wordsdb_add_added(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 
@@ -769,7 +769,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_add("OOH", "127.0.0.2", loggy=loggy),
+				wordsdb_add("OOH", "127.0.0.2", loggy=loggy),
 				f"\"OOH\" in db since {ts2.Ymd_dashed}"
 			)
 			self.assertEqual(
@@ -799,7 +799,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_add_word_added_no_since(self):
+	def test_wordsdb_add_added_no_since(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -824,7 +824,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_add("OOH", "127.0.0.2", loggy=loggy),
+				wordsdb_add("OOH", "127.0.0.2", loggy=loggy),
 				"\"OOH\" in db since when not determined"
 			)
 			self.assertEqual(
@@ -854,7 +854,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_add_word_reason(self):
+	def test_wordsdb_add_reason(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -864,7 +864,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_add("OOH", "127.0.0.1", loggy=loggy),
+				wordsdb_add("OOH", "127.0.0.1", loggy=loggy),
 				"Query failed due to OperationalError: no such table: navbow_db_test"
 			)
 			self.assertEqual(
@@ -889,7 +889,7 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_db_add_word_invalid(self):
+	def test_wordsdb_add_invalid(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -899,7 +899,7 @@ class DatabaseCase(unittest.TestCase):
 
 			self.assertEqual(
 
-				db_add(69, "127.0.0.1", loggy=loggy),
+				wordsdb_add(69, "127.0.0.1", loggy=loggy),
 				"Invalid word type <class 'int'> to add to db"
 			)
 			self.assertEqual(

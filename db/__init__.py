@@ -69,7 +69,7 @@ def connection_manager(qurier :Callable[[str | Sequence[str]],Set[str] | List[st
 
 
 @connection_manager
-def db_match_set(pendings :Sequence[str], connection :Connection, loggy :LibraryContrib) -> Set[str] :
+def wordsdb_match_set(pendings :Sequence[str], connection :Connection, loggy :LibraryContrib) -> Set[str] :
 
 	"""
 		Fetches words filtered by "pendings" set. Always returns a set, either with
@@ -93,7 +93,7 @@ def db_match_set(pendings :Sequence[str], connection :Connection, loggy :Library
 
 
 @connection_manager
-def db_fetch_words(connection :Connection, loggy :LibraryContrib) -> List[Tuple[str]] | str :
+def wordsdb_fetch(connection :Connection, loggy :LibraryContrib) -> List[Tuple[str]] | str :
 
 	"""
 		Fetches all rows from db and returns it as list of tuples.
@@ -123,7 +123,7 @@ def db_fetch_words(connection :Connection, loggy :LibraryContrib) -> List[Tuple[
 
 
 @connection_manager
-def db_remove(word :str, connection :Connection, loggy :LibraryContrib) -> None | str :
+def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> None | str :
 
 	"""
 		Will try to remove word from db
@@ -181,7 +181,7 @@ def db_remove(word :str, connection :Connection, loggy :LibraryContrib) -> None 
 
 
 @connection_manager
-def db_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -> Tuple[str,float,str] | str :
+def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -> Tuple[str,float,str] | str :
 
 	"""
 		Will try to accept word (convert from unknown or 0 to known or 1)

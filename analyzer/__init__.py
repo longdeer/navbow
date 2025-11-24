@@ -13,7 +13,7 @@ from analyzer.DTG					import G_MESSAGE_DTG
 from analyzer.DTG					import MONTH_MAP
 from analyzer.scanner				import sanit_state
 from analyzer.scanner				import word_scan
-from db								import db_match_set
+from db								import wordsdb_match_set
 from pygwarts.magical.spells		import flagrate
 from pygwarts.magical.spells		import patronus
 from pygwarts.magical.time_turner	import TimeTurner
@@ -230,7 +230,7 @@ class NavtexAnalyzer:
 
 
 				pending_words = set(pend.keys())
-				known = db_match_set(pending_words)
+				known = wordsdb_match_set(pending_words)
 				known = known if isinstance(known, set) else set()
 				unknown = pending_words - known
 
