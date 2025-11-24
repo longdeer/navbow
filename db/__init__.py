@@ -353,3 +353,36 @@ def historydb_fetch_control(connection :Connection, loggy :LibraryContrib) -> Li
 
 
 
+
+@connection_manager
+def historydb_add_control(
+							target		:str,
+							src			:str,
+							connection	:Connection,
+							loggy		:LibraryContrib
+						)-> None | str	:
+
+	if	not isinstance(target,str):
+
+		reason = f"Invalid control word type {type(target)} to add to db"
+		loggy.warning(reason)
+		return reason
+
+
+	ts = TimeTurner().epoch
+	table = getenv("HISTORY_CONTROL_TABLE")
+	query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(table,target,ts,src)
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+	l = len(target)
+	loggy.info(f"{l} symbol{flagrate(l)} control word successfully added to db")
+
+
+
+
+
+
+
