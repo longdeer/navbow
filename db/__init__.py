@@ -69,15 +69,15 @@ def connection_manager(qurier :Callable[[str | Sequence[str]],Set[str] | List[st
 
 
 @connection_manager
-def wordsdb_match_set(pendings :Sequence[str], connection :Connection, loggy :LibraryContrib) -> Set[str] :
+def wordsdb_match_set(targets :Sequence[str], connection :Connection, loggy :LibraryContrib) -> Set[str] :
 
 	"""
-		Fetches words filtered by "pendings" set. Always returns a set, either with
+		Fetches words filtered by "targets" set. Always returns a set, either with
 		strings that correspond to words matched in db or empty.
 	"""
 
 	table = getenv("WORDS_TABLE")
-	query = "SELECT word FROM %s WHERE word IN ('%s')"%(table,"','".join(pendings))
+	query = "SELECT word FROM %s WHERE word IN ('%s')"%(table,"','".join(targets))
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -125,22 +125,22 @@ def wordsdb_fetch(connection :Connection, loggy :LibraryContrib) -> List[Tuple[s
 
 
 @connection_manager
-def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> None | str :
+def wordsdb_remove(target :str, connection :Connection, loggy :LibraryContrib) -> None | str :
 
 	"""
 		Will try to remove word from db
 		returns None in case of success, str as problem description otherwise
 	"""
 
-	if	not isinstance(word,str):
+	if	not isinstance(target,str):
 
-		reason = f"Invalid word type {type(word)} to remove from db"
+		reason = f"Invalid word type {type(target)} to remove from db"
 		loggy.warning(reason)
 		return reason
 
 
 	table = getenv("WORDS_TABLE")
-	query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
+	query = "SELECT word FROM %s WHERE word='%s'"%(table,target)
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -149,19 +149,19 @@ def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> 
 
 	if	not current:
 
-		reason = f"\"{word}\" cannot be removed cause it is not in db"
+		reason = f"\"{target}\" cannot be removed cause it is not in db"
 		loggy.warning(reason)
 		return reason
 
 
-	query = "DELETE FROM %s WHERE word='%s'"%(table,word)
+	query = "DELETE FROM %s WHERE word='%s'"%(table,target)
 	loggy.debug(f"Constructed query: {query}")
 
 	connection.execute(query)
 	loggy.debug("Query result no exception")
 
 
-	query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
+	query = "SELECT word FROM %s WHERE word='%s'"%(table,target)
 	loggy.debug(f"Constructed query: {query}")
 
 	still = connection.execute(query).fetchall()
@@ -170,11 +170,11 @@ def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> 
 
 	if	still:
 
-		reason = f"\"{word}\" was not removed from db"
+		reason = f"\"{target}\" was not removed from db"
 		loggy.warning(reason)
 		return reason
 
-	loggy.info(f"\"{word}\" removed from db")
+	loggy.info(f"\"{target}\" removed from db")
 
 
 
@@ -184,22 +184,27 @@ def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> 
 
 
 @connection_manager
-def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContrib) -> Tuple[str,float,str] | str :
+def wordsdb_add(
+				target		:str,
+				src			:str,
+				connection	:Connection,
+				loggy		:LibraryContrib
+			)->	Tuple[str,float,str] | str :
 
 	"""
 		Will try to accept word (convert from unknown or 0 to known or 1)
 		returns None in case of success, str as problem description otherwise
 	"""
 
-	if	not isinstance(word,str):
+	if	not isinstance(target,str):
 
-		reason = f"Invalid word type {type(word)} to add to db"
+		reason = f"Invalid word type {type(target)} to add to db"
 		loggy.warning(reason)
 		return reason
 
-	word = word.upper()
+	target = target.upper()
 	table = getenv("WORDS_TABLE")
-	query = "SELECT word,added FROM %s WHERE word='%s'"%(table,word)
+	query = "SELECT word,added FROM %s WHERE word='%s'"%(table,target)
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -208,8 +213,8 @@ def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContr
 
 	if	current:
 
-		try:	reason = f"\"{word}\" in db since {TimeTurner(current[0][1]).Ymd_dashed}"
-		except	Exception as E: reason = f"\"{word}\" in db since when not determined"
+		try:	reason = f"\"{target}\" in db since {TimeTurner(current[0][1]).Ymd_dashed}"
+		except	Exception as E: reason = f"\"{target}\" in db since when not determined"
 		finally:
 
 			loggy.warning(reason)
@@ -217,14 +222,14 @@ def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContr
 
 
 	ts = TimeTurner().epoch
-	query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(table,word,ts,src)
+	query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(table,target,ts,src)
 	loggy.debug(f"Constructed query: {query}")
 
 	connection.execute(query)
 	loggy.debug("Query result no exception")
 
 
-	query = "SELECT word,added,source FROM %s WHERE word='%s'"%(table,word)
+	query = "SELECT word,added,source FROM %s WHERE word='%s'"%(table,target)
 	loggy.debug(f"Constructed query: {query}")
 
 	added = connection.execute(query).fetchall()
@@ -233,11 +238,11 @@ def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContr
 
 	if	not added or added[0][1] != ts or added[0][2] != src:
 
-		reason = f"\"{word}\" adding not completed"
+		reason = f"\"{target}\" adding not completed"
 		loggy.warning(reason)
 		return reason
 
-	loggy.info(f"\"{word}\" successfully added to db")
+	loggy.info(f"\"{target}\" successfully added to db")
 	return added[0]
 
 
@@ -267,6 +272,52 @@ def historydb_fetch_view(connection :Connection, loggy :LibraryContrib) -> List[
 
 	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from {table}")
 	return list(map(itemgetter(0),current))
+
+
+
+
+
+
+
+
+@connection_manager
+def historydb_add_view(target :str, src :str, connection :Connection, loggy :LibraryContrib) -> None | str :
+
+	if	not isinstance(target,str):
+
+		reason = f"Invalid view type {type(target)} to add to db"
+		loggy.warning(reason)
+		return reason
+
+
+	ts = TimeTurner().epoch
+	table = getenv("HISTORY_VIEW_TABLE")
+	query = "INSERT INTO %s (view,added,source) VALUES ('%s',%s,'%s')"%(table,target,ts,src)
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+	l = len(target)
+	loggy.info(f"{l} symbol{flagrate(l)} view successfully added to db")
+
+
+	query = "SELECT COUNT(*) FROM %s"%table
+	loggy.debug(f"Constructed query: {query}")
+
+	count = connection.execute(query).fetchall()
+	loggy.debug("Query result no exception")
+
+
+	if	0 <(rem := count[0][0] -100):
+
+		query = "DELETE FROM %s WHERE (view,added) IN (SELECT view,added FROM %s ORDER BY 2 LIMIT %s)"%(
+			table,table,rem
+		)
+		loggy.debug(f"Constructed query: {query}")
+
+		connection.execute(query)
+		loggy.debug("Query result no exception")
 
 
 
