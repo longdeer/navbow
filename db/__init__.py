@@ -76,12 +76,13 @@ def wordsdb_match_set(pendings :Sequence[str], connection :Connection, loggy :Li
 		strings that correspond to words matched in db or empty.
 	"""
 
-	query = "SELECT word FROM %s WHERE word IN ('%s')"%(getenv("WORDS_TABLE"),"','".join(pendings))
+	table = getenv("WORDS_TABLE")
+	query = "SELECT word FROM %s WHERE word IN ('%s')"%(table,"','".join(pendings))
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
 	loggy.debug("Query result no exception")
-	loggy.info(f"Matched {len(current)} row{flagrate(len(current))} from database")
+	loggy.info(f"Matched {len(current)} row{flagrate(len(current))} from {table}")
 
 	return set(map(itemgetter(0),current))
 
@@ -100,7 +101,8 @@ def wordsdb_fetch(connection :Connection, loggy :LibraryContrib) -> List[Tuple[s
 		Any Exception caught will be returned as "reason" string instead of rows.
 	"""
 
-	query = "SELECT word,added,source FROM %s"%getenv("WORDS_TABLE")
+	table = getenv("WORDS_TABLE")
+	query = "SELECT word,added,source FROM %s ORDER BY 2,1"%table
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -108,12 +110,13 @@ def wordsdb_fetch(connection :Connection, loggy :LibraryContrib) -> List[Tuple[s
 
 	if	not current:
 
-		reason = f"No rows found in database"
-		loggy.warning(reason)
+		reason = f"No rows found in {table}"
+		loggy.info(reason)
 		return reason
 
-	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from database")
-	return sorted(current,key=itemgetter(1,0))
+	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from {table}")
+	return current
+	# return sorted(current,key=itemgetter(1,0))
 
 
 
@@ -137,7 +140,8 @@ def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> 
 		return reason
 
 
-	query = "SELECT word FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	table = getenv("WORDS_TABLE")
+	query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -151,14 +155,14 @@ def wordsdb_remove(word :str, connection :Connection, loggy :LibraryContrib) -> 
 		return reason
 
 
-	query = "DELETE FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	query = "DELETE FROM %s WHERE word='%s'"%(table,word)
 	loggy.debug(f"Constructed query: {query}")
 
 	connection.execute(query)
 	loggy.debug("Query result no exception")
 
 
-	query = "SELECT word FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	query = "SELECT word FROM %s WHERE word='%s'"%(table,word)
 	loggy.debug(f"Constructed query: {query}")
 
 	still = connection.execute(query).fetchall()
@@ -195,8 +199,8 @@ def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContr
 		return reason
 
 	word = word.upper()
-
-	query = "SELECT word,added FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	table = getenv("WORDS_TABLE")
+	query = "SELECT word,added FROM %s WHERE word='%s'"%(table,word)
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -214,14 +218,14 @@ def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContr
 
 
 	ts = TimeTurner().epoch
-	query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(getenv("WORDS_TABLE"),word,ts,src)
+	query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(table,word,ts,src)
 	loggy.debug(f"Constructed query: {query}")
 
 	connection.execute(query)
 	loggy.debug("Query result no exception")
 
 
-	query = "SELECT word,added,source FROM %s WHERE word='%s'"%(getenv("WORDS_TABLE"),word)
+	query = "SELECT word,added,source FROM %s WHERE word='%s'"%(table,word)
 	loggy.debug(f"Constructed query: {query}")
 
 	added = connection.execute(query).fetchall()

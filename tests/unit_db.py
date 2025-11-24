@@ -78,7 +78,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Matched 0 rows from database")
+				um.call("Matched 0 rows from navbow_db_test")
 			)
 			self.assertEqual(
 
@@ -119,7 +119,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Matched 1 row from database")
+				um.call("Matched 1 row from navbow_db_test")
 			)
 			self.assertEqual(
 
@@ -163,7 +163,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Matched 2 rows from database")
+				um.call("Matched 2 rows from navbow_db_test")
 			)
 			self.assertEqual(
 
@@ -232,7 +232,7 @@ class DatabaseCase(unittest.TestCase):
 					)"""%self.words_table
 				)
 
-			self.assertEqual(wordsdb_fetch(loggy=loggy),"No rows found in database")
+			self.assertEqual(wordsdb_fetch(loggy=loggy),"No rows found in navbow_db_test")
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -241,7 +241,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
 			)
 			self.assertEqual(
 
@@ -250,8 +250,8 @@ class DatabaseCase(unittest.TestCase):
 			)
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("No rows found in database")
+				loggy.info.mock_calls[0],
+				um.call("No rows found in navbow_db_test")
 			)
 			self.assertEqual(
 
@@ -304,7 +304,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
 			)
 			self.assertEqual(
 
@@ -314,7 +314,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Fetched 3 rows from database")
+				um.call("Fetched 3 rows from navbow_db_test")
 			)
 			self.assertEqual(
 
@@ -344,7 +344,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
 			)
 			self.assertEqual(
 
@@ -458,7 +458,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
 			)
 			self.assertEqual(
 
@@ -468,7 +468,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Fetched 2 rows from database")
+				um.call("Fetched 2 rows from navbow_db_test")
 			)
 			self.assertEqual(
 
@@ -720,7 +720,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test")
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
 			)
 			self.assertEqual(
 
@@ -730,7 +730,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("Fetched 1 row from database")
+				um.call("Fetched 1 row from navbow_db_test")
 			)
 			self.assertEqual(
 
