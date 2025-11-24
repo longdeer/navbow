@@ -325,3 +325,31 @@ def historydb_add_view(target :str, src :str, connection :Connection, loggy :Lib
 
 
 
+
+@connection_manager
+def historydb_fetch_control(connection :Connection, loggy :LibraryContrib) -> List[str] | str :
+
+	table = getenv("HISTORY_CONTROL_TABLE")
+	query = "SELECT word FROM %s ORDER BY 1"%table
+	loggy.debug(f"Constructed query: {query}")
+
+	current = connection.execute(query).fetchall()
+	loggy.debug("Query result no exception")
+
+
+	if	not current:
+
+		reason = f"No rows found in {table}"
+		loggy.info(reason)
+		return reason
+
+
+	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from {table}")
+	return list(map(itemgetter(0),current))
+
+
+
+
+
+
+
