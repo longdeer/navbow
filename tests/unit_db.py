@@ -15,6 +15,7 @@ from	db								import wordsdb_match_set
 from	db								import wordsdb_fetch
 from	db								import wordsdb_remove
 from	db								import wordsdb_add
+from	db								import historydb_fetch_view
 from	pygwarts.magical.time_turner	import TimeTurner
 
 
@@ -41,7 +42,9 @@ class DatabaseCase(unittest.TestCase):
 		cls.connection = connect(cls.db_path)
 		os.environ["DB_PATH"] = cls.db_path
 		os.environ["WORDS_TABLE"] = "navbow_db_test"
+		os.environ["HISTORY_VIEW_TABLE"] = "navbow_hvdb_test"
 		cls.words_table = "navbow_db_test"
+		cls.history_view_table = "navbow_hvdb_test"
 
 
 	def test_wordsdb_match_set_empty(self):
@@ -916,6 +919,136 @@ class DatabaseCase(unittest.TestCase):
 
 				loggy.debug.mock_calls[1],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+
+
+
+
+
+
+	def test_historydb_fetch_view(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						view TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT CURRENT_TIMESTAMP,
+						source TEXT
+					)"""%self.history_view_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hvdb_test VALUES
+						("OOH",{ts2},"127.0.0.2"),
+						("EEH",{ts1},"127.0.0.1"),
+						("AH",{ts3},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(historydb_fetch_view(loggy=loggy),[ "AH","EEH","OOH" ])
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_fetch_view_empty(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						view TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT CURRENT_TIMESTAMP,
+						source TEXT
+					)"""%self.history_view_table
+				)
+
+			self.assertEqual(historydb_fetch_view(loggy=loggy),"No rows found in navbow_hvdb_test")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("No rows found in navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_fetch_view_reason(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+
+			self.assertEqual(
+
+				historydb_fetch_view(loggy=loggy),
+				"Query failed due to OperationalError: no such table: navbow_hvdb_test"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to OperationalError: no such table: navbow_hvdb_test")
 			)
 
 

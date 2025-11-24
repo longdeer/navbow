@@ -116,7 +116,6 @@ def wordsdb_fetch(connection :Connection, loggy :LibraryContrib) -> List[Tuple[s
 
 	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from {table}")
 	return current
-	# return sorted(current,key=itemgetter(1,0))
 
 
 
@@ -240,6 +239,34 @@ def wordsdb_add(word :str, src :str, connection :Connection, loggy :LibraryContr
 
 	loggy.info(f"\"{word}\" successfully added to db")
 	return added[0]
+
+
+
+
+
+
+
+
+@connection_manager
+def historydb_fetch_view(connection :Connection, loggy :LibraryContrib) -> List[str] | str :
+
+	table = getenv("HISTORY_VIEW_TABLE")
+	query = "SELECT view,added FROM %s ORDER BY 2 DESC"%table
+	loggy.debug(f"Constructed query: {query}")
+
+	current = connection.execute(query).fetchall()
+	loggy.debug("Query result no exception")
+
+
+	if	not current:
+
+		reason = f"No rows found in {table}"
+		loggy.info(reason)
+		return reason
+
+
+	loggy.info(f"Fetched {len(current)} row{flagrate(len(current))} from {table}")
+	return list(map(itemgetter(0),current))
 
 
 
