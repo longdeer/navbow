@@ -3210,6 +3210,123 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
+	def test_historydb_add_control_invalid_set(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertEqual(
+
+				historydb_add_control({ 420,69 }, "127.0.0.1", loggy=loggy),
+				"Query failed due to TypeError: can only concatenate str (not \"int\") to str"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to TypeError: can only concatenate str (not \"int\") to str")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_invalid_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertEqual(
+
+				historydb_add_control([ 420,69 ], "127.0.0.1", loggy=loggy),
+				"Query failed due to TypeError: can only concatenate str (not \"int\") to str"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to TypeError: can only concatenate str (not \"int\") to str")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_invalid_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertEqual(
+
+				historydb_add_control(( 420,69 ), "127.0.0.1", loggy=loggy),
+				"Query failed due to TypeError: can only concatenate str (not \"int\") to str"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to TypeError: can only concatenate str (not \"int\") to str")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
 
 
 

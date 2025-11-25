@@ -373,7 +373,9 @@ def historydb_add_control(
 	else:
 		l = len(targets)
 		query = "INSERT INTO %s (word,added,source) VALUES %s"%(
-			table, ",".join( f"('{target}',{TimeTurner().epoch},'{src}')" for target in targets )
+
+			table,
+			",".join( "('" + target + f"',{TimeTurner().epoch},'{src}')" for target in targets )
 		)
 
 	loggy.debug(f"Constructed query: {query}")
