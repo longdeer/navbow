@@ -391,3 +391,36 @@ def historydb_add_control(
 
 
 
+
+@connection_manager
+def historydb_remove_control(
+								targets		:str | Sequence[str],
+								connection	:Connection,
+								loggy		:LibraryContrib
+							)-> None | str	:
+
+	table = getenv("HISTORY_CONTROL_TABLE")
+
+	if	isinstance(targets,str):
+
+		l = 1
+		query = "DELETE FROM %s WHERE word='%s'"%(table, targets)
+	else:
+		l = len(targets)
+		query = "DELETE FROM %s WHERE word IN (%s)"%(
+			table, ",".join( "'" + target + "'" for target in targets )
+		)
+
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+	loggy.info(f"{l} control word{flagrate(l)} probably removed from db")
+
+
+
+
+
+
+
