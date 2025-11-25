@@ -1698,7 +1698,7 @@ class DatabaseCase(unittest.TestCase):
 
 
 
-	def test_historydb_add_control_empty(self):
+	def test_historydb_add_control_empty_single_string(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
@@ -1729,7 +1729,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 symbols control word successfully added to db")
+				um.call("1 control word successfully added to db")
 			)
 			self.assertEqual(
 
@@ -1768,13 +1768,10 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_historydb_add_control_not_empty(self):
+	def test_historydb_add_control_empty_single_set(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
-
 			loggy = irma.return_value
-			ts2 = TimeTurner(days=-1).epoch
-			ts3 = TimeTurner(days=1).epoch
 
 			with self.connection:
 
@@ -1786,14 +1783,8 @@ class DatabaseCase(unittest.TestCase):
 						source TEXT
 					)"""%self.history_control_table
 				)
-				self.connection.execute("""
-					INSERT INTO navbow_hcdb_test VALUES
-						("EEH",{ts3},"127.0.0.1"),
-						("AH",{ts2},"127.0.0.3")
-					""".format(ts2=ts2, ts3=ts3)
-				)
 
-			self.assertIsNone(historydb_add_control("OOH", "127.0.0.1", loggy=loggy))
+			self.assertIsNone(historydb_add_control({ "EEH" }, "127.0.0.1", loggy=loggy))
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -1808,7 +1799,217 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 symbols control word successfully added to db")
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),1)
+			self.assertEqual(response[0],"EEH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_empty_single_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertIsNone(historydb_add_control([ "OOH" ], "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),1)
+			self.assertEqual(response[0],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_empty_single_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertIsNone(historydb_add_control(( "AH", ), "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),1)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_empty_many_set(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertIsNone(historydb_add_control({ "OOH", "EEH", "AH" }, "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 control words successfully added to db")
 			)
 			self.assertEqual(
 
@@ -1849,7 +2050,745 @@ class DatabaseCase(unittest.TestCase):
 			)
 
 
-	def test_historydb_add_control_duplicate(self):
+	def test_historydb_add_control_empty_many_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertIsNone(historydb_add_control([ "OOH", "EEH", "AH" ], "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 control words successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_empty_many_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+
+			self.assertIsNone(historydb_add_control(( "OOH", "EEH", "AH" ), "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 control words successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_single_string(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control("TING", "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),4)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"TING")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 4 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_single_set(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control({ "TANG" }, "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),4)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"TANG")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 4 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_single_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control([ "WALLA" ], "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),4)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"WALLA")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 4 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_single_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control(( "WALLA", ), "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),4)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"WALLA")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 4 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_many_set(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control({ "WALLA", "BING", "BANG" }, "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 control words successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),6)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"BANG")
+			self.assertEqual(response[2],"BING")
+			self.assertEqual(response[3],"EEH")
+			self.assertEqual(response[4],"OOH")
+			self.assertEqual(response[5],"WALLA")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 6 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_many_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control([ "TING", "TANG", "WALLA" ], "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 control words successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),6)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"TANG")
+			self.assertEqual(response[4],"TING")
+			self.assertEqual(response[5],"WALLA")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 6 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_not_empty_many_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertIsNone(historydb_add_control(( "WALLA", "BING", "BANG" ), "127.0.0.1", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 control words successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),6)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"BANG")
+			self.assertEqual(response[2],"BING")
+			self.assertEqual(response[3],"EEH")
+			self.assertEqual(response[4],"OOH")
+			self.assertEqual(response[5],"WALLA")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 6 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_duplicate_single_string(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 
@@ -1897,6 +2836,308 @@ class DatabaseCase(unittest.TestCase):
 				loggy.debug.mock_calls[2],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
+
+
+	def test_historydb_add_control_duplicate_single_set(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(
+
+				historydb_add_control({ "OOH" }, "127.0.0.1", loggy=loggy),
+				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_duplicate_single_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(
+
+				historydb_add_control([ "OOH" ], "127.0.0.1", loggy=loggy),
+				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_duplicate_single_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(
+
+				historydb_add_control(( "OOH", ), "127.0.0.1", loggy=loggy),
+				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_duplicate_many_set(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(
+
+				historydb_add_control({ "OOH", "EEH", "TING", "TANG" }, "127.0.0.1", loggy=loggy),
+				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_duplicate_many_list(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(
+
+				historydb_add_control([ "OOH", "EEH", "TING", "TANG" ], "127.0.0.1", loggy=loggy),
+				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_control_duplicate_many_tuple(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS %s (
+						word TEXT UNIQUE NOT NULL PRIMARY KEY,
+						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""%self.history_control_table
+				)
+				self.connection.execute("""
+					INSERT INTO navbow_hcdb_test VALUES
+						("OOH",{ts1},"127.0.0.2"),
+						("EEH",{ts3},"127.0.0.1"),
+						("AH",{ts2},"127.0.0.3")
+					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+				)
+
+			self.assertEqual(
+
+				historydb_add_control(( "OOH", "EEH", "TING", "TANG" ), "127.0.0.1", loggy=loggy),
+				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
 
 
 	def test_historydb_add_control_reason(self):
@@ -1949,7 +3190,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				historydb_add_control(69, "127.0.0.1", loggy=loggy),
-				"Invalid control word type <class 'int'> to add to db"
+				"Query failed due to TypeError: object of type 'int' has no len()"
 			)
 			self.assertEqual(
 
@@ -1960,7 +3201,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.warning.mock_calls[0],
-				um.call("Invalid control word type <class 'int'> to add to db")
+				um.call("Query failed due to TypeError: object of type 'int' has no len()")
 			)
 			self.assertEqual(
 
