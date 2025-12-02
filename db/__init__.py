@@ -367,12 +367,12 @@ def historydb_add_control(
 	if	isinstance(targets,str):
 
 		l = 1
-		query = "INSERT INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(
+		query = "INSERT OR IGNORE INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(
 			table, targets, TimeTurner().epoch, src
 		)
 	else:
 		l = len(targets)
-		query = "INSERT INTO %s (word,added,source) VALUES %s"%(
+		query = "INSERT OR IGNORE INTO %s (word,added,source) VALUES %s"%(
 
 			table,
 			",".join( "('" + target + f"',{TimeTurner().epoch},'{src}')" for target in targets )
@@ -383,7 +383,7 @@ def historydb_add_control(
 	connection.execute(query)
 	loggy.debug("Query result no exception")
 
-	loggy.info(f"{l} control word{flagrate(l)} successfully added to db")
+	loggy.info(f"{l} control word{flagrate(l)} adding processed")
 
 
 
@@ -416,7 +416,7 @@ def historydb_remove_control(
 	connection.execute(query)
 	loggy.debug("Query result no exception")
 
-	loggy.info(f"{l} control word{flagrate(l)} probably removed from db")
+	loggy.info(f"{l} control word{flagrate(l)} removing processed")
 
 
 

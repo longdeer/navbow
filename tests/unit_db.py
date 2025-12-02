@@ -1730,7 +1730,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -1800,7 +1800,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -1870,7 +1870,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -1940,7 +1940,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -2010,7 +2010,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words successfully added to db")
+				um.call("3 control words adding processed")
 			)
 			self.assertEqual(
 
@@ -2082,7 +2082,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words successfully added to db")
+				um.call("3 control words adding processed")
 			)
 			self.assertEqual(
 
@@ -2154,7 +2154,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words successfully added to db")
+				um.call("3 control words adding processed")
 			)
 			self.assertEqual(
 
@@ -2237,7 +2237,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -2321,7 +2321,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -2405,7 +2405,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -2489,7 +2489,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word successfully added to db")
+				um.call("1 control word adding processed")
 			)
 			self.assertEqual(
 
@@ -2573,7 +2573,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words successfully added to db")
+				um.call("3 control words adding processed")
 			)
 			self.assertEqual(
 
@@ -2659,7 +2659,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words successfully added to db")
+				um.call("3 control words adding processed")
 			)
 			self.assertEqual(
 
@@ -2745,7 +2745,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words successfully added to db")
+				um.call("3 control words adding processed")
 			)
 			self.assertEqual(
 
@@ -2816,11 +2816,7 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control("OOH", "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
-			)
+			self.assertIsNone(historydb_add_control("OOH", "127.0.0.1", loggy=loggy))
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -2829,12 +2825,49 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -2866,11 +2899,7 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control({ "OOH" }, "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
-			)
+			self.assertIsNone(historydb_add_control({ "OOH" }, "127.0.0.1", loggy=loggy))
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -2879,12 +2908,49 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -2916,11 +2982,7 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control([ "OOH" ], "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
-			)
+			self.assertIsNone(historydb_add_control([ "OOH" ], "127.0.0.1", loggy=loggy))
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -2929,12 +2991,49 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -2966,11 +3065,7 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control(( "OOH", ), "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
-			)
+			self.assertIsNone(historydb_add_control(( "OOH", ), "127.0.0.1", loggy=loggy))
 			self.assertEqual(
 
 				loggy.debug.mock_calls[0],
@@ -2979,12 +3074,49 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("1 control word adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),3)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -3016,10 +3148,8 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control({ "OOH", "EEH", "TING", "TANG" }, "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			self.assertIsNone(
+				historydb_add_control({ "OOH", "EEH", "TING", "TANG" }, "127.0.0.1", loggy=loggy)
 			)
 			self.assertEqual(
 
@@ -3029,12 +3159,51 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("4 control words adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),5)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"TANG")
+			self.assertEqual(response[4],"TING")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 5 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -3066,10 +3235,8 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control([ "OOH", "EEH", "TING", "TANG" ], "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			self.assertIsNone(
+				historydb_add_control([ "OOH", "EEH", "TING", "TANG" ], "127.0.0.1", loggy=loggy)
 			)
 			self.assertEqual(
 
@@ -3079,12 +3246,51 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("4 control words adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),5)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"TANG")
+			self.assertEqual(response[4],"TING")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 5 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -3116,10 +3322,8 @@ class DatabaseCase(unittest.TestCase):
 					""".format(ts1=ts1, ts2=ts2, ts3=ts3)
 				)
 
-			self.assertEqual(
-
-				historydb_add_control(( "OOH", "EEH", "TING", "TANG" ), "127.0.0.1", loggy=loggy),
-				"Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word"
+			self.assertIsNone(
+				historydb_add_control(( "OOH", "EEH", "TING", "TANG" ), "127.0.0.1", loggy=loggy)
 			)
 			self.assertEqual(
 
@@ -3129,12 +3333,51 @@ class DatabaseCase(unittest.TestCase):
 			# INSERT query construction omitted cause of timestamp accuracy
 			self.assertEqual(
 
-				loggy.warning.mock_calls[0],
-				um.call("Query failed due to IntegrityError: UNIQUE constraint failed: navbow_hcdb_test.word")
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("4 control words adding processed")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			response = historydb_fetch_control(loggy=loggy)
+			self.assertIsInstance(response,list)
+			self.assertEqual(len(response),5)
+			self.assertEqual(response[0],"AH")
+			self.assertEqual(response[1],"EEH")
+			self.assertEqual(response[2],"OOH")
+			self.assertEqual(response[3],"TANG")
+			self.assertEqual(response[4],"TING")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
 			)
 			self.assertEqual(
 
 				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 5 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
@@ -3380,7 +3623,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -3466,7 +3709,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -3552,7 +3795,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -3638,7 +3881,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -3735,7 +3978,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words probably removed from db")
+				um.call("3 control words removing processed")
 			)
 			self.assertEqual(
 
@@ -3828,7 +4071,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words probably removed from db")
+				um.call("3 control words removing processed")
 			)
 			self.assertEqual(
 
@@ -3921,7 +4164,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words probably removed from db")
+				um.call("3 control words removing processed")
 			)
 			self.assertEqual(
 
@@ -4010,7 +4253,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -4097,7 +4340,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -4184,7 +4427,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -4271,7 +4514,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("1 control word probably removed from db")
+				um.call("1 control word removing processed")
 			)
 			self.assertEqual(
 
@@ -4383,7 +4626,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words probably removed from db")
+				um.call("3 control words removing processed")
 			)
 			self.assertEqual(
 
@@ -4473,7 +4716,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words probably removed from db")
+				um.call("3 control words removing processed")
 			)
 			self.assertEqual(
 
@@ -4563,7 +4806,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.info.mock_calls[0],
-				um.call("3 control words probably removed from db")
+				um.call("3 control words removing processed")
 			)
 			self.assertEqual(
 
