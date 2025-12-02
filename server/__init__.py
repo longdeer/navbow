@@ -17,7 +17,6 @@ from tornado.web			import Application
 
 
 
-history = { "view": list(), "control": list() }
 control_sockets = dict()
 hosts = loads(getenv("ACCESS_LIST",r"{}"))
 irma = LibraryContrib(
@@ -44,7 +43,6 @@ async def app(outer_addr :str =None, outer_port :int =None):
 				IndexHandler,
 				{
 					"hosts":	set(hosts.get("view",[])),
-					"history":	history,
 					"loggy":	irma
 				}
 			),
@@ -62,7 +60,6 @@ async def app(outer_addr :str =None, outer_port :int =None):
 				{
 					"clients":	control_sockets,
 					"hosts":	set(hosts.get("view",[])),
-					"history":	history,
 					"loggy":	irma
 				}
 			),
@@ -81,7 +78,6 @@ async def app(outer_addr :str =None, outer_port :int =None):
 				{
 					"clients":	control_sockets,
 					"hosts":	set(hosts.get("receive",[])),
-					"history":	history,
 					"loggy":	irma
 				}
 			)

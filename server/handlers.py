@@ -11,6 +11,11 @@ from analyzer						import NavtexAnalyzer
 from db								import wordsdb_fetch
 from db								import wordsdb_remove
 from db								import wordsdb_add
+from db								import historydb_add_view
+from db								import historydb_fetch_view
+from db								import historydb_add_control
+from db								import historydb_fetch_control
+from db								import historydb_remove_control
 from pygwarts.magical.spells		import patronus
 from pygwarts.magical.time_turner	import TimeTurner
 from tornado.web					import RequestHandler
@@ -70,9 +75,8 @@ class NavbowRequestHandler(RequestHandler):
 
 
 class IndexHandler(NavbowRequestHandler):
-	def initialize(self, hosts :Set[str], history :Dict[str,List[str]], loggy):
+	def initialize(self, hosts :Set[str], loggy):
 
-		self.history = history
 		self.hosts = hosts
 		self.loggy = loggy
 
@@ -87,7 +91,15 @@ class IndexHandler(NavbowRequestHandler):
 			return self.render("restricted.html")
 
 		self.loggy.debug(f"index.html access granted for {src}")
-		return self.render("index.html", history=self.history)
+
+		view_history = historydb_fetch_view()
+		control_history = historydb_fetch_control()
+		history = {
+
+			"view": view_history if isinstance(view_history,list) else list(),
+			"control": control_history if isinstance(control_history,list) else list()
+		}
+		return self.render("index.html", history=history)
 
 
 
@@ -126,15 +138,9 @@ class WordsHandler(NavbowRequestHandler):
 
 
 class ViewerReceiverHandler(NavbowRequestHandler):
-	def initialize(	self,
-					clients	:Dict[str,RequestHandler],
-					history	:Dict[str,List[str]],
-					hosts	:Set[str],
-					loggy
-				):
+	def initialize(self, clients :Dict[str,RequestHandler], hosts :Set[str], loggy):
 
 		self.clients = clients
-		self.history = history
 		self.hosts = hosts
 		self.loggy = loggy
 
@@ -169,14 +175,13 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 
 
 								view = self.form_view(view, corrupted=content.get("corrupted"))
-								self.history["view"].insert(0,view)
+								historydb_add_view(view, src)
 								load = { "view": view }
 
 
 								if	isinstance((control := content.get("control")),list):
 
-									total = sorted(set(self.history["control"]) | set(control))
-									self.history["control"] = total
+									historydb_add_control(control, src)
 									load["control"] = control
 
 
@@ -220,8 +225,9 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 							for words in res["unknown"].values(): control |= set(words)
 							if	control:
 
-								self.history["control"] = sorted(set(self.history["control"]) | control)
-								load["control"] = sorted(control)
+								control = sorted(control)
+								historydb_add_control(control, src)
+								load["control"] = control
 
 					case _:
 
@@ -229,7 +235,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 						continue
 
 
-				self.history["view"].insert(0,load["view"])
+				historydb_add_view(load["view"], src)
 				await self.broadcast(name,load)
 
 
@@ -282,11 +288,7 @@ class NavbowWebSocketHandler(WebSocketHandler):
 		return attr
 
 
-	def initialize(	self,
-					clients	:Dict[str,RequestHandler],
-					hosts	:Set[str],
-					loggy
-				):
+	def initialize(self, clients :Dict[str,RequestHandler], hosts :Set[str], loggy):
 
 		self.clients = clients
 		self.hosts = hosts
@@ -332,15 +334,9 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 
 class ControllerSocketHandler(NavbowWebSocketHandler):
-	def initialize(	self,
-					clients	:Dict[str,RequestHandler],
-					history	:Dict[str,List[str]],
-					hosts	:Set[str],
-					loggy
-				):
+	def initialize(self, clients :Dict[str,RequestHandler], hosts :Set[str], loggy):
 
 		self.clients = clients
-		self.history = history
 		self.hosts = hosts
 		self.loggy = loggy
 
@@ -355,7 +351,7 @@ class ControllerSocketHandler(NavbowWebSocketHandler):
 				case [ "forget",word ]:
 
 					# Just removing "word" from "control" history
-					try:	self.history["control"].remove(word)
+					try:	historydb_remove_control(word)
 					except	Exception as E:
 
 						self.loggy.warning(f"Failed to forget \"{word}\" due to {patronus(E)}")
@@ -372,7 +368,7 @@ class ControllerSocketHandler(NavbowWebSocketHandler):
 							case str(): return await self.write_message({ "reason": response })
 							case tuple():
 
-								self.history["control"].remove(word)
+								historydb_remove_control(word)
 								self.loggy.info(f"\"{word}\" accepted by {src} ({self.current_connection_uuid})")
 								await self.broadcast("release",{ "released": word })
 
