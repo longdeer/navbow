@@ -10,13 +10,15 @@ if(db_root not in sys.path): sys.path.insert(0,db_root)
 import	unittest
 import	unittest.mock					as um
 from	sqlite3							import connect
-from	contextlib						import closing
+from	db								import wordsdb_init
 from	db								import wordsdb_match_set
 from	db								import wordsdb_fetch
 from	db								import wordsdb_remove
 from	db								import wordsdb_add
+from	db								import historydb_init_view
 from	db								import historydb_fetch_view
 from	db								import historydb_add_view
+from	db								import historydb_init_control
 from	db								import historydb_fetch_control
 from	db								import historydb_add_control
 from	db								import historydb_remove_control
@@ -48,9 +50,291 @@ class DatabaseCase(unittest.TestCase):
 		os.environ["WORDS_TABLE"] = "navbow_db_test"
 		os.environ["HISTORY_VIEW_TABLE"] = "navbow_hvdb_test"
 		os.environ["HISTORY_CONTROL_TABLE"] = "navbow_hcdb_test"
-		cls.words_table = "navbow_db_test"
-		cls.history_view_table = "navbow_hvdb_test"
-		cls.history_control_table = "navbow_hcdb_test"
+
+
+	def test_wordsdb_init(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+
+			self.assertEqual(
+
+				wordsdb_fetch(loggy=loggy),
+				"Query failed due to OperationalError: no such table: navbow_db_test"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
+			)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to OperationalError: no such table: navbow_db_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			self.assertIsNone(wordsdb_init(loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(
+
+					"Constructed query: CREATE TABLE IF NOT EXISTS navbow_db_test ("
+					"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
+					"added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+					"source TEXT"
+					")"
+				)
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			self.assertEqual(wordsdb_fetch(loggy=loggy),"No rows found in navbow_db_test")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word,added,source FROM navbow_db_test ORDER BY 2,1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("No rows found in navbow_db_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_init_view(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
+
+			self.assertEqual(
+
+				historydb_fetch_view(loggy=loggy),
+				"Query failed due to OperationalError: no such table: navbow_hvdb_test"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to OperationalError: no such table: navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			self.assertIsNone(historydb_init_view(loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(
+
+					"Constructed query: CREATE TABLE IF NOT EXISTS navbow_hvdb_test ("
+					"view TEXT UNIQUE NOT NULL PRIMARY KEY,"
+					"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+					"source TEXT"
+					")"
+				)
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			self.assertEqual(historydb_fetch_view(loggy=loggy),"No rows found in navbow_hvdb_test")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("No rows found in navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_init_control(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
+
+			self.assertEqual(
+
+				historydb_fetch_control(loggy=loggy),
+				"Query failed due to OperationalError: no such table: navbow_hcdb_test"
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Query failed due to OperationalError: no such table: navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			self.assertIsNone(historydb_init_control(loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call(
+
+					"Constructed query: CREATE TABLE IF NOT EXISTS navbow_hcdb_test ("
+					"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
+					"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+					"source TEXT"
+					")"
+				)
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+			loggy.reset_mock()
+			self.assertEqual(historydb_fetch_control(loggy=loggy),"No rows found in navbow_hcdb_test")
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("No rows found in navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+
+
+
+
 
 
 	def test_wordsdb_match_set_empty(self):
@@ -60,10 +344,8 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
-				self.connection.execute(
-					"CREATE TABLE %s (word TEXT UNIQUE NOT NULL PRIMARY KEY)"%self.words_table
-				)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+				self.connection.execute("CREATE TABLE navbow_db_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
 
 			self.assertEqual(wordsdb_match_set({ "OOH", "EEH" },loggy=loggy),set())
 			self.assertEqual(
@@ -103,11 +385,9 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
-				self.connection.execute(
-					"CREATE TABLE %s (word TEXT UNIQUE NOT NULL PRIMARY KEY)"%self.words_table
-				)
-				self.connection.execute("INSERT INTO %s VALUES ('OOH'),('EEH')"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+				self.connection.execute("CREATE TABLE navbow_db_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+				self.connection.execute("INSERT INTO navbow_db_test VALUES ('OOH'),('EEH')")
 
 			self.assertEqual(wordsdb_match_set({ "OOH" },loggy=loggy),{ "OOH" })
 			self.assertEqual(
@@ -144,11 +424,9 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
-				self.connection.execute(
-					"CREATE TABLE %s (word TEXT UNIQUE NOT NULL PRIMARY KEY)"%self.words_table
-				)
-				self.connection.execute("INSERT INTO %s VALUES ('OOH'),('EEH')"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+				self.connection.execute("CREATE TABLE navbow_db_test (word TEXT UNIQUE NOT NULL PRIMARY KEY)")
+				self.connection.execute("INSERT INTO navbow_db_test VALUES ('OOH'),('EEH')")
 
 			self.assertEqual(wordsdb_match_set({ "OOH", "EEH" },loggy=loggy),{ "OOH", "EEH" })
 			self.assertEqual(
@@ -187,7 +465,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 
 			self.assertEqual(
 
@@ -232,13 +510,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 
 			self.assertEqual(wordsdb_fetch(loggy=loggy),"No rows found in navbow_db_test")
@@ -280,13 +558,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 				self.connection.execute(
 					"""INSERT INTO navbow_db_test VALUES
@@ -338,7 +616,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 
 			self.assertEqual(
 
@@ -384,13 +662,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 				self.connection.execute(
 					"""INSERT INTO navbow_db_test VALUES
@@ -493,13 +771,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 
 			self.assertEqual(wordsdb_remove("OOH",loggy=loggy),"\"OOH\" cannot be removed cause it is not in db")
@@ -540,13 +818,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 				self.connection.execute(
 					"""INSERT INTO navbow_db_test VALUES
@@ -589,7 +867,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 
 			self.assertEqual(
 
@@ -624,7 +902,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 
 			self.assertEqual(
 
@@ -661,13 +939,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 
 			response = wordsdb_add("oOh", "127.0.0.1", loggy=loggy)
@@ -760,13 +1038,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 				self.connection.execute(
 					"""INSERT INTO navbow_db_test VALUES
@@ -815,13 +1093,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 				self.connection.execute(
-					"""CREATE TABLE %s (
+					"""CREATE TABLE navbow_db_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added TEXT,
 						source TEXT
-					)"""%self.words_table
+					)"""
 				)
 				self.connection.execute(
 					"""INSERT INTO navbow_db_test VALUES
@@ -869,7 +1147,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 
 			self.assertEqual(
 
@@ -904,7 +1182,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.words_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
 
 			self.assertEqual(
 
@@ -945,13 +1223,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hvdb_test VALUES
@@ -970,7 +1248,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
 			)
 			self.assertEqual(
 
@@ -996,13 +1274,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 
 			self.assertEqual(historydb_fetch_view(loggy=loggy),"No rows found in navbow_hvdb_test")
@@ -1014,7 +1292,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
 			)
 			self.assertEqual(
 
@@ -1039,7 +1317,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 
 			self.assertEqual(
 
@@ -1071,13 +1349,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_view("OOH", "127.0.0.1", loggy=loggy))
@@ -1125,7 +1403,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
 			)
 			self.assertEqual(
 
@@ -1154,13 +1432,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hvdb_test VALUES
@@ -1216,7 +1494,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
 			)
 			self.assertEqual(
 
@@ -1242,13 +1520,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 				self.connection.execute(
 					"INSERT INTO navbow_hvdb_test (view,source) VALUES %s"%(
@@ -1289,8 +1567,8 @@ class DatabaseCase(unittest.TestCase):
 				um.call(
 
 					"Constructed query: "
-					"DELETE FROM navbow_hvdb_test WHERE (view,added) IN ("
-					"SELECT view,added FROM navbow_hvdb_test ORDER BY 2 LIMIT 1"
+					"DELETE FROM navbow_hvdb_test WHERE (view,discovered) IN ("
+					"SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 LIMIT 1"
 					")"
 				)
 			)
@@ -1316,7 +1594,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
 			)
 			self.assertEqual(
 
@@ -1342,13 +1620,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 				self.connection.execute(
 					"INSERT INTO navbow_hvdb_test (view,source) VALUES %s"%(
@@ -1389,8 +1667,8 @@ class DatabaseCase(unittest.TestCase):
 				um.call(
 
 					"Constructed query: "
-					"DELETE FROM navbow_hvdb_test WHERE (view,added) IN ("
-					"SELECT view,added FROM navbow_hvdb_test ORDER BY 2 LIMIT 10"
+					"DELETE FROM navbow_hvdb_test WHERE (view,discovered) IN ("
+					"SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 LIMIT 10"
 					")"
 				)
 			)
@@ -1416,7 +1694,7 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[1],
-				um.call("Constructed query: SELECT view,added FROM navbow_hvdb_test ORDER BY 2 DESC")
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
 			)
 			self.assertEqual(
 
@@ -1446,13 +1724,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hvdb_test VALUES
@@ -1491,7 +1769,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 
 			self.assertEqual(
 
@@ -1523,13 +1801,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_view_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
 						view TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_view_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -1571,13 +1849,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -1621,13 +1899,13 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(historydb_fetch_control(loggy=loggy),"No rows found in navbow_hcdb_test")
@@ -1664,7 +1942,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 
 			self.assertEqual(
 
@@ -1706,13 +1984,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control("OOH", "127.0.0.1", loggy=loggy))
@@ -1776,13 +2054,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control({ "EEH" }, "127.0.0.1", loggy=loggy))
@@ -1846,13 +2124,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control([ "OOH" ], "127.0.0.1", loggy=loggy))
@@ -1916,13 +2194,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control(( "AH", ), "127.0.0.1", loggy=loggy))
@@ -1986,13 +2264,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control({ "OOH", "EEH", "AH" }, "127.0.0.1", loggy=loggy))
@@ -2058,13 +2336,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control([ "OOH", "EEH", "AH" ], "127.0.0.1", loggy=loggy))
@@ -2130,13 +2408,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertIsNone(historydb_add_control(( "OOH", "EEH", "AH" ), "127.0.0.1", loggy=loggy))
@@ -2206,13 +2484,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2290,13 +2568,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2374,13 +2652,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2458,13 +2736,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2542,13 +2820,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2628,13 +2906,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2714,13 +2992,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2800,13 +3078,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2883,13 +3161,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -2966,13 +3244,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3049,13 +3327,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3132,13 +3410,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3219,13 +3497,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3306,13 +3584,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3390,7 +3668,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 
 			self.assertEqual(
 
@@ -3422,13 +3700,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -3461,13 +3739,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -3500,13 +3778,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -3539,13 +3817,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -3588,13 +3866,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3674,13 +3952,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3760,13 +4038,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3846,13 +4124,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -3931,13 +4209,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4031,13 +4309,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4124,13 +4402,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4218,13 +4496,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4305,13 +4583,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4392,13 +4670,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4479,13 +4757,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4566,13 +4844,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4678,13 +4956,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4768,13 +5046,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 				self.connection.execute("""
 					INSERT INTO navbow_hcdb_test VALUES
@@ -4853,8 +5131,7 @@ class DatabaseCase(unittest.TestCase):
 			loggy = irma.return_value
 
 			with self.connection:
-
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 
 			self.assertEqual(
 
@@ -4890,13 +5167,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -4928,13 +5205,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
 						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -4966,13 +5243,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(
@@ -5004,13 +5281,13 @@ class DatabaseCase(unittest.TestCase):
 
 			with self.connection:
 
-				self.connection.execute("DROP TABLE IF EXISTS %s"%self.history_control_table)
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
 				self.connection.execute("""
-					CREATE TABLE IF NOT EXISTS %s (
+					CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
 						word TEXT UNIQUE NOT NULL PRIMARY KEY,
-						added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
 						source TEXT
-					)"""%self.history_control_table
+					)"""
 				)
 
 			self.assertEqual(

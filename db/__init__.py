@@ -69,6 +69,72 @@ def connection_manager(qurier :Callable[[str | Sequence[str]],Set[str] | List[st
 
 
 @connection_manager
+def wordsdb_init(connection :Connection, loggy :LibraryContrib) -> None | str :
+
+	query = str(
+		"CREATE TABLE IF NOT EXISTS " + getenv("WORDS_TABLE") + " ("
+		"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
+		"added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+		"source TEXT"
+		")"
+	)
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+
+
+
+
+
+
+
+@connection_manager
+def historydb_init_view(connection :Connection, loggy :LibraryContrib) -> None | str :
+
+	query = str(
+		"CREATE TABLE IF NOT EXISTS " + getenv("HISTORY_VIEW_TABLE") + " ("
+		"view TEXT UNIQUE NOT NULL PRIMARY KEY,"
+		"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+		"source TEXT"
+		")"
+	)
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+
+
+
+
+
+
+
+@connection_manager
+def historydb_init_control(connection :Connection, loggy :LibraryContrib) -> None | str :
+
+	query = str(
+		"CREATE TABLE IF NOT EXISTS " + getenv("HISTORY_CONTROL_TABLE") + " ("
+		"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
+		"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+		"source TEXT"
+		")"
+	)
+	loggy.debug(f"Constructed query: {query}")
+
+	connection.execute(query)
+	loggy.debug("Query result no exception")
+
+
+
+
+
+
+
+
+@connection_manager
 def wordsdb_match_set(targets :Sequence[str], connection :Connection, loggy :LibraryContrib) -> Set[str] :
 
 	"""
@@ -256,7 +322,7 @@ def wordsdb_add(
 def historydb_fetch_view(connection :Connection, loggy :LibraryContrib) -> List[str] | str :
 
 	table = getenv("HISTORY_VIEW_TABLE")
-	query = "SELECT view,added FROM %s ORDER BY 2 DESC"%table
+	query = "SELECT view,discovered FROM %s ORDER BY 2 DESC"%table
 	loggy.debug(f"Constructed query: {query}")
 
 	current = connection.execute(query).fetchall()
@@ -292,7 +358,7 @@ def historydb_add_view(target :str, src :str, connection :Connection, loggy :Lib
 
 	ts = TimeTurner().epoch
 	table = getenv("HISTORY_VIEW_TABLE")
-	query = "INSERT INTO %s (view,added,source) VALUES ('%s',%s,'%s')"%(table,target,ts,src)
+	query = "INSERT INTO %s (view,discovered,source) VALUES ('%s',%s,'%s')"%(table,target,ts,src)
 	loggy.debug(f"Constructed query: {query}")
 
 	connection.execute(query)
@@ -311,7 +377,7 @@ def historydb_add_view(target :str, src :str, connection :Connection, loggy :Lib
 
 	if	0 <(rem := count[0][0] -100):
 
-		query = "DELETE FROM %s WHERE (view,added) IN (SELECT view,added FROM %s ORDER BY 2 LIMIT %s)"%(
+		query = "DELETE FROM %s WHERE (view,discovered) IN (SELECT view,discovered FROM %s ORDER BY 2 LIMIT %s)"%(
 			table,table,rem
 		)
 		loggy.debug(f"Constructed query: {query}")
@@ -367,12 +433,12 @@ def historydb_add_control(
 	if	isinstance(targets,str):
 
 		l = 1
-		query = "INSERT OR IGNORE INTO %s (word,added,source) VALUES ('%s',%s,'%s')"%(
+		query = "INSERT OR IGNORE INTO %s (word,discovered,source) VALUES ('%s',%s,'%s')"%(
 			table, targets, TimeTurner().epoch, src
 		)
 	else:
 		l = len(targets)
-		query = "INSERT OR IGNORE INTO %s (word,added,source) VALUES %s"%(
+		query = "INSERT OR IGNORE INTO %s (word,discovered,source) VALUES %s"%(
 
 			table,
 			",".join( "('" + target + f"',{TimeTurner().epoch},'{src}')" for target in targets )
