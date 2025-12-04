@@ -47,8 +47,8 @@ if	__name__ == "__main__":
 		metavar="module",
 		nargs="*",
 		help=(
-			"run tests for analyzer | server | client | db modules by supplying corresponding "
-			"words arguments, or by omitting arguments to run all tests; any other arguments "
+			"run tests for analyzer | db modules | env file by supplying corresponding words "
+			"arguments, or by omitting arguments to run all tests; any other arguments "
 			"will be ignored."
 		)
 	)
@@ -172,22 +172,29 @@ if	__name__ == "__main__":
 
 		case 4:
 
-			for test_module in test_state or [ "analyzer", "server", "client" ]:
-				if	test_module == "db":
+			for test_module in test_state or [ "analyzer", "db", "env" ]:
+				match test_module:
 
-					from tests.unit_db				import *
+					case "env":
 
-				if	test_module == "analyzer":
+						from tests.unit_env				import *
 
-					from tests.unit_scanner			import *
-					from tests.unit_header			import *
-					from tests.unit_DTG				import *
-					from tests.unit_numerical		import *
-					from tests.unit_alphanumerical	import *
-					from tests.unit_coordinates		import *
-					from tests.unit_analyzer		import *
+					case "db":
+
+						from tests.unit_db				import *
+
+					case "analyzer":
+
+						from tests.unit_scanner			import *
+						from tests.unit_header			import *
+						from tests.unit_DTG				import *
+						from tests.unit_numerical		import *
+						from tests.unit_alphanumerical	import *
+						from tests.unit_coordinates		import *
+						from tests.unit_analyzer		import *
 
 			import unittest
+
 			unittest.main(verbosity=2, argv=[ argv[0] ])
 
 

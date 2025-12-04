@@ -74,7 +74,7 @@ def wordsdb_init(connection :Connection, loggy :LibraryContrib) -> None | str :
 	query = str(
 		"CREATE TABLE IF NOT EXISTS " + getenv("WORDS_TABLE") + " ("
 		"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
-		"added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+		"added REAL NOT NULL DEFAULT(UNIXEPOCH('now','subsec')),"
 		"source TEXT"
 		")"
 	)
@@ -96,7 +96,7 @@ def historydb_init_view(connection :Connection, loggy :LibraryContrib) -> None |
 	query = str(
 		"CREATE TABLE IF NOT EXISTS " + getenv("HISTORY_VIEW_TABLE") + " ("
 		"view TEXT UNIQUE NOT NULL PRIMARY KEY,"
-		"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+		"discovered REAL NOT NULL DEFAULT(UNIXEPOCH('now','subsec')),"
 		"source TEXT"
 		")"
 	)
@@ -118,7 +118,7 @@ def historydb_init_control(connection :Connection, loggy :LibraryContrib) -> Non
 	query = str(
 		"CREATE TABLE IF NOT EXISTS " + getenv("HISTORY_CONTROL_TABLE") + " ("
 		"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
-		"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+		"discovered REAL NOT NULL DEFAULT(UNIXEPOCH('now','subsec')),"
 		"source TEXT"
 		")"
 	)

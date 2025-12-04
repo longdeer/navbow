@@ -100,7 +100,7 @@ class DatabaseCase(unittest.TestCase):
 
 					"Constructed query: CREATE TABLE IF NOT EXISTS navbow_db_test ("
 					"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
-					"added REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+					"added REAL NOT NULL DEFAULT(UNIXEPOCH('now','subsec')),"
 					"source TEXT"
 					")"
 				)
@@ -193,7 +193,7 @@ class DatabaseCase(unittest.TestCase):
 
 					"Constructed query: CREATE TABLE IF NOT EXISTS navbow_hvdb_test ("
 					"view TEXT UNIQUE NOT NULL PRIMARY KEY,"
-					"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+					"discovered REAL NOT NULL DEFAULT(UNIXEPOCH('now','subsec')),"
 					"source TEXT"
 					")"
 				)
@@ -286,7 +286,7 @@ class DatabaseCase(unittest.TestCase):
 
 					"Constructed query: CREATE TABLE IF NOT EXISTS navbow_hcdb_test ("
 					"word TEXT UNIQUE NOT NULL PRIMARY KEY,"
-					"discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),"
+					"discovered REAL NOT NULL DEFAULT(UNIXEPOCH('now','subsec')),"
 					"source TEXT"
 					")"
 				)
