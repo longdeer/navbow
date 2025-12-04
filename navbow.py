@@ -90,8 +90,16 @@ if	__name__ == "__main__":
 
 			from asyncio	import run
 			from server		import app
+			from db			import wordsdb_init
+			from db			import historydb_init_view
+			from db			import historydb_init_control
 
-			if server_state == "environment" : run(app())
+			if	server_state == "environment":
+
+				wordsdb_init()
+				historydb_init_view()
+				historydb_init_control()
+				run(app())
 			else:
 				try:
 
@@ -103,14 +111,19 @@ if	__name__ == "__main__":
 					current_args.print_help()
 					print("\n\n\nFailed to parse address and port for server!")
 				else:
+					wordsdb_init()
+					historydb_init_view()
+					historydb_init_control()
 					run(app(addr, port))
 
 
 		case 2:
 
-			from analyzer import NavtexAnalyzer
+			from analyzer	import NavtexAnalyzer
+			from db			import wordsdb_init
 
 			navanalyzer = NavtexAnalyzer(getenv("STATION_LITERAL"))
+			wordsdb_init()
 			analysis = {}
 
 			for file in analyzer_state:

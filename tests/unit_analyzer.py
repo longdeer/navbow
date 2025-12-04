@@ -51,6 +51,7 @@ class AnalyzerCase(unittest.TestCase):
 
 		cls.connection.close()
 		if os.path.isfile(cls.db_path): os.remove(cls.db_path)
+		if os.path.isfile(cls.db_loggy_path): os.remove(cls.db_loggy_path)
 
 	@classmethod
 	def setUpClass(cls):
@@ -67,9 +68,11 @@ class AnalyzerCase(unittest.TestCase):
 		cls.spaces_file = os.path.join(tests_root, "msg", "spaces")
 		cls.corrupted_file = os.path.join(tests_root, "msg", "WZ29")
 		cls.db_path = os.path.join(tests_root, "analyzer_test.sqlite3")
+		cls.db_loggy_path = os.path.join(tests_root, "analyzer_test.loggy")
 		cls.connection = connect(cls.db_path)
 		cls.pseudo_message = "OOH EEH\nOOH AH AH\nTING TANG\nWALLA WALLA BING BANG"
 		os.environ["DB_PATH"] = cls.db_path
+		os.environ["DB_LOGGY"] = cls.db_loggy_path
 		os.environ["WORDS_TABLE"] = "navbow_test"
 
 
