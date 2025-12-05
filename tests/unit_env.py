@@ -122,6 +122,13 @@ class EnvFileCase(unittest.TestCase):
 		self.assertIsNotNone(os.getenv("HISTORY_CONTROL_TABLE"))
 		self.assertIsInstance(os.getenv("HISTORY_CONTROL_TABLE"),str)
 
+	def test_HISTORY_VIEW_LIMIT(self):
+
+		self.assertIsNotNone(os.getenv("HISTORY_VIEW_LIMIT"))
+		limit = loads(os.getenv("HISTORY_VIEW_LIMIT"))
+		self.assertIsInstance(limit,int)
+		self.assertGreater(limit,0)
+
 
 
 

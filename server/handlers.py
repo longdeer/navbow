@@ -94,12 +94,12 @@ class IndexHandler(NavbowRequestHandler):
 
 		view_history = historydb_fetch_view()
 		control_history = historydb_fetch_control()
-		history = {
+		content = {
 
-			"view": view_history if isinstance(view_history,list) else list(),
-			"control": control_history if isinstance(control_history,list) else list()
+			"view":		view_history if isinstance(view_history,list) else list(),
+			"control":	control_history if isinstance(control_history,list) else list()
 		}
-		return self.render("index.html", history=history)
+		return self.render("index.html", content=content)
 
 
 

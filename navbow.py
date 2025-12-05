@@ -13,7 +13,6 @@ from dotenv		import load_dotenv
 
 if	__name__ == "__main__":
 
-
 	current_args = ArgumentParser(
 
 		prog="Navtex bag of words analyzer",

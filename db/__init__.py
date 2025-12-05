@@ -375,15 +375,18 @@ def historydb_add_view(target :str, src :str, connection :Connection, loggy :Lib
 	loggy.debug("Query result no exception")
 
 
-	if	0 <(rem := count[0][0] -100):
+	try:
+		if	0 <(rem := count[0][0] - int(getenv("HISTORY_VIEW_LIMIT"))):
 
-		query = "DELETE FROM %s WHERE (view,discovered) IN (SELECT view,discovered FROM %s ORDER BY 2 LIMIT %s)"%(
-			table,table,rem
-		)
-		loggy.debug(f"Constructed query: {query}")
+			query = "DELETE FROM %s WHERE (view,discovered) IN (SELECT view,discovered FROM %s ORDER BY 2 LIMIT %s)"%(
+				table,table,rem
+			)
+			loggy.debug(f"Constructed query: {query}")
 
-		connection.execute(query)
-		loggy.debug("Query result no exception")
+			connection.execute(query)
+			loggy.debug("Query result no exception")
+
+	except	Exception as E: loggy.warning(f"Failed to limit view table due to {patronus(E)}")
 
 
 

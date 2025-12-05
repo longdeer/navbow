@@ -50,6 +50,7 @@ class DatabaseCase(unittest.TestCase):
 		os.environ["WORDS_TABLE"] = "navbow_db_test"
 		os.environ["HISTORY_VIEW_TABLE"] = "navbow_hvdb_test"
 		os.environ["HISTORY_CONTROL_TABLE"] = "navbow_hcdb_test"
+		os.environ["HISTORY_VIEW_LIMIT"] = "100"
 
 
 	def test_wordsdb_init(self):
@@ -1515,6 +1516,8 @@ class DatabaseCase(unittest.TestCase):
 
 	def test_historydb_add_view_overflow(self):
 
+		os.environ["HISTORY_VIEW_LIMIT"] = "100"
+
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
 
@@ -1615,6 +1618,8 @@ class DatabaseCase(unittest.TestCase):
 
 	def test_historydb_add_view_overflow_more(self):
 
+		os.environ["HISTORY_VIEW_LIMIT"] = "100"
+
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
 			loggy = irma.return_value
 
@@ -1709,6 +1714,71 @@ class DatabaseCase(unittest.TestCase):
 			self.assertEqual(
 
 				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+	def test_historydb_add_view_overflow_exception(self):
+
+		os.environ["HISTORY_VIEW_LIMIT"] = "lOO"
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+			loggy = irma.return_value
+
+			with self.connection:
+
+				self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
+				self.connection.execute("""
+					CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
+						view TEXT UNIQUE NOT NULL PRIMARY KEY,
+						discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+						source TEXT
+					)"""
+				)
+				self.connection.execute(
+					"INSERT INTO navbow_hvdb_test (view,source) VALUES %s"%(
+						",".join( f"('{str(i).zfill(5)}','127.0.0.{i}')" for i in range(1,110) )
+					)
+				)
+			self.assertIsNone(historydb_add_view("OOH", "127.0.0.102", loggy=loggy))
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			# INSERT query construction omitted cause of timestamp accuracy
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("3 symbols view successfully added to db")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call("Constructed query: SELECT COUNT(*) FROM navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[4],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call(
+
+					"Failed to limit view table due to ValueError: "
+					"invalid literal for int() with base 10: 'lOO'"
+				)
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[5],
 				um.call(f"Closing connection to db: \"{self.db_path}\"")
 			)
 
