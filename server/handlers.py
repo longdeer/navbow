@@ -204,7 +204,6 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 			for name,content in targets.items():
 
 				analysis = analyzer(content)
-				response[name] = analysis
 				load = dict()
 
 				match analysis:
@@ -235,6 +234,7 @@ class ViewerReceiverHandler(NavbowRequestHandler):
 						continue
 
 
+				response[name] = { "analysis": analysis, "view": load["view"] }
 				historydb_add_view(load["view"], src)
 				await self.broadcast(name,load)
 
