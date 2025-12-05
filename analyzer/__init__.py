@@ -241,6 +241,7 @@ class NavtexAnalyzer:
 						analysis["known"][i][word] += 1
 						state |= 16
 
+
 				for word in unknown:
 					for i in pend[word]:
 
@@ -453,7 +454,9 @@ class NavtexAnalyzer:
 			match = G_NAVTEX_MESSAGE_HEADER.fullmatch(header)
 			station, subject, number = match.group("tcB1", "tcB2", "tcB34")
 
-			if	station == self.station : return station, subject, number
+			if	station == self.station and (number != "00" or subject in "ABDL"):
+
+				return station, subject, number
 		except:	return
 
 

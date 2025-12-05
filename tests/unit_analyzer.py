@@ -144,7 +144,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("A")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC A{subject}00"),
+					( "A", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -159,7 +166,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("B")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC B{subject}00"),
+					( "B", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -174,7 +188,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("C")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC C{subject}00"),
+					( "C", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -189,7 +210,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("D")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC D{subject}00"),
+					( "D", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -204,7 +232,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("E")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC E{subject}00"),
+					( "E", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -219,7 +254,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("F")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC F{subject}00"),
+					( "F", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -234,7 +276,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("G")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC G{subject}00"),
+					( "G", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -249,7 +298,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("H")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC H{subject}00"),
+					( "H", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -264,7 +320,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("I")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC I{subject}00"),
+					( "I", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -279,7 +342,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("J")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC J{subject}00"),
+					( "J", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -294,7 +364,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("K")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC K{subject}00"),
+					( "K", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -309,7 +386,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("L")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC L{subject}00"),
+					( "L", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -324,7 +408,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("M")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC M{subject}00"),
+					( "M", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -339,7 +430,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("N")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC N{subject}00"),
+					( "N", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -354,7 +452,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("O")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC O{subject}00"),
+					( "O", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -369,7 +474,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("P")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC P{subject}00"),
+					( "P", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -384,7 +496,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("Q")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC Q{subject}00"),
+					( "Q", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -399,7 +518,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("R")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC R{subject}00"),
+					( "R", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -414,7 +540,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("S")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC S{subject}00"),
+					( "S", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -429,7 +562,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("T")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC T{subject}00"),
+					( "T", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -444,7 +584,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("U")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC U{subject}00"),
+					( "U", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -459,7 +606,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("V")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC V{subject}00"),
+					( "V", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -474,7 +628,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("W")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC W{subject}00"),
+					( "W", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -489,7 +650,14 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("X")
 
 		for subject in B2:
-			for i in range(100):
+			if	subject in "ABDL":
+
+				self.assertEqual(
+
+					analyzer.validate_header(f"ZCZC X{subject}00"),
+					( "X", subject, "00" )
+				)
+			for i in range(1,100):
 
 				number = str(i).zfill(2)
 				self.assertEqual(
@@ -499,16 +667,342 @@ class AnalyzerCase(unittest.TestCase):
 				)
 
 
-	def test_invalid_header(self):
+
+
+	def test_A_invalid_header(self):
 
 		analyzer = NavtexAnalyzer("A")
 
 		for invalid in (
 
-			"ZCZC", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			"ZCZC", "ZCZC AB1", "ZCZC AB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
 			[ "ZCZC AB00" ],( "ZCZC AB00", ),{ "ZCZC AB00" },{ "header": "ZCZC AB00" }
 		):
-			self.assertFalse(analyzer.validate_header(invalid))
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC A{subject}00"))
+
+
+	def test_B_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("B")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC BB1", "ZCZC BB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC BB00" ],( "ZCZC BB00", ),{ "ZCZC BB00" },{ "header": "ZCZC BB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC B{subject}00"))
+
+
+	def test_C_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("C")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC CB1", "ZCZC CB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC CB00" ],( "ZCZC CB00", ),{ "ZCZC CB00" },{ "header": "ZCZC CB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC C{subject}00"))
+
+
+	def test_D_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("D")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC DB1", "ZCZC DB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC DB00" ],( "ZCZC DB00", ),{ "ZCZC DB00" },{ "header": "ZCZC DB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC D{subject}00"))
+
+
+	def test_E_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("E")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC EB1", "ZCZC EB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC EB00" ],( "ZCZC EB00", ),{ "ZCZC EB00" },{ "header": "ZCZC EB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC E{subject}00"))
+
+
+	def test_F_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("F")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC FB1", "ZCZC FB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC FB00" ],( "ZCZC FB00", ),{ "ZCZC FB00" },{ "header": "ZCZC FB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC F{subject}00"))
+
+
+	def test_G_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("G")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC GB1", "ZCZC GB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC GB00" ],( "ZCZC GB00", ),{ "ZCZC GB00" },{ "header": "ZCZC GB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC G{subject}00"))
+
+
+	def test_H_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("H")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC HB1", "ZCZC HB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC HB00" ],( "ZCZC HB00", ),{ "ZCZC HB00" },{ "header": "ZCZC HB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC H{subject}00"))
+
+
+	def test_I_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("I")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC IB1", "ZCZC IB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC IB00" ],( "ZCZC IB00", ),{ "ZCZC IB00" },{ "header": "ZCZC IB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC I{subject}00"))
+
+
+	def test_J_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("J")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC JB1", "ZCZC JB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC JB00" ],( "ZCZC JB00", ),{ "ZCZC JB00" },{ "header": "ZCZC JB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC J{subject}00"))
+
+
+	def test_K_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("K")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC KB1", "ZCZC KB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC KB00" ],( "ZCZC KB00", ),{ "ZCZC KB00" },{ "header": "ZCZC KB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC K{subject}00"))
+
+
+	def test_L_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("L")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC LB1", "ZCZC LB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC LB00" ],( "ZCZC LB00", ),{ "ZCZC LB00" },{ "header": "ZCZC LB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC L{subject}00"))
+
+
+	def test_M_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("M")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC MB1", "ZCZC MB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC MB00" ],( "ZCZC MB00", ),{ "ZCZC MB00" },{ "header": "ZCZC MB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC M{subject}00"))
+
+
+	def test_N_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("N")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC NB1", "ZCZC NB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC NB00" ],( "ZCZC NB00", ),{ "ZCZC NB00" },{ "header": "ZCZC NB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC N{subject}00"))
+
+
+	def test_O_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("O")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC OB1", "ZCZC OB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC OB00" ],( "ZCZC OB00", ),{ "ZCZC OB00" },{ "header": "ZCZC OB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC O{subject}00"))
+
+
+	def test_P_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("P")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC PB1", "ZCZC PB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC PB00" ],( "ZCZC PB00", ),{ "ZCZC PB00" },{ "header": "ZCZC PB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC P{subject}00"))
+
+
+	def test_Q_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("Q")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC QB1", "ZCZC QB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC QB00" ],( "ZCZC QB00", ),{ "ZCZC QB00" },{ "header": "ZCZC QB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC Q{subject}00"))
+
+
+	def test_R_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("R")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC RB1", "ZCZC RB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC RB00" ],( "ZCZC RB00", ),{ "ZCZC RB00" },{ "header": "ZCZC RB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC R{subject}00"))
+
+
+	def test_S_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("S")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC SB1", "ZCZC SB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC SB00" ],( "ZCZC SB00", ),{ "ZCZC SB00" },{ "header": "ZCZC SB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC S{subject}00"))
+
+
+	def test_T_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("T")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC TB1", "ZCZC TB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC TB00" ],( "ZCZC TB00", ),{ "ZCZC TB00" },{ "header": "ZCZC TB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC T{subject}00"))
+
+
+	def test_U_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("U")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC UB1", "ZCZC UB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC UB00" ],( "ZCZC UB00", ),{ "ZCZC UB00" },{ "header": "ZCZC UB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC U{subject}00"))
+
+
+	def test_V_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("V")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC VB1", "ZCZC VB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC VB00" ],( "ZCZC VB00", ),{ "ZCZC VB00" },{ "header": "ZCZC VB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC V{subject}00"))
+
+
+	def test_W_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("W")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC WB1", "ZCZC WB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC WB00" ],( "ZCZC WB00", ),{ "ZCZC WB00" },{ "header": "ZCZC WB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC W{subject}00"))
+
+
+	def test_X_invalid_header(self):
+
+		analyzer = NavtexAnalyzer("X")
+
+		for invalid in (
+
+			"ZCZC", "ZCZC XB1", "ZCZC XB100", int(), float(), bool(), None, ..., print, unittest, NavtexAnalyzer,
+			[ "ZCZC XB00" ],( "ZCZC XB00", ),{ "ZCZC XB00" },{ "header": "ZCZC XB00" }
+		):
+			self.assertIsNone(analyzer.validate_header(invalid))
+
+		for subject in "CEFGHIJKVWXYZ": self.assertIsNone(analyzer.validate_header(f"ZCZC X{subject}00"))
 
 
 
