@@ -75,6 +75,8 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 
 			if 1 <len(current) and current[-1] == "." : current.pop()
 			if current : words[i].append(str().join(current))
+
+
 	return	words,stack
 
 
@@ -84,23 +86,33 @@ def word_scan(lines :List[List[str]]) -> Tuple[Dict[int,List[str]],List[Tuple[in
 
 
 
-def decoder(B :bytes, ptr1 :List[str], ptr2 :List[bool], flag :bool):
+def decoder(B :bytes, tp :List[str], bp :List[bool], nlp :List[bool], crp :List[bool]) -> Tuple[str,bool]:
 
 	"""
 		Decoder for a single byte "B" as ASCII symbol. Successfully decoded bit will be added
-		to string which "ptr1" points to. Boolean "flag" will decide wether "\\r" will be treated
-		like "\\n" or not. In case of fail with non-ASCII symbol, "*" will be added and False
-		will be stored for "ptr2" pointer.
+		to string which "tp" points to. Any "\\n" or "\\r" or consecutive pair of "\\r" and "\\n"
+		or "\\n" and "\\r" will be treated as single new line character "\\n". In case of fail with
+		non-ASCII symbol, "*" will be added to "tp" pointer and False will be stored for "bp" pointer.
 	"""
 
 	try:
 
 		match (symbol := B.decode("ascii")):
 
-			case "\r":	ptr1[0] += "\n" if flag else ""
-			case _:		ptr1[0] += symbol
+			case "\r" if nlp[0]:	nlp[0] = False
+			case "\r" if crp[0]:	tp[0] += "\n"
 
-	except:	ptr1[0],ptr2[0] = ptr1[0] + "*",True
+			case "\n" if crp[0]:	crp[0] = False
+			case "\n" if nlp[0]:	tp[0] += "\n"
+
+			case "\r":				tp[0],crp[0] = tp[0] + "\n",True
+			case "\n":				tp[0],nlp[0] = tp[0] + "\n",True
+
+			case _ if crp[0]:		tp[0],crp[0] = tp[0] + symbol,False
+			case _ if nlp[0]:		tp[0],nlp[0] = tp[0] + symbol,False
+			case _:					tp[0] += symbol
+
+	except:	tp[0],bp[0] = tp[0] + "*",True
 
 
 
@@ -109,33 +121,37 @@ def decoder(B :bytes, ptr1 :List[str], ptr2 :List[bool], flag :bool):
 
 
 
-def byte_scan(target :str | Path | bytes, carriage :bool =False) -> Tuple[bool,str] :
+def byte_scan(target :str | Path | bytes) -> Tuple[bool,str] :
 
 	"""
 		Reads "target" file path in byte mode or as already bytes object or a text string and
 		recreates whole text. If any not ASCII symbol will be encountered, it will be substituted
-		with "*" and "broken" flag will be set to True. Optional flag "carriage" allows treating
-		carriage return symbol "\\r" as new line. Returns the tuple of "broken" flag and
+		with "*" and "broken" flag will be set to True. Returns the tuple of "broken" flag and
 		recreated text string. Empty "target" will produce ( False,"" ). Doesn't handle any
-		possible Exceptions, but ensures "target" is either accessible file or a bytes object.
+		possible Exceptions, but ensures "target" is either the text, accessible file path
+		or a bytes object.
 	"""
 
+	NL		= [ False ]
+	CR		= [ False ]
 	text	= [ str() ]
 	broken	= [ False ]
 
 	match target:
+
 		case str() | Path() if ospath.isfile(target) and osaccess(target, R_OK):
 
 			with open(target, "rb") as file:
-				while(B := file.read(1)): decoder(B, text, broken, carriage)
+				while(B := file.read(1)): decoder(B, text, broken, NL, CR)
 
 		case str():
-			for B in map(partial(bytes, encoding="utf-8"), target): decoder(B, text, broken, carriage)
+			for B in map(partial(bytes, encoding="utf-8"), target): decoder(B, text, broken, NL, CR)
 
 		case bytes():
-			for B in map(lambda i : target[i:i+1],range(len(target))): decoder(B, text, broken, carriage)
+			for B in map(lambda i : target[i:i+1],range(len(target))): decoder(B, text, broken, NL, CR)
 
 		case _: return True,text[0]
+
 	return broken[0],text[0]
 
 
@@ -153,14 +169,14 @@ def sanit_state(path :str | Path) -> Dict[str,int|Set|List] | None :
 			- air_lines, fully sanitized proper strings of lines split;
 			- chunks, set of strings (every word);
 			- symbols, all non-whitespace symbols in the message.
-		Flag "carriage" by default set to True for "byte_scan" to account for any symbols encountered.
 		Also maintains a "sanit" state integer that is:
 			- zero at start;
 			- has first bit set if any proper line "proper" encountered;
 			- has second bit set if any proper line "proper" and corresponding "raw" line
 			inequality encountered.
-		Returns the dictionary of mentioned key-value pairs in case of False value , or a dictionary with
-		zero "sanit" and "message" string from "byte_scan" if one encountered not ASCII symbol.
+		Returns the dictionary of mentioned key-value pairs in case of False value of "byte_scan"
+		returned false broken flag, or a dictionary with zero "sanit" and "message" string from
+		"byte_scan" otherwise.
 	"""
 
 	F,message	= byte_scan(path)

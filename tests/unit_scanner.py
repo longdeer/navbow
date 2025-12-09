@@ -315,6 +315,52 @@ class SannerCase(unittest.TestCase):
 
 
 
+	def test_byte_scan_direct_NL(self):
+
+		origin = "\nZCZC AZ42\nNO MESSAGE ON HAND\n"
+		broken,message = byte_scan(origin)
+		self.assertFalse(broken)
+		self.assertEqual(message,origin)
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_direct_CR(self):
+
+		broken,message = byte_scan("\rZCZC AZ42\rNO MESSAGE ON HAND\r")
+		self.assertFalse(broken)
+		self.assertEqual(message,"\nZCZC AZ42\nNO MESSAGE ON HAND\n")
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_direct_CRNL(self):
+
+		broken,message = byte_scan("\r\nZCZC AZ42\r\nNO MESSAGE ON HAND\r\n")
+		self.assertFalse(broken)
+		self.assertEqual(message,"\nZCZC AZ42\nNO MESSAGE ON HAND\n")
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_direct_NLCR(self):
+
+		broken,message = byte_scan("\n\rZCZC AZ42\n\rNO MESSAGE ON HAND\n\r")
+		self.assertFalse(broken)
+		self.assertEqual(message,"\nZCZC AZ42\nNO MESSAGE ON HAND\n")
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_direct_equal_mesh(self):
+
+		broken,message = byte_scan("\r\n\n\rZCZC AZ42\r\r\n\nNO MESSAGE ON HAND\r\n\n\r")
+		self.assertFalse(broken)
+		self.assertEqual(message,"\n\nZCZC AZ42\n\n\nNO MESSAGE ON HAND\n\n")
+		self.assertFalse("*" in message)
+
+	def test_byte_scan_direct_inequal_mesh(self):
+
+		broken,message = byte_scan("\r\n\r\n\rZCZC AZ42\r\r\n\r\nNO MESSAGE ON HAND\r\n\n\n\r")
+		self.assertFalse(broken)
+		self.assertEqual(message,"\n\n\nZCZC AZ42\n\n\nNO MESSAGE ON HAND\n\n\n")
+		self.assertFalse("*" in message)
+
+
+
+
 	def test_byte_scan_corrupted_file(self):
 
 		broken,message = byte_scan(self.corrupted_file)
