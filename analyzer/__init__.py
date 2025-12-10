@@ -391,9 +391,10 @@ class NavtexAnalyzer:
 
 		try:
 
-			for line,words in analysis.items():
-				for word,count in words.items():
+			for line in sorted(analysis):
+				for word in sorted(analysis[line]):
 
+					count = analysis[line][word]
 					pretty_message += "\nunknown %sword%s \"%s\" at line %s"%(
 
 						f"{count} " if 1 <count else "",
@@ -425,9 +426,10 @@ class NavtexAnalyzer:
 
 		try:
 
-			for line,puncts in analysis.items():
-				for punct,count in puncts.items():
+			for line in sorted(analysis):
+				for punct in sorted(analysis[line]):
 
+					count = analysis[line][punct]
 					pretty_message += "\nunmatched %s\"%s\" at line %s"%(
 
 						f"{count} " if 1 <count else "",

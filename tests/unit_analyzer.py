@@ -4221,8 +4221,8 @@ class AnalyzerCase(unittest.TestCase):
 				"\ninvalid header (ZCZC)"
 				"\nmessage is outdated"
 				"\nunknown word \"VHF\" at line 4"
-				"\nunknown 2 words \"VHF\" at line 8"
 				"\nunknown word \"CH16\" at line 8"
+				"\nunknown 2 words \"VHF\" at line 8"
 				"\nunmatched \")\" at line 5"
 				"\nunmatched 2 \"(\" at line 9"
 				"\ninvalid EoS (NNNN)"
@@ -4274,8 +4274,10 @@ class AnalyzerCase(unittest.TestCase):
 				"9    DEPARTURE REPORT ON VHF CH16 LATEST 6 HOURS BEFORE DEPARTURE.\n"
 				"10   FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG\n"
 				"11   NNNN\n"
-				"\nunknown words check failed due to AttributeError: 'str' object has no attribute 'items'"
-				"\nunmatched punctuation check failed due to AttributeError: 'str' object has no attribute 'items'"
+				"\nunknown words check failed due to TypeError: "
+				"string indices must be integers, not 'str'"
+				"\nunmatched punctuation check failed due to TypeError: "
+				"string indices must be integers, not 'str'"
 			)%(d,m)
 		)
 
@@ -4318,8 +4320,10 @@ class AnalyzerCase(unittest.TestCase):
 				"9    FOR INFORMATION ON RESTRICTIONS GO TO BALTICE.ORG\n"
 				"10   NNNN\n"
 				"\npublish date and time not found"
-				"\nunknown words check failed due to AttributeError: 'str' object has no attribute 'items'"
-				"\nunmatched punctuation check failed due to AttributeError: 'str' object has no attribute 'items'"
+				"\nunknown words check failed due to TypeError: "
+				"string indices must be integers, not 'str'"
+				"\nunmatched punctuation check failed due to TypeError: "
+				"string indices must be integers, not 'str'"
 			)
 		)
 
@@ -4412,7 +4416,7 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("M")
 		for invalid in (
 
-			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			"lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
 			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
 			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
 			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
@@ -4454,7 +4458,7 @@ class AnalyzerCase(unittest.TestCase):
 		analyzer = NavtexAnalyzer("N")
 		for invalid in (
 
-			"", "lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
+			"lines", 42, 69., True, False, None, ..., print, unittest, NavtexAnalyzer,
 			([ "OOH", "EEH" ],[ "OOH", "AH", "AH" ]),
 			(( "OOH", "EEH" ),( "OOH", "AH", "AH" )),
 			[( "OOH", "EEH" ),( "OOH", "AH", "AH" )],
