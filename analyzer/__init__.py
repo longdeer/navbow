@@ -223,10 +223,10 @@ class NavtexAnalyzer:
 					for word in line:
 
 
-						if		P_COORDINATE.fullmatch(word): analysis["coords"][i][word]		+= 1
-						elif	P_ALPHANUMERICAL.fullmatch(word): analysis["alnums"][i][word]	+= 1
-						elif	P_NUMERICAL.fullmatch(word): analysis["nums"][i][word]			+= 1
-						else:	pend[word].append(i)
+						if		P_COORDINATE.fullmatch(word): analysis["coords"][i+1][word]		+= 1
+						elif	P_ALPHANUMERICAL.fullmatch(word): analysis["alnums"][i+1][word]	+= 1
+						elif	P_NUMERICAL.fullmatch(word): analysis["nums"][i+1][word]		+= 1
+						else:	pend[word].append(i +1)
 
 
 				pending_words = set(pend.keys())

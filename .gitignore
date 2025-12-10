@@ -223,3 +223,6 @@ randomscan*
 
 # loggy files
 *.loggy
+
+# systemd service files
+*.service
