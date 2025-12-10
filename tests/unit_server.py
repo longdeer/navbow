@@ -13,6 +13,7 @@ from	collections						import namedtuple
 from	sqlite3							import connect
 from	server.handlers					import NavbowRequestHandler
 from	server.handlers					import IndexHandler
+from	server.handlers					import WordsHandler
 from	pygwarts.magical.time_turner	import TimeTurner
 
 
@@ -25,6 +26,7 @@ from	pygwarts.magical.time_turner	import TimeTurner
 class ServerCase(unittest.IsolatedAsyncioTestCase):
 
 	maxDiff = None
+
 	@classmethod
 	def setUpClass(cls):
 
@@ -169,6 +171,123 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 				um.call("index.html access denied for 10.11.12.13")
 			)
 			self.assertEqual(handler.render.mock_calls[0],um.call("restricted.html"))
+
+
+
+
+
+
+
+
+	async def test_WordsHandler_get(self):
+
+		with self.connection:
+
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=1).epoch
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+			self.connection.execute(
+				"""CREATE TABLE navbow_db_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					added REAL,
+					source TEXT
+				)"""
+			)
+			self.connection.execute(
+				"""INSERT INTO navbow_db_test VALUES
+					("OOH",{ts2},"127.0.0.2"),
+					("EEH",{ts1},"127.0.0.1"),
+					("AH",{ts3},"127.0.0.3")
+				""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+			)
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.request = namedtuple("request",[ "remote_ip" ])("10.11.12.13")
+			handler.hosts = { "10.11.12.13" }
+
+			response = WordsHandler.get(handler)
+
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call("words.html access granted for 10.11.12.13")
+			)
+			self.assertEqual(
+
+				handler.render.mock_calls[0],
+				um.call(
+
+					"words.html",
+					content=[
+
+						( "OOH",ts2,"127.0.0.2" ),
+						( "EEH",ts1,"127.0.0.1" ),
+						( "AH",ts3,"127.0.0.3" )
+					]
+				)
+			)
+
+
+	async def test_WordsHandler_get_restricted(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.request = namedtuple("request",[ "remote_ip" ])("10.11.12.13")
+			handler.hosts = { "10.10.10.10" }
+
+			response = WordsHandler.get(handler)
+
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("words.html access denied for 10.11.12.13")
+			)
+			self.assertEqual(handler.render.mock_calls[0],um.call("restricted.html"))
+
+
+	async def test_WordsHandler_get_failed(self):
+
+		with self.connection:
+			self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.request = namedtuple("request",[ "remote_ip" ])("10.11.12.13")
+			handler.hosts = { "10.11.12.13" }
+
+			response = WordsHandler.get(handler)
+
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call("words.html access granted for 10.11.12.13")
+			)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Database content was not fetched by route handler")
+			)
+			self.assertEqual(handler.render.mock_calls[0],um.call("words.html",content=[]))
+
+
+
+
+
+
+
+
 if __name__ == "__main__" : unittest.main(verbosity=2)
 
 
