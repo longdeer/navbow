@@ -14,6 +14,7 @@ from	sqlite3							import connect
 from	server.handlers					import NavbowRequestHandler
 from	server.handlers					import IndexHandler
 from	server.handlers					import WordsHandler
+from	server.handlers					import ViewerReceiverHandler
 from	pygwarts.magical.time_turner	import TimeTurner
 
 
@@ -28,8 +29,15 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 	maxDiff = None
 
 	@classmethod
+	def tearDownClass(cls):
+
+		cls.connection.close()
+		if os.path.isfile(cls.db_path): os.remove(cls.db_path)
+
+	@classmethod
 	def setUpClass(cls):
 
+		cls.NA22 = os.path.join(tests_root, "msg", "NA22")
 		cls.db_path = os.path.join(tests_root, "db_test.sqlite3")
 		cls.connection = connect(cls.db_path)
 		os.environ["DB_PATH"] = cls.db_path
@@ -280,6 +288,100 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 				um.call("Database content was not fetched by route handler")
 			)
 			self.assertEqual(handler.render.mock_calls[0],um.call("words.html",content=[]))
+
+
+
+
+
+
+
+
+	async def test_ViewerReceiverHandler_raw(self):
+
+		with self.connection:
+
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=-2).epoch
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+			self.connection.execute(
+				"""CREATE TABLE navbow_db_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					added REAL,
+					source TEXT
+				)"""
+			)
+			self.connection.execute(
+				"""INSERT INTO navbow_db_test VALUES
+						("UTC",{ts2},"127.0.0.2"),
+						("MAR",{ts1},"127.0.0.1"),
+						("NORWEGIAN",{ts3},"127.0.0.3"),
+						("NAV",{ts3},"127.0.0.3"),
+						("WARNING",{ts3},"127.0.0.3"),
+						("CHART",{ts3},"127.0.0.3"),
+						("AREA",{ts3},"127.0.0.3"),
+						("IS",{ts3},"127.0.0.3"),
+						("INOPERATIVE",{ts3},"127.0.0.3")
+				""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+			)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
+			self.connection.execute("""
+				CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
+					view TEXT UNIQUE NOT NULL PRIMARY KEY,
+					discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+					source TEXT
+				)"""
+			)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
+			self.connection.execute("""
+				CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+					source TEXT
+				)"""
+			)
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			os.environ["STATION_LITERAL"] = "N"
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.hosts = { "10.11.12.13" }
+			handler.broadcast = um.AsyncMock()
+			handler.accept = um.AsyncMock()
+			Req = namedtuple("request",[ "remote_ip","files" ])
+			with open(self.NA22,"rb") as F:
+				handler.request = Req(
+
+					"10.11.12.13",
+					{
+						"NA22": [{
+
+							"filename":	"NA22",
+							"body":		F.read()
+						}]
+					}
+				)
+			view = str(
+
+				"1    ZCZC NA22\n"
+				"2    110905 UTC MAR 19\n"
+				"3    NORWEGIAN NAV. WARNING 184/2019\n"
+				"4    CHART N36\n"
+				"5    AREA GRIP\n"
+				"6    HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE\n"
+				"7    NNNN\n"
+				"\nmessage is outdated"
+				"\nunknown word \"GRIP\" at line 5"
+				"\nunknown word \"HILBAAAN\" at line 6"
+				"\nunknown word \"RACON\" at line 6"
+			)
+
+			await ViewerReceiverHandler.post(handler)
+
+			self.assertEqual(handler.form_view.mock_calls[0],um.call(view))
 
 
 
