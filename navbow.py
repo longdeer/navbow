@@ -46,7 +46,7 @@ if	__name__ == "__main__":
 		metavar="module",
 		nargs="*",
 		help=(
-			"run tests for analyzer | db modules | env file by supplying corresponding words "
+			"run tests for analyzer | server | db modules | env file by supplying corresponding words "
 			"arguments, or by omitting arguments to run all tests; any other arguments "
 			"will be ignored."
 		)
@@ -171,8 +171,12 @@ if	__name__ == "__main__":
 
 		case 4:
 
-			for test_module in test_state or [ "analyzer", "db", "env" ]:
+			for test_module in test_state or [ "analyzer", "server", "db", "env" ]:
 				match test_module:
+
+					case "server":
+
+						from tests.unit_server			import *
 
 					case "env":
 

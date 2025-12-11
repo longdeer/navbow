@@ -10,11 +10,14 @@ if(db_root not in sys.path): sys.path.insert(0,db_root)
 import	unittest
 import	unittest.mock					as um
 from	collections						import namedtuple
+from	collections						import defaultdict
 from	sqlite3							import connect
 from	server.handlers					import NavbowRequestHandler
 from	server.handlers					import IndexHandler
 from	server.handlers					import WordsHandler
 from	server.handlers					import ViewerReceiverHandler
+from	db								import historydb_fetch_view
+from	db								import historydb_fetch_control
 from	pygwarts.magical.time_turner	import TimeTurner
 
 
@@ -351,6 +354,7 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 			handler.hosts = { "10.11.12.13" }
 			handler.broadcast = um.AsyncMock()
 			handler.accept = um.AsyncMock()
+			handler.form_view.return_value = "formed_view"
 			Req = namedtuple("request",[ "remote_ip","files" ])
 			with open(self.NA22,"rb") as F:
 				handler.request = Req(
@@ -382,6 +386,128 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 			await ViewerReceiverHandler.post(handler)
 
 			self.assertEqual(handler.form_view.mock_calls[0],um.call(view))
+			self.assertEqual(
+
+				handler.broadcast.mock_calls[0],
+				um.call("NA22",{ "view": "formed_view", "control": [ "GRIP","HILBAAAN","RACON" ]})
+			)
+			self.assertEqual(
+
+				handler.accept.mock_calls[0],
+				um.call(
+					{
+						"NA22": {
+							"analysis": {
+								"analysis": {
+
+									"coords": { 6: { "63-12.0N": 1, "007-43.8E": 1 }},
+									'alnums': { 4: { "N36": 1 }},
+									"nums": {
+
+										2: { "110905": 1, "19": 1 },
+										3: { "184/2019": 1 }
+									},
+									"known": {
+
+										6: { "INOPERATIVE": 1, "IS": 1 },
+										3: { "WARNING": 1, "NORWEGIAN": 1, "NAV": 1 },
+										4: { "CHART": 1 },
+										2: { "MAR": 1, "UTC": 1 },
+										5: { "AREA": 1 }
+									},
+									'unknown': {
+
+										6: { "RACON": 1, "HILBAAAN": 1 },
+										5: { "GRIP": 1 }
+									},
+									"punct": {},
+									"header": ("N", "A", "22"),
+									"DTG": 1552284300.0
+								},
+								"state": 127,
+								"air": [
+									["ZCZC", "NA22"],
+									["110905", "UTC", "MAR", "19"],
+									["NORWEGIAN", "NAV.", "WARNING", "184/2019"],
+									["CHART", "N36"],
+									["AREA", "GRIP"],
+									["HILBAAAN", "RACON", "63-12.0N", "007-43.8E", "IS", "INOPERATIVE"],
+									["NNNN"]
+								],
+								"raw": [
+									"ZCZC NA22",
+									"110905 UTC MAR 19",
+									"NORWEGIAN NAV. WARNING 184/2019",
+									"CHART  N36",
+									"AREA GRIP",
+									"HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE",
+									"NNNN",
+									""
+								]
+							},
+							"view": "formed_view"
+						}
+					}
+				)
+			)
+			loggy.reset_mock()
+			self.assertEqual(historydb_fetch_view(loggy=loggy),[ "formed_view" ])
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			self.assertEqual(
+
+				historydb_fetch_control(loggy=loggy),
+				[ "GRIP","HILBAAAN","RACON" ]
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
 
 
 
