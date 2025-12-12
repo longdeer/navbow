@@ -12,6 +12,7 @@ import	unittest.mock					as um
 from	collections						import namedtuple
 from	collections						import defaultdict
 from	sqlite3							import connect
+from	json							import dumps
 from	server.handlers					import NavbowRequestHandler
 from	server.handlers					import IndexHandler
 from	server.handlers					import WordsHandler
@@ -299,7 +300,7 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 
 
 
-	async def test_ViewerReceiverHandler_raw(self):
+	async def test_ViewerReceiverHandler_files(self):
 
 		with self.connection:
 
@@ -367,6 +368,218 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 							"body":		F.read()
 						}]
 					}
+				)
+			view = str(
+
+				"1    ZCZC NA22\n"
+				"2    110905 UTC MAR 19\n"
+				"3    NORWEGIAN NAV. WARNING 184/2019\n"
+				"4    CHART N36\n"
+				"5    AREA GRIP\n"
+				"6    HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE\n"
+				"7    NNNN\n"
+				"\nmessage is outdated"
+				"\nunknown word \"GRIP\" at line 5"
+				"\nunknown word \"HILBAAAN\" at line 6"
+				"\nunknown word \"RACON\" at line 6"
+			)
+
+			await ViewerReceiverHandler.post(handler)
+
+			self.assertEqual(handler.form_view.mock_calls[0],um.call(view))
+			self.assertEqual(
+
+				handler.broadcast.mock_calls[0],
+				um.call("NA22",{ "view": "formed_view", "control": [ "GRIP","HILBAAAN","RACON" ]})
+			)
+			self.assertEqual(
+
+				handler.accept.mock_calls[0],
+				um.call(
+					{
+						"NA22": {
+							"analysis": {
+								"analysis": {
+
+									"coords": { 6: { "63-12.0N": 1, "007-43.8E": 1 }},
+									'alnums': { 4: { "N36": 1 }},
+									"nums": {
+
+										2: { "110905": 1, "19": 1 },
+										3: { "184/2019": 1 }
+									},
+									"known": {
+
+										6: { "INOPERATIVE": 1, "IS": 1 },
+										3: { "WARNING": 1, "NORWEGIAN": 1, "NAV": 1 },
+										4: { "CHART": 1 },
+										2: { "MAR": 1, "UTC": 1 },
+										5: { "AREA": 1 }
+									},
+									'unknown': {
+
+										6: { "RACON": 1, "HILBAAAN": 1 },
+										5: { "GRIP": 1 }
+									},
+									"punct": {},
+									"header": ("N", "A", "22"),
+									"DTG": 1552284300.0
+								},
+								"state": 127,
+								"air": [
+									["ZCZC", "NA22"],
+									["110905", "UTC", "MAR", "19"],
+									["NORWEGIAN", "NAV.", "WARNING", "184/2019"],
+									["CHART", "N36"],
+									["AREA", "GRIP"],
+									["HILBAAAN", "RACON", "63-12.0N", "007-43.8E", "IS", "INOPERATIVE"],
+									["NNNN"]
+								],
+								"raw": [
+									"ZCZC NA22",
+									"110905 UTC MAR 19",
+									"NORWEGIAN NAV. WARNING 184/2019",
+									"CHART  N36",
+									"AREA GRIP",
+									"HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE",
+									"NNNN",
+									""
+								]
+							},
+							"view": "formed_view"
+						}
+					}
+				)
+			)
+			loggy.reset_mock()
+			self.assertEqual(historydb_fetch_view(loggy=loggy),[ "formed_view" ])
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			self.assertEqual(
+
+				historydb_fetch_control(loggy=loggy),
+				[ "GRIP","HILBAAAN","RACON" ]
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+
+
+
+
+
+
+	async def test_ViewerReceiverHandler_messages(self):
+
+		with self.connection:
+
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=-2).epoch
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+			self.connection.execute(
+				"""CREATE TABLE navbow_db_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					added REAL,
+					source TEXT
+				)"""
+			)
+			self.connection.execute(
+				"""INSERT INTO navbow_db_test VALUES
+						("UTC",{ts2},"127.0.0.2"),
+						("MAR",{ts1},"127.0.0.1"),
+						("NORWEGIAN",{ts3},"127.0.0.3"),
+						("NAV",{ts3},"127.0.0.3"),
+						("WARNING",{ts3},"127.0.0.3"),
+						("CHART",{ts3},"127.0.0.3"),
+						("AREA",{ts3},"127.0.0.3"),
+						("IS",{ts3},"127.0.0.3"),
+						("INOPERATIVE",{ts3},"127.0.0.3")
+				""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+			)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
+			self.connection.execute("""
+				CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
+					view TEXT UNIQUE NOT NULL PRIMARY KEY,
+					discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+					source TEXT
+				)"""
+			)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
+			self.connection.execute("""
+				CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+					source TEXT
+				)"""
+			)
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			os.environ["STATION_LITERAL"] = "N"
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.hosts = { "10.11.12.13" }
+			handler.broadcast = um.AsyncMock()
+			handler.accept = um.AsyncMock()
+			handler.form_view.return_value = "formed_view"
+			Req = namedtuple("request",[ "remote_ip","files","body" ])
+			with open(self.NA22) as F:
+				handler.request = Req(
+
+					"10.11.12.13",
+					None,
+					dumps({ "messages":{ "NA22": F.read() }})
 				)
 			view = str(
 
