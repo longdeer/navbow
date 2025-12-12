@@ -17,6 +17,7 @@ from	server.handlers					import NavbowRequestHandler
 from	server.handlers					import IndexHandler
 from	server.handlers					import WordsHandler
 from	server.handlers					import ViewerReceiverHandler
+from	analyzer						import NavtexAnalyzer
 from	db								import historydb_fetch_view
 from	db								import historydb_fetch_control
 from	pygwarts.magical.time_turner	import TimeTurner
@@ -662,6 +663,162 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 						}
 					}
 				)
+			)
+			loggy.reset_mock()
+			self.assertEqual(historydb_fetch_view(loggy=loggy),[ "formed_view" ])
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT view,discovered FROM navbow_hvdb_test ORDER BY 2 DESC")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 1 row from navbow_hvdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+			loggy.reset_mock()
+			self.assertEqual(
+
+				historydb_fetch_control(loggy=loggy),
+				[ "GRIP","HILBAAAN","RACON" ]
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[0],
+				um.call(f"Established connection to db: \"{self.db_path}\"")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[1],
+				um.call("Constructed query: SELECT word FROM navbow_hcdb_test ORDER BY 1")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[2],
+				um.call("Query result no exception")
+			)
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Fetched 3 rows from navbow_hcdb_test")
+			)
+			self.assertEqual(
+
+				loggy.debug.mock_calls[3],
+				um.call(f"Closing connection to db: \"{self.db_path}\"")
+			)
+
+
+
+
+
+
+
+
+	async def test_ViewerReceiverHandler_analysis(self):
+
+		with self.connection:
+
+			ts1 = TimeTurner().epoch
+			ts2 = TimeTurner(days=-1).epoch
+			ts3 = TimeTurner(days=-2).epoch
+
+			self.connection.execute("DROP TABLE IF EXISTS navbow_db_test")
+			self.connection.execute(
+				"""CREATE TABLE navbow_db_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					added REAL,
+					source TEXT
+				)"""
+			)
+			self.connection.execute(
+				"""INSERT INTO navbow_db_test VALUES
+						("UTC",{ts2},"127.0.0.2"),
+						("MAR",{ts1},"127.0.0.1"),
+						("NORWEGIAN",{ts3},"127.0.0.3"),
+						("NAV",{ts3},"127.0.0.3"),
+						("WARNING",{ts3},"127.0.0.3"),
+						("CHART",{ts3},"127.0.0.3"),
+						("AREA",{ts3},"127.0.0.3"),
+						("IS",{ts3},"127.0.0.3"),
+						("INOPERATIVE",{ts3},"127.0.0.3")
+				""".format(ts1=ts1, ts2=ts2, ts3=ts3)
+			)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_hvdb_test")
+			self.connection.execute("""
+				CREATE TABLE IF NOT EXISTS navbow_hvdb_test (
+					view TEXT UNIQUE NOT NULL PRIMARY KEY,
+					discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+					source TEXT
+				)"""
+			)
+			self.connection.execute("DROP TABLE IF EXISTS navbow_hcdb_test")
+			self.connection.execute("""
+				CREATE TABLE IF NOT EXISTS navbow_hcdb_test (
+					word TEXT UNIQUE NOT NULL PRIMARY KEY,
+					discovered REAL NOT NULL DEFAULT (CURRENT_TIMESTAMP +0),
+					source TEXT
+				)"""
+			)
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			os.environ["STATION_LITERAL"] = "N"
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.hosts = { "10.11.12.13" }
+			handler.broadcast = um.AsyncMock()
+			handler.accept = um.AsyncMock()
+			handler.form_view.return_value = "formed_view"
+			Req = namedtuple("request",[ "remote_ip","files","body" ])
+			analysis =  NavtexAnalyzer("N")(self.NA22)
+			load = {
+				"analysis": {
+					"NA22": { "view": NavtexAnalyzer.pretty_air(analysis) }
+				}
+			}
+			control = set()
+			for words in analysis["analysis"]["unknown"].values(): control |= set(words)
+			if control: load["analysis"]["NA22"]["control"] = sorted(control)
+			handler.request = Req("10.11.12.13", None, dumps(load))
+			view = str(
+
+				"1    ZCZC NA22\n"
+				"2    110905 UTC MAR 19\n"
+				"3    NORWEGIAN NAV. WARNING 184/2019\n"
+				"4    CHART N36\n"
+				"5    AREA GRIP\n"
+				"6    HILBAAAN RACON 63-12.0N 007-43.8E IS INOPERATIVE\n"
+				"7    NNNN\n"
+				"\nmessage is outdated"
+				"\nunknown word \"GRIP\" at line 5"
+				"\nunknown word \"HILBAAAN\" at line 6"
+				"\nunknown word \"RACON\" at line 6"
+			)
+
+			await ViewerReceiverHandler.post(handler)
+
+			self.assertEqual(handler.form_view.mock_calls[0],um.call(view,corrupted=None))
+			self.assertEqual(
+
+				handler.broadcast.mock_calls[0],
+				um.call("NA22",{ "view": "formed_view", "control": [ "GRIP","HILBAAAN","RACON" ]})
 			)
 			loggy.reset_mock()
 			self.assertEqual(historydb_fetch_view(loggy=loggy),[ "formed_view" ])
