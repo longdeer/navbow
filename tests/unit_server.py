@@ -886,6 +886,58 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 
 
 
+	async def test_ViewerReceiverHandler_deny_body(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			os.environ["STATION_LITERAL"] = "N"
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.hosts = { "10.11.12.13" }
+			handler.deny = um.AsyncMock()
+			Req = namedtuple("request",[ "remote_ip","files","body" ])
+			handler.request = Req("10.11.12.13", None, dumps({ "OOH": "EEH" }))
+
+			await ViewerReceiverHandler.post(handler)
+
+			self.assertEqual(
+
+				handler.deny.mock_calls[0],
+				um.call(422, "data transfer", "10.11.12.13")
+			)
+
+
+
+
+	async def test_ViewerReceiverHandler_deny_host(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			os.environ["STATION_LITERAL"] = "N"
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.hosts = { "10.11.12.14" }
+			handler.deny = um.AsyncMock()
+			Req = namedtuple("request",[ "remote_ip","files","body" ])
+			handler.request = Req("10.11.12.13", None, dumps({ "OOH": "EEH" }))
+
+			await ViewerReceiverHandler.post(handler)
+
+			self.assertEqual(
+
+				handler.deny.mock_calls[0],
+				um.call(403, "data transfer", "10.11.12.13")
+			)
+
+
+
+
+
+
+
+
 if __name__ == "__main__" : unittest.main(verbosity=2)
 
 
