@@ -934,6 +934,49 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 
 
 
+	def test_form_timestamp(self):
+
+		handler = um.Mock()
+		p = TimeTurner()
+		r = ViewerReceiverHandler.form_timestamp(handler)
+		self.assertRegex(r,r"---- \w+ \w+ \d\d? \d{4} \d\d:\d\d:\d\d \(local time\)")
+
+
+	def test_form_view_valid(self):
+
+		handler = um.Mock()
+		handler.form_timestamp.return_value = "formed"
+		p = TimeTurner()
+		r = ViewerReceiverHandler.form_view(handler,"view")
+		self.assertEqual(r,"formed\n\nview")
+
+
+	def test_form_view_valid_corrupted(self):
+
+		handler = um.Mock()
+		handler.form_timestamp.return_value = "formed"
+		p = TimeTurner()
+		r = ViewerReceiverHandler.form_view(handler,"view",corrupted=True)
+		self.assertEqual(
+			r,"formed\n\ncorrupted message\n\nview\n\n* must be checked in original file"
+		)
+
+
+	def test_form_view_invalid(self):
+
+		handler = um.Mock()
+		handler.form_timestamp.return_value = "formed"
+		for invalid in (
+
+			42, .69, True, False, None, ..., unittest, print,
+			[ "view" ],( "view", ),{ "view" },{ "view": "view" }
+		):
+			self.assertIsNone(ViewerReceiverHandler.form_view(handler,invalid))
+			self.assertIsNone(ViewerReceiverHandler.form_view(handler,invalid,corrupted=True))
+
+
+
+
 
 
 
