@@ -17,6 +17,7 @@ from	server.handlers					import NavbowRequestHandler
 from	server.handlers					import IndexHandler
 from	server.handlers					import WordsHandler
 from	server.handlers					import ViewerReceiverHandler
+from	server.handlers					import NavbowWebSocketHandler
 from	analyzer						import NavtexAnalyzer
 from	db								import historydb_fetch_view
 from	db								import historydb_fetch_control
@@ -973,6 +974,119 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 		):
 			self.assertIsNone(ViewerReceiverHandler.form_view(handler,invalid))
 			self.assertIsNone(ViewerReceiverHandler.form_view(handler,invalid,corrupted=True))
+
+
+
+
+
+
+
+
+	async def test_NavbowWebSocketHandler_broadcast(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			client1 = um.Mock()
+			client2 = um.Mock()
+			client3 = um.Mock()
+			client1.write_message = um.AsyncMock()
+			client2.write_message = um.AsyncMock()
+			client3.write_message = um.AsyncMock()
+			clients = { "1": client1, "2": client2, "3": client3 }
+			handler.clients = clients
+			load = { "load": "load" }
+
+			await NavbowWebSocketHandler.broadcast(handler, "item", load)
+
+			self.assertEqual(loggy.info.mock_calls[0],um.call("Sending \"item\" to 1"))
+			self.assertEqual(loggy.info.mock_calls[1],um.call("Sending \"item\" to 2"))
+			self.assertEqual(loggy.info.mock_calls[2],um.call("Sending \"item\" to 3"))
+			self.assertEqual(client1.write_message.mock_calls[0],um.call(load))
+			self.assertEqual(client2.write_message.mock_calls[0],um.call(load))
+			self.assertEqual(client3.write_message.mock_calls[0],um.call(load))
+
+
+
+
+	async def test_NavbowWebSocketHandler_broadcast_invalid_clients(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			load = { "load": "load" }
+
+			for i,invalid in enumerate([
+
+				"clients", 420, .69, True, False, None, ..., unittest, print,
+				[ "clients" ],( "clients" ),{ "clients" }
+			]):
+				handler.clients = invalid
+				await NavbowWebSocketHandler.broadcast(handler, "item", load)
+				self.assertEqual(
+
+					loggy.warning.mock_calls[i],
+					um.call("Invalid broadcast clients mapping")
+				)
+
+
+
+
+	async def test_NavbowWebSocketHandler_broadcast_no_clients(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			load = { "load": "load" }
+
+			await NavbowWebSocketHandler.broadcast(handler, "item", load)
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Invalid broadcast clients mapping")
+			)
+
+
+
+
+	async def test_NavbowWebSocketHandler_broadcast_invalid_socket(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.clients = { "1": "socket" }
+			load = { "load": "load" }
+
+			for invalid,T in (
+
+				( 420,"'int' object" ),( .69,"'float' object" ),( True,"'bool' object" ),
+				( False,"'bool' object" ),( None,"'NoneType' object" ),
+				( ...,"'ellipsis' object" ),( unittest,"module 'unittest'" ),
+				( print,"'builtin_function_or_method' object" ),([ "socket" ],"'list' object" ),
+				(( "socket", ),"'tuple' object" ),({ "socket" },"'set' object" ),
+				({ "socket": "socket" },"'dict' object" )
+			):
+				handler.clients["1"] = invalid
+				await NavbowWebSocketHandler.broadcast(handler, "item", load)
+				self.assertEqual(loggy.info.mock_calls[0],um.call("Sending \"item\" to 1"))
+				self.assertEqual(
+
+					loggy.error.mock_calls[0],
+					um.call(
+
+						"Couldn't send to 1 due to AttributeError: "
+						f"{T} has no attribute 'write_message'"
+					)
+				)
+				loggy.reset_mock()
 
 
 

@@ -297,10 +297,18 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 	async def broadcast(self, item :str, load :Dict[Any,Any]):
 
-		for client,socket in self.clients.items():
+		if	isinstance(clients := getattr(self, "clients", None), dict):
+			for client,socket in clients.items():
 
-			self.loggy.info(f"Sending \"{item}\" to {client}")
-			await socket.write_message(load)
+				try:
+
+					self.loggy.info(f"Sending \"{item}\" to {client}")
+					await socket.write_message(load)
+
+				except Exception as E:
+
+					self.loggy.error(f"Couldn't send to {client} due to {patronus(E)}")
+		else:		self.loggy.warning(f"Invalid broadcast clients mapping")
 
 
 	def open(self):
