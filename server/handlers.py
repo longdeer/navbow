@@ -329,10 +329,12 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 	def on_close(self):
 
-		if	hasattr(self, "current_connection_uuid"):
+		if	isinstance(client := getattr(self, "current_connection_uuid"), str):
 
-			del self.clients[self.current_connection_uuid]
-			self.loggy.info(f"closed connection ({self.current_connection_uuid})")
+			try:	del self.clients[client]
+			except	Exception as E: self.loggy.error(f"Failed to close {client} connection due to {patronus(E)}")
+			else:	self.loggy.info(f"Closed connection ({client})")
+		else:		self.loggy.warning("Connection was not established or UUID was lost")
 
 
 

@@ -1095,6 +1095,78 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 
 
 
+	async def test_NavbowWebSocketHandler_on_close(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.current_connection_uuid = "32d17456-dd16-11f0-9187-30c9abfb986d"
+			clients = {
+
+				"51f016b3-dd16-11f0-b630-30c9abfb986d": "client1",
+				"32d17456-dd16-11f0-9187-30c9abfb986d": "client2"
+			}
+			self.assertIn("32d17456-dd16-11f0-9187-30c9abfb986d",clients)
+			self.assertIn("51f016b3-dd16-11f0-b630-30c9abfb986d",clients)
+			handler.clients = clients
+
+			NavbowWebSocketHandler.on_close(handler)
+
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call("Closed connection (32d17456-dd16-11f0-9187-30c9abfb986d)")
+			)
+			self.assertNotIn("32d17456-dd16-11f0-9187-30c9abfb986d",clients)
+			self.assertIn("51f016b3-dd16-11f0-b630-30c9abfb986d",clients)
+
+
+	async def test_NavbowWebSocketHandler_on_close_Exception(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.current_connection_uuid = "32d17456-dd16-11f0-9187-30c9abfb986d"
+			handler.clients = "clients"
+
+			NavbowWebSocketHandler.on_close(handler)
+
+			self.assertEqual(
+
+				loggy.error.mock_calls[0],
+				um.call(
+
+					"Failed to close 32d17456-dd16-11f0-9187-30c9abfb986d connection "
+					"due to TypeError: 'str' object does not support item deletion")
+			)
+
+
+	async def test_NavbowWebSocketHandler_on_close_no_uuid(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+
+			NavbowWebSocketHandler.on_close(handler)
+
+			self.assertEqual(
+
+				loggy.warning.mock_calls[0],
+				um.call("Connection was not established or UUID was lost")
+			)
+
+
+
+
+
+
+
 if __name__ == "__main__" : unittest.main(verbosity=2)
 
 
