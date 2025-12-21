@@ -1009,8 +1009,6 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 			self.assertEqual(client3.write_message.mock_calls[0],um.call(load))
 
 
-
-
 	async def test_NavbowWebSocketHandler_broadcast_invalid_clients(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
@@ -1034,8 +1032,6 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 				)
 
 
-
-
 	async def test_NavbowWebSocketHandler_broadcast_no_clients(self):
 
 		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
@@ -1051,8 +1047,6 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 				loggy.warning.mock_calls[0],
 				um.call("Invalid broadcast clients mapping")
 			)
-
-
 
 
 	async def test_NavbowWebSocketHandler_broadcast_invalid_socket(self):
@@ -1091,6 +1085,30 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 
 
 
+	async def test_NavbowWebSocketHandler_open(self):
+
+		with um.patch("pygwarts.irma.contrib.LibraryContrib") as irma:
+
+			loggy = irma.return_value
+			handler = um.Mock()
+			handler.loggy = loggy
+			handler.clients = dict()
+			handler.request = namedtuple("request",[ "remote_ip" ])("10.11.12.13")
+			handler.hosts = { "10.11.12.13" }
+
+			self.assertFalse(handler.clients)
+			self.assertNotIsInstance(handler.current_connection_uuid, str)
+
+			NavbowWebSocketHandler.open(handler)
+
+			client = handler.current_connection_uuid
+			self.assertIsInstance(client, str)
+			self.assertEqual(handler.clients,{ client: handler })
+			self.assertEqual(
+
+				loggy.info.mock_calls[0],
+				um.call(f"Opened websocket for 10.11.12.13 ({client})")
+			)
 
 
 
@@ -1160,6 +1178,7 @@ class ServerCase(unittest.IsolatedAsyncioTestCase):
 				loggy.warning.mock_calls[0],
 				um.call("Connection was not established or UUID was lost")
 			)
+
 
 
 

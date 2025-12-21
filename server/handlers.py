@@ -313,18 +313,24 @@ class NavbowWebSocketHandler(WebSocketHandler):
 
 	def open(self):
 
-		src = self.request.remote_ip
-
-		if	src in self.hosts:
-
-			self.current_connection_uuid = uuid1()
-			self.clients[self.current_connection_uuid] = self
-			self.loggy.info(f"opened websocket for {src} ({self.current_connection_uuid})")
-
+		try:	src = self.request.remote_ip
+		except	Exception as E: self.loggy.warning("Failed to obtain address for connection")
 		else:
 
-			self.close(1008, "Source address not allowed")
-			self.loggy.info(f"denied websocket for {src}")
+			try:
+
+				if	src in self.hosts:
+
+					self.current_connection_uuid = str(uuid1())
+					self.clients[self.current_connection_uuid] = self
+					self.loggy.info(f"Opened websocket for {src} ({self.current_connection_uuid})")
+
+				else:
+
+					self.close(1008, "Source address not allowed")
+					self.loggy.info(f"Denied websocket for {src}")
+
+			except	Exception as E: self.loggy.warning(f"Failed to open connection for {src}")
 
 
 	def on_close(self):
